@@ -113,7 +113,7 @@ export default function DashboardLayout({ nav, children }) {
           <button
             onClick={async () => { await logout(); navigate('/login'); }}
             data-testid="logout-button"
-            className="w-full flex items-center justify-center gap-2 py-2.5 bg-surface/50 hover:bg-accent/10 border border-transparent hover:border-accent/20 text-muted hover:text-accent rounded-lg transition-all text-xs uppercase tracking-widest font-semibold"
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-accent hover:bg-accent/80 text-white rounded-lg transition-all text-xs uppercase tracking-widest font-bold shadow-lg shadow-accent/20"
           >
             <LogOut size={15} aria-hidden="true" /> Sair do Sistema
           </button>
