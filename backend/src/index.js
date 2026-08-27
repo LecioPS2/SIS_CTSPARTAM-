@@ -72,6 +72,8 @@ app.use((err, req, res, next) => {
 process.on('unhandledRejection', (err) => console.error('unhandledRejection:', err));
 
 const PORT = process.env.PORT || 8002;
-connectDb().then(() => {
-  app.listen(PORT, '127.0.0.1', () => console.log(`Node backend rodando na porta ${PORT}`));
+app.listen(PORT, '127.0.0.1', () => {
+  console.log(`Node backend rodando na porta ${PORT}`);
+  // Inicia a conexão com o banco em background para não travar o boot da Hostinger
+  connectDb().catch(err => console.error('Falha crítica no DB:', err));
 });
