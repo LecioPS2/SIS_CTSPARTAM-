@@ -21,7 +21,7 @@ export default function DashboardLayout({ nav, children }) {
 
   return (
     <div className="min-h-screen flex">
-      <aside className="w-56 shrink-0 bg-card border-r border-line flex flex-col fixed inset-y-0 z-30" data-testid="sidebar">
+      <aside className="w-56 shrink-0 bg-card border border-line rounded-xl flex flex-col fixed left-4 top-4 bottom-4 z-30 overflow-hidden" data-testid="sidebar">
         <div className="flex items-center gap-2 px-5 h-16 border-b border-line">
           <img src="/logo.png" alt="CT Spartan" className="w-8 h-8" />
           <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>
@@ -58,8 +58,8 @@ export default function DashboardLayout({ nav, children }) {
           </button>
         </div>
       </aside>
-      <div className="flex-1 ml-56 flex flex-col">
-        <header className="sticky top-0 z-20 h-16 bg-card/90 backdrop-blur-xl border-b border-line flex items-center justify-between px-6 gap-4" data-testid="dashboard-header">
+      <div className="flex-1 ml-64 flex flex-col px-6 pt-4">
+        <header className="sticky top-4 z-20 h-16 bg-card/90 backdrop-blur-xl border border-line rounded-xl flex items-center justify-between px-6 gap-4" data-testid="dashboard-header">
           <div className="relative w-full max-w-sm">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
             <input
@@ -91,7 +91,7 @@ export default function DashboardLayout({ nav, children }) {
             </div>
           </div>
         </header>
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 py-8 px-2">{children}</main>
       </div>
     </div>
   );
