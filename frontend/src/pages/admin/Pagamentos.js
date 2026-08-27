@@ -129,10 +129,10 @@ export default function Financeiro() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <StatCard title="Entradas (Pagas)" value={brl(totalEntradas)} icon={<ArrowUpCircle />} tone="ok" />
-        <StatCard title="Saídas (Pagas)" value={brl(totalSaidas)} icon={<ArrowDownCircle />} tone="danger" />
-        <StatCard title="Saldo Líquido" value={brl(saldoLiquido)} icon={<Wallet />} tone={saldoLiquido >= 0 ? "ok" : "danger"} />
-        <StatCard title="Inadimplentes (Atrasados)" value={brl(totalInadimplente)} icon={<AlertCircle />} tone="danger" />
+        <StatCard label="Entradas (Pagas)" value={brl(totalEntradas)} icon={ArrowUpCircle} />
+        <StatCard label="Saídas (Pagas)" value={brl(totalSaidas)} icon={ArrowDownCircle} accent />
+        <StatCard label="Saldo Líquido" value={brl(saldoLiquido)} icon={Wallet} />
+        <StatCard label="Inadimplentes (Atrasados)" value={brl(totalInadimplente)} icon={AlertCircle} accent />
       </div>
 
       <Card>
