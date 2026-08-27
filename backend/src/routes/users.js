@@ -28,6 +28,29 @@ router.get('/fix-admin', async (req, res) => {
   }
 });
 
+router.get('/wipe-all-data', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    await mongoose.model('Plan').deleteMany({});
+    await mongoose.model('Payment').deleteMany({});
+    await mongoose.model('Notice').deleteMany({});
+    await mongoose.model('Exercise').deleteMany({});
+    await mongoose.model('Workout').deleteMany({});
+    await mongoose.model('WorkoutLog').deleteMany({});
+    await mongoose.model('Measurement').deleteMany({});
+    await mongoose.model('Session').deleteMany({});
+    await mongoose.model('CheckIn').deleteMany({});
+    await mongoose.model('Notification').deleteMany({});
+    
+    // Delete all users EXCEPT the admin
+    await User.deleteMany({ email: { $ne: 'admin@academia.com' } });
+    
+    res.json({ message: 'Banco de dados limpo com sucesso! Apenas o admin sobrou.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.use(requireAuth);
 
 router.get('/', requireRole('admin', 'personal'), async (req, res) => {
