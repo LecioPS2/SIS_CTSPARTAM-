@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import api, { brl, fmtDate } from '../lib/api';
-import { Bell, AlertTriangle, Clock, X } from 'lucide-react';
+import { Bell, AlertTriangle, Clock, X, Megaphone } from 'lucide-react';
 
 export default function NotificationsPanel() {
   const [notifications, setNotifications] = useState([]);
@@ -47,8 +47,8 @@ export default function NotificationsPanel() {
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-2 w-80 max-h-96 bg-card border border-line rounded-lg shadow-2xl overflow-hidden z-50 fade-up" data-testid="notifications-panel">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-line">
-            <h4 className="text-xs uppercase tracking-[0.2em] text-muted font-medium">Notificações</h4>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-surface/30">
+            <h4 className="text-xs uppercase tracking-[0.2em] text-muted font-medium">Notificações / Avisos</h4>
             <button onClick={() => setOpen(false)} className="text-muted hover:text-white transition-colors" aria-label="Fechar">
               <X size={14} />
             </button>
@@ -60,17 +60,26 @@ export default function NotificationsPanel() {
               notifications.map((n) => (
                 <div
                   key={n.id}
-                  className="flex items-start gap-3 px-4 py-3 border-b border-line last:border-0 hover:bg-surface transition-colors"
+                  className="flex items-start gap-3 px-4 py-3 border-b border-line/50 last:border-0 hover:bg-surface transition-colors"
                   data-testid={`notification-${n.id}`}
                 >
-                  <div className={`mt-0.5 shrink-0 ${n.type === 'atrasado' ? 'text-accent' : 'text-yellow-400'}`}>
-                    {n.type === 'atrasado' ? <AlertTriangle size={16} /> : <Clock size={16} />}
+                  <div className={`mt-0.5 shrink-0 ${n.type === 'aviso' ? 'text-blue-400' : n.type === 'atrasado' ? 'text-accent' : 'text-yellow-400'}`}>
+                    {n.type === 'aviso' ? <Megaphone size={16} /> : n.type === 'atrasado' ? <AlertTriangle size={16} /> : <Clock size={16} />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm leading-snug">{n.message}</p>
-                    <p className="text-xs text-muted mt-1">
-                      Venc. {fmtDate(n.dueDate)} · {brl(n.amount)}
-                    </p>
+                    {n.type === 'aviso' ? (
+                      <>
+                        <p className="text-sm font-semibold leading-snug text-white/90">{n.title}</p>
+                        <p className="text-xs text-muted mt-1 leading-relaxed">{n.message}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm leading-snug text-white/80">{n.message}</p>
+                        <p className="text-xs text-muted mt-1">
+                          Venc. {fmtDate(n.dueDate)} — {brl(n.amount)}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               ))

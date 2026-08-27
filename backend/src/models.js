@@ -33,14 +33,24 @@ const planSchema = new Schema({
 }, opts);
 
 const paymentSchema = new Schema({
-  studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  studentId: { type: Schema.Types.ObjectId, ref: 'User' },
   planId: { type: Schema.Types.ObjectId, ref: 'Plan' },
+  type: { type: String, enum: ['entrada', 'saida'], default: 'entrada' },
+  description: { type: String },
   amount: { type: Number, required: true },
   dueDate: { type: String, required: true },
   paidAt: { type: String, default: null },
   status: { type: String, enum: ['pago', 'pendente', 'atrasado'], default: 'pendente' },
   method: String,
   reference: String,
+}, opts);
+
+const noticeSchema = new Schema({
+  title: { type: String, required: true },
+  message: { type: String, required: true },
+  targetRole: { type: String, enum: ['todos', 'aluno', 'personal'], default: 'todos' },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  active: { type: Boolean, default: true }
 }, opts);
 
 const exerciseSchema = new Schema({
@@ -120,4 +130,5 @@ module.exports = {
   Measurement: mongoose.model('Measurement', measurementSchema),
   Session: mongoose.model('Session', sessionSchema),
   CheckIn: mongoose.model('CheckIn', checkInSchema),
+  Notice: mongoose.model('Notice', noticeSchema),
 };

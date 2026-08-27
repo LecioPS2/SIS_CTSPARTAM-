@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Payment, User } = require('../models');
+const { Payment, User, Notice } = require('../models');
 const { requireAuth } = require('../middleware/auth');
 
 router.use(requireAuth);
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 
   if (req.user.role === 'admin') {
     // Admin vê todas as pendências
-    const payments = await Payment.find({ status: { $ne: 'pago' } })
+    const payments = await Payment.find({ type: 'entrada', status: { $ne: 'pago' } })
       .populate('studentId', 'name email')
       .sort({ dueDate: 1 });
 
@@ -40,6 +40,7 @@ router.get('/', async (req, res) => {
     const studentMap = Object.fromEntries(students.map((s) => [s._id.toString(), s.name]));
 
     const payments = await Payment.find({
+      type: 'entrada',
       studentId: { $in: studentIds },
       status: { $ne: 'pago' },
     }).sort({ dueDate: 1 });
@@ -65,6 +66,7 @@ router.get('/', async (req, res) => {
   } else if (req.user.role === 'aluno') {
     // Aluna vê próprias pendências
     const payments = await Payment.find({
+      type: 'entrada',
       studentId: req.user._id,
       status: { $ne: 'pago' },
     }).sort({ dueDate: 1 });
@@ -87,6 +89,22 @@ router.get('/', async (req, res) => {
       }
     });
   }
+
+  // 2. Busca Avisos Globais (Mural)
+  let noticeFilter = { active: true };
+  if (req.user.role !== 'admin') {
+    noticeFilter.targetRole = { $in: ['todos', req.user.role] };
+  }
+  const notices = await Notice.find(noticeFilter).sort({ createdAt: -1 });
+  
+  notices.forEach((n) => {
+    notifications.unshift({
+      id: `notice_${n._id.toString()}`,
+      type: 'aviso',
+      title: n.title,
+      message: n.message,
+    });
+  });
 
   res.json(notifications);
 });

@@ -10,10 +10,20 @@ router.get('/', requireRole('admin'), async (req, res) => {
 });
 
 router.post('/', requireRole('admin'), async (req, res) => {
-  const { studentId, planId, amount, dueDate, status, method, reference } = req.body;
-  if (!studentId || amount === undefined || !dueDate) return res.status(400).json({ error: 'Aluno, valor e vencimento são obrigatórios' });
+  const { studentId, planId, amount, dueDate, status, method, reference, type, description } = req.body;
+  
+  if (type === 'saida') {
+    if (amount === undefined || !dueDate || !description) return res.status(400).json({ error: 'Valor, vencimento e descrição são obrigatórios para saídas' });
+  } else {
+    if (!studentId || amount === undefined || !dueDate) return res.status(400).json({ error: 'Aluno, valor e vencimento são obrigatórios' });
+  }
+
   const payment = await Payment.create({
-    studentId, planId: planId || null, amount, dueDate, method, reference,
+    type: type || 'entrada',
+    description: description || null,
+    studentId: studentId || null, 
+    planId: planId || null, 
+    amount, dueDate, method, reference,
     status: status || 'pendente',
     paidAt: status === 'pago' ? new Date().toISOString().slice(0, 10) : null,
   });
@@ -21,9 +31,9 @@ router.post('/', requireRole('admin'), async (req, res) => {
 });
 
 router.put('/:id', requireRole('admin'), async (req, res) => {
-  const { planId, amount, dueDate, status, method, reference, paidAt } = req.body;
+  const { planId, amount, dueDate, status, method, reference, paidAt, type, description } = req.body;
   const update = {};
-  [['planId', planId], ['amount', amount], ['dueDate', dueDate], ['status', status], ['method', method], ['reference', reference], ['paidAt', paidAt]].forEach(([k, v]) => { if (v !== undefined) update[k] = v; });
+  [['planId', planId], ['amount', amount], ['dueDate', dueDate], ['status', status], ['method', method], ['reference', reference], ['paidAt', paidAt], ['type', type], ['description', description]].forEach(([k, v]) => { if (v !== undefined) update[k] = v; });
   if (update.status === 'pago' && !update.paidAt) update.paidAt = new Date().toISOString().slice(0, 10);
   if (update.status && update.status !== 'pago') update.paidAt = null;
   const payment = await Payment.findByIdAndUpdate(req.params.id, update, { new: true });

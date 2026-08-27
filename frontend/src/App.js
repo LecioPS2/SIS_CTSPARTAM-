@@ -10,6 +10,7 @@ import Alunos from './pages/admin/Alunos';
 import Personais from './pages/admin/Personais';
 import Planos from './pages/admin/Planos';
 import Pagamentos from './pages/admin/Pagamentos';
+import Avisos from './pages/admin/Avisos';
 import Exercicios from './pages/shared/Exercicios';
 import PersonalDashboard from './pages/personal/PersonalDashboard';
 import MeusAlunos from './pages/personal/MeusAlunos';
@@ -21,7 +22,7 @@ import Mensalidade from './pages/student/Mensalidade';
 import Perfil from './pages/student/Perfil';
 import CheckinAdmin from './pages/admin/CheckinAdmin';
 import Configuracoes from './pages/admin/Configuracoes';
-import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings, Megaphone } from 'lucide-react';
 
 const adminNav = [
   { to: '/admin', label: 'Visão Geral', icon: LayoutDashboard, end: true, testId: 'admin-dashboard' },
@@ -95,6 +96,7 @@ export default function App() {
           <Route path="/admin/pagamentos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Pagamentos /></DashboardLayout></Protected>} />
           <Route path="/admin/exercicios" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Exercicios /></DashboardLayout></Protected>} />
           <Route path="/admin/checkin" element={<Protected role="admin"><DashboardLayout nav={adminNav}><CheckinAdmin /></DashboardLayout></Protected>} />
+          <Route path="/admin/avisos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Avisos /></DashboardLayout></Protected>} />
           <Route path="/admin/configuracoes" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Configuracoes /></DashboardLayout></Protected>} />
           <Route path="/personal" element={<Protected role="personal"><DashboardLayout nav={personalNav}><PersonalDashboard /></DashboardLayout></Protected>} />
           <Route path="/personal/alunos" element={<Protected role="personal"><DashboardLayout nav={personalNav}><MeusAlunos /></DashboardLayout></Protected>} />

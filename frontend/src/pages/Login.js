@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Globe, Instagram, Phone, Smartphone } from 'lucide-react';
+import { Globe, Instagram, Phone, Smartphone, Eye, EyeOff } from 'lucide-react';
 
 const BG = '/login-hero.webp';
 
@@ -10,6 +10,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -146,15 +147,24 @@ export default function Login() {
                 </div>
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-[0.2em] text-muted block mb-2">Senha</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="••••••••"
-                    data-testid="login-password-input"
-                    className="w-full bg-surface/80 border border-line rounded-lg px-4 py-3 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-white"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="••••••••"
+                      data-testid="login-password-input"
+                      className="w-full bg-surface/80 border border-line rounded-lg px-4 py-3 pr-12 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white transition-colors p-1"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
                 {error && <p className="text-accent text-sm font-medium" data-testid="login-error-message">{error}</p>}
                 
