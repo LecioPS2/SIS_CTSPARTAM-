@@ -9,20 +9,26 @@ async function connectDb() {
     const mongoUri = process.env.MONGO_URI;
 
     if (mongoUri) {
-      // Produção / Banco Real (Ex: Hostinger, MongoDB Atlas)
+      // Produção / Banco Real
       await mongoose.connect(mongoUri, { dbName: 'gym_management' });
       console.log('MongoDB (Produção/Real) conectado com sucesso!');
     } else {
-      // Ambiente de Desenvolvimento (Banco local em memória)
+      // Ambiente de Desenvolvimento ou Hostinger s/ Banco Externo
+      // Força a identificação do Sistema Operacional para evitar o erro "unknown linux" na Hostinger
+      process.env.MONGOMS_DISTRO = 'ubuntu-22.04';
+      
+      console.log('Iniciando MongoMemoryServer (Pode demorar um pouco no primeiro boot para baixar o binário)...');
       mongoServer = await MongoMemoryServer.create();
       const url = mongoServer.getUri();
       await mongoose.connect(url, { dbName: 'gym_management' });
-      console.log('MongoDB (em-memória local) conectado:', url);
+      console.log('MongoDB (em-memória local/Hostinger) conectado:', url);
     }
     
     await seedAll();
   } catch (err) {
     console.error('Erro ao conectar BD:', err);
+    // Propaga o erro para não deixar a aplicação rodar "falsa"
+    throw err;
   }
 }
 
