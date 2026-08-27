@@ -57,9 +57,21 @@ app.param('id', (req, res, next, id) => {
 const frontendPath = path.join(__dirname, '../../frontend/build');
 app.use(express.static(frontendPath));
 
-// Redireciona qualquer rota não reconhecida (que não seja /api/) para o index.html do React
+// Redireciona qualquer rota não reconhecida para o index.html do React
 app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
+  const indexPath = path.join(frontendPath, 'index.html');
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(200).send(`
+      <div style="font-family: sans-serif; padding: 40px; text-align: center;">
+        <h2 style="color: #C10514;">API CT Spartan Online</h2>
+        <p>A API do backend está rodando perfeitamente!</p>
+        <p style="color: #666; font-size: 14px;">(Nota: O painel visual do React não foi encontrado no servidor no caminho esperado. Verifique se a pasta 'build' foi copiada corretamente para a Hostinger).</p>
+      </div>
+    `);
+  }
 });
 
 app.use((err, req, res, next) => {
