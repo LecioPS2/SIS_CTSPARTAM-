@@ -80,7 +80,7 @@ app.use((err, req, res, next) => {
   if (err.name === 'CastError') return res.status(400).json({ error: 'ID ou valor inválido' });
   if (err.name === 'ValidationError') return res.status(400).json({ error: 'Dados inválidos' });
   console.error(err);
-  res.status(500).json({ error: 'Erro interno do servidor' });
+  res.status(500).json({ error: 'Erro interno do servidor: ' + err.message });
 });
 
 process.on('unhandledRejection', (err) => console.error('unhandledRejection:', err));
