@@ -53,8 +53,8 @@ app.param('id', (req, res, next, id) => {
 });
 
 // === INTEGRAÇÃO COM O FRONTEND (PRODUÇÃO / HOSTINGER) ===
-// Serve os arquivos estáticos compilados do React (renomeado para frontend_dist para evitar bloqueio da Hostinger)
-const frontendPath = path.join(__dirname, '../../frontend_dist');
+// Serve os arquivos estáticos compilados do React (agora dentro da pasta do backend)
+const frontendPath = path.join(__dirname, '../public');
 app.use(express.static(frontendPath));
 
 // Redireciona qualquer rota não reconhecida para o index.html do React
