@@ -3,6 +3,7 @@ import api, { fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Field, Card, Modal, PageHeader, Empty } from '../../components/ui';
 import { Plus } from 'lucide-react';
+import EvolutionCompare from '../../components/EvolutionCompare';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 const empty = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
@@ -69,6 +70,7 @@ export default function Evolucao() {
           </div>
         </Card>
       )}
+      {list.length > 1 && <div className="mb-6"><EvolutionCompare history={list} /></div>}
       <p className="text-xs uppercase tracking-[0.2em] text-muted mb-3">Histórico de medidas</p>
       {list.length === 0 ? (
         <Empty text="Nenhuma medida registrada. Comece agora!" />

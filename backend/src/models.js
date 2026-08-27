@@ -26,6 +26,7 @@ const planSchema = new Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   durationDays: { type: Number, default: 30 },
+  daysPerWeek: { type: Number, default: 7 },
   description: String,
   active: { type: Boolean, default: true },
 }, opts);

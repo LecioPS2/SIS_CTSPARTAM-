@@ -10,9 +10,9 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', requireRole('admin'), async (req, res) => {
-  const { name, price, durationDays, description } = req.body;
+  const { name, price, durationDays, daysPerWeek, description } = req.body;
   if (!name || price === undefined) return res.status(400).json({ error: 'Nome e preço são obrigatórios' });
-  const plan = await Plan.create({ name, price, durationDays, description });
+  const plan = await Plan.create({ name, price, durationDays, daysPerWeek, description });
   res.status(201).json(plan.toJSON());
 });
 

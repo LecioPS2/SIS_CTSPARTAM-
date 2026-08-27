@@ -23,7 +23,10 @@ export default function Mensalidade() {
           <>
             <h2 className="font-display text-4xl uppercase tracking-tight leading-none mb-1">{data.plan.name}</h2>
             <p className="text-accent font-display text-3xl leading-none mb-2">{brl(data.plan.price)}</p>
-            <p className="text-xs text-muted">Renovação a cada {data.plan.durationDays} dias</p>
+            <p className="text-xs text-muted">
+              {data.plan.durationDays === 30 ? 'Cobrança mensal' : `Renovação a cada ${data.plan.durationDays} dias`}
+              {data.plan.daysPerWeek ? ` · ${data.plan.daysPerWeek >= 7 ? 'treinos livres' : `${data.plan.daysPerWeek} dia(s)/semana`}` : ''}
+            </p>
           </>
         ) : (
           <p className="text-muted text-sm">Nenhum plano vinculado. Fale com a recepção.</p>

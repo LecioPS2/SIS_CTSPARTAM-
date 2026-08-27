@@ -3,6 +3,7 @@ import api, { fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
 import { Plus, Pencil, ClipboardCheck } from 'lucide-react';
+import EvolutionCompare from '../../components/EvolutionCompare';
 
 const empty = { name: '', email: '', password: '', phone: '', birthDate: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
@@ -160,6 +161,7 @@ export default function MeusAlunos() {
           <Button type="submit" className="w-full" data-testid="avaliacao-save-button">Registrar Avaliação</Button>
         </form>
         <div className="mt-5">
+          {history.length > 1 && <div className="mb-4"><EvolutionCompare history={history} /></div>}
           <p className="text-xs uppercase tracking-[0.2em] text-muted mb-3">Histórico de avaliações</p>
           {history.length === 0 ? (
             <Empty text="Nenhuma avaliação registrada ainda" />
