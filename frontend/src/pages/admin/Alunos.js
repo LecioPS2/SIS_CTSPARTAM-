@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, FileText, Printer } from 'lucide-react';
 
 const empty = { name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 
@@ -14,6 +14,8 @@ export default function Alunos() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
   const [step, setStep] = useState(1);
+  const [contractModal, setContractModal] = useState(false);
+  const [contractStudent, setContractStudent] = useState(null);
 
   const load = () => {
     api.get('/users?role=aluno').then((r) => setAlunas(r.data));
@@ -44,10 +46,20 @@ export default function Alunos() {
         await api.put(`/users/${editing.id}`, payload);
         toast.success('Aluna atualizada');
       } else {
-        await api.post('/users', payload);
+        const r = await api.post('/users', payload);
         toast.success('Aluna cadastrada');
+        setContractStudent({
+          ...r.data,
+          planId: plans.find(p => p.id === payload.planId) || null
+        });
+        setContractModal(true);
       }
       setModal(false);
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erro ao salvar');
+    }
+  };
       load();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erro ao salvar');
@@ -92,8 +104,14 @@ export default function Alunos() {
                   <Td>{a.planId ? <Badge>{a.planId.name}</Badge> : <span className="text-muted text-xs">Sem plano</span>}</Td>
                   <Td>{a.personalId ? <span className="text-sm text-white/90">{a.personalId.name}</span> : <span className="text-muted text-xs">Sem personal</span>}</Td>
                   <Td className="text-right">
-                    <button onClick={() => open(a)} className="p-2 text-muted hover:text-accent transition-colors" data-testid={`edit-aluno-${a.id}`}><Pencil size={16} /></button>
-                    <button onClick={() => remove(a.id)} className="p-2 text-muted hover:text-accent transition-colors"><Trash2 size={16} /></button>
+                    <button onClick={() => { 
+                      setContractStudent({ ...a, planId: plans.find(p => p.id === (a.planId?.id || a.planId)) }); 
+                      setContractModal(true); 
+                    }} className="p-2 text-muted hover:text-white transition-colors" title="Gerar Contrato">
+                      <FileText size={16} />
+                    </button>
+                    <button onClick={() => open(a)} className="p-2 text-muted hover:text-accent transition-colors" data-testid={`edit-aluno-${a.id}`} title="Editar"><Pencil size={16} /></button>
+                    <button onClick={() => remove(a.id)} className="p-2 text-muted hover:text-accent transition-colors" title="Excluir"><Trash2 size={16} /></button>
                   </Td>
                 </tr>
               ))}
@@ -216,6 +234,123 @@ export default function Alunos() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* MODAL DE CONTRATO */}
+      <Modal open={contractModal} onClose={() => setContractModal(false)} title="Contrato de Matrícula" wide>
+        {contractStudent && (
+          <>
+            <div className="bg-white text-black p-8 rounded-lg shadow-inner max-h-[60vh] overflow-auto text-sm" id="print-contract">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-2 border-black pb-4 mb-6">
+                <div className="flex items-center gap-4">
+                  <img src="/logo.png" alt="CT Spartan Logo" className="w-20 object-contain brightness-0" />
+                  <div>
+                    <h2 className="font-black text-xl uppercase tracking-tight">CT Spartan</h2>
+                    <p className="text-gray-600 text-xs">Rua dos Espartanos, 300 - Centro</p>
+                    <p className="text-gray-600 text-xs">Telefone: (11) 99999-9999</p>
+                  </div>
+                </div>
+                <div className="text-left md:text-right mt-4 md:mt-0">
+                  <h2 className="text-xl font-black uppercase tracking-tight">Contrato de Serviços</h2>
+                  <p className="text-xs text-gray-500 mt-1">Data: {new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+              </div>
+              
+              <h3 className="text-lg font-bold uppercase text-center mb-6">Contrato de Prestação de Serviços Esportivos</h3>
+              
+              <div className="space-y-4 text-justify">
+                <p>
+                  Pelo presente instrumento, a <strong>CT SPARTAN</strong>, doravante denominada CONTRATADA, e 
+                  a aluna <strong>{contractStudent.name}</strong>, inscrita(o) sob o email <strong>{contractStudent.email}</strong>, 
+                  telefone <strong>{contractStudent.phone || 'N/A'}</strong>, doravante denominada CONTRATANTE, 
+                  celebram o presente Contrato de Prestação de Serviços Esportivos.
+                </p>
+
+                <p><strong>1. DO OBJETO:</strong> A CONTRATADA prestará à CONTRATANTE serviços de condicionamento físico 
+                nas modalidades oferecidas no espaço físico da academia CT SPARTAN.</p>
+
+                <p><strong>2. DO PLANO E PAGAMENTO:</strong> A CONTRATANTE opta pelo plano 
+                <strong> {contractStudent.planId?.name || 'N/A'}</strong>, 
+                obrigando-se a realizar o pagamento das mensalidades nas datas de vencimento acordadas.</p>
+
+                <p><strong>3. DAS NORMAS DE USO:</strong> A CONTRATANTE compromete-se a respeitar as normas de convivência 
+                e segurança da academia, zelando pelos equipamentos e pelo espaço comum, exclusivo para mulheres.</p>
+
+                <p><strong>4. DA SAÚDE:</strong> A CONTRATANTE declara-se em plenas condições de saúde para a prática 
+                de atividades físicas, isentando a CONTRATADA de responsabilidades decorrentes de problemas médicos não informados previamente.</p>
+                
+                <p className="pt-8 text-center text-xs text-gray-500">
+                  Por estarem de acordo, firmam o presente contrato.
+                </p>
+              </div>
+
+              <div className="flex justify-between mt-20 px-8">
+                <div className="w-1/2 text-center border-t border-black pt-2 mr-4">
+                  <p className="font-bold text-xs uppercase">CT SPARTAN</p>
+                  <p className="text-[10px] text-gray-500">Contratada</p>
+                </div>
+                <div className="w-1/2 text-center border-t border-black pt-2 ml-4">
+                  <p className="font-bold text-xs uppercase">{contractStudent.name}</p>
+                  <p className="text-[10px] text-gray-500">Contratante</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Print layout hidden on screen, only visible when printing */}
+            <div className="hidden print:block fixed inset-0 z-[9999] bg-white text-black p-10 text-sm">
+              {/* Cópia do contrato para preencher a folha A4 completa na impressão */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-2 border-black pb-4 mb-6">
+                <div className="flex items-center gap-4">
+                  <img src="/logo.png" alt="CT Spartan Logo" className="w-24 object-contain brightness-0" />
+                  <div>
+                    <h2 className="font-black text-2xl uppercase tracking-tight">CT Spartan</h2>
+                    <p className="text-gray-600 text-sm mt-1">Rua dos Espartanos, 300 - Centro</p>
+                    <p className="text-gray-600 text-sm">Telefone: (11) 99999-9999</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <h2 className="text-xl font-black uppercase tracking-tight">Contrato de Serviços</h2>
+                  <p className="text-sm text-gray-500 mt-1">Data: {new Date().toLocaleDateString('pt-BR')}</p>
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold uppercase text-center mb-8">Contrato de Prestação de Serviços Esportivos</h3>
+              
+              <div className="space-y-6 text-justify text-base leading-relaxed">
+                <p>
+                  Pelo presente instrumento, a <strong>CT SPARTAN</strong>, doravante denominada CONTRATADA, e 
+                  a aluna <strong>{contractStudent.name}</strong>, inscrita(o) sob o email <strong>{contractStudent.email}</strong>, 
+                  telefone <strong>{contractStudent.phone || 'N/A'}</strong>, doravante denominada CONTRATANTE, 
+                  celebram o presente Contrato de Prestação de Serviços Esportivos.
+                </p>
+                <p><strong>1. DO OBJETO:</strong> A CONTRATADA prestará à CONTRATANTE serviços de condicionamento físico nas modalidades oferecidas no espaço físico da academia CT SPARTAN.</p>
+                <p><strong>2. DO PLANO E PAGAMENTO:</strong> A CONTRATANTE opta pelo plano <strong> {contractStudent.planId?.name || 'N/A'}</strong>, obrigando-se a realizar o pagamento das mensalidades nas datas de vencimento acordadas.</p>
+                <p><strong>3. DAS NORMAS DE USO:</strong> A CONTRATANTE compromete-se a respeitar as normas de convivência e segurança da academia, zelando pelos equipamentos e pelo espaço comum, exclusivo para mulheres.</p>
+                <p><strong>4. DA SAÚDE:</strong> A CONTRATANTE declara-se em plenas condições de saúde para a prática de atividades físicas, isentando a CONTRATADA de responsabilidades decorrentes de problemas médicos não informados previamente.</p>
+                <p className="pt-12 text-center text-sm text-gray-500">Por estarem de acordo, firmam o presente contrato.</p>
+              </div>
+
+              <div className="flex justify-between mt-32 px-10">
+                <div className="w-1/2 text-center border-t border-black pt-2 mr-8">
+                  <p className="font-bold text-sm uppercase">CT SPARTAN</p>
+                  <p className="text-xs text-gray-500">Contratada</p>
+                </div>
+                <div className="w-1/2 text-center border-t border-black pt-2 ml-8">
+                  <p className="font-bold text-sm uppercase">{contractStudent.name}</p>
+                  <p className="text-xs text-gray-500">Contratante</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <Button variant="ghost" onClick={() => setContractModal(false)}>Fechar</Button>
+              <Button onClick={() => { setContractModal(false); setTimeout(() => window.print(), 300); }}>
+                <Printer size={16} className="inline mr-2" />
+                Imprimir Contrato
+              </Button>
+            </div>
+          </>
+        )}
       </Modal>
     </div>
   );

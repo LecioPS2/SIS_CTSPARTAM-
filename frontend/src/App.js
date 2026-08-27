@@ -32,6 +32,7 @@ const adminNav = [
   { to: '/admin/pagamentos', label: 'Financeiro', icon: Wallet, testId: 'admin-pagamentos' },
   { to: '/admin/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'admin-exercicios' },
   { to: '/admin/checkin', label: 'Check-in', icon: QrCode, testId: 'admin-checkin' },
+  { to: '/admin/avisos', label: 'Avisos', icon: Megaphone, testId: 'admin-avisos' },
   { to: '/admin/configuracoes', label: 'Configurações', icon: Settings, testId: 'admin-configuracoes' },
 ];
 
