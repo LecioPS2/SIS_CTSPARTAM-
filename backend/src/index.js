@@ -52,6 +52,16 @@ app.param('id', (req, res, next, id) => {
   next();
 });
 
+// === INTEGRAÇÃO COM O FRONTEND (PRODUÇÃO / HOSTINGER) ===
+// Serve os arquivos estáticos compilados do React
+const frontendPath = path.join(__dirname, '../../frontend/build');
+app.use(express.static(frontendPath));
+
+// Redireciona qualquer rota não reconhecida (que não seja /api/) para o index.html do React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 app.use((err, req, res, next) => {
   if (err.name === 'CastError') return res.status(400).json({ error: 'ID ou valor inválido' });
   if (err.name === 'ValidationError') return res.status(400).json({ error: 'Dados inválidos' });

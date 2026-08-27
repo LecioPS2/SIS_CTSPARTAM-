@@ -6,10 +6,20 @@ let mongoServer;
 
 async function connectDb() {
   try {
-    mongoServer = await MongoMemoryServer.create();
-    const url = mongoServer.getUri();
-    await mongoose.connect(url, { dbName: 'gym_management' });
-    console.log('MongoDB (em-memória) conectado:', url);
+    const mongoUri = process.env.MONGO_URI;
+
+    if (mongoUri) {
+      // Produção / Banco Real (Ex: Hostinger, MongoDB Atlas)
+      await mongoose.connect(mongoUri, { dbName: 'gym_management' });
+      console.log('MongoDB (Produção/Real) conectado com sucesso!');
+    } else {
+      // Ambiente de Desenvolvimento (Banco local em memória)
+      mongoServer = await MongoMemoryServer.create();
+      const url = mongoServer.getUri();
+      await mongoose.connect(url, { dbName: 'gym_management' });
+      console.log('MongoDB (em-memória local) conectado:', url);
+    }
+    
     await seedAll();
   } catch (err) {
     console.error('Erro ao conectar BD:', err);
@@ -18,6 +28,14 @@ async function connectDb() {
 
 async function seedAll() {
   const { User, Plan, Payment, Exercise, Workout } = require('./models');
+  
+  // Evita duplicar dados ou apagar tudo ao reiniciar a Hostinger
+  const count = await User.countDocuments();
+  if (count > 0) {
+    console.log('Banco de dados já configurado. Seed ignorado.');
+    return;
+  }
+
   const hash = await bcrypt.hash('admin123', 10);
   const hashUser = await bcrypt.hash('senha123', 10);
 
