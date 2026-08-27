@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Dumbbell, LogOut, Search, Bell, Instagram, Facebook, Youtube } from 'lucide-react';
+import { LogOut, Search, Bell, Instagram, Facebook, Youtube } from 'lucide-react';
 
 function greeting() {
   const h = new Date().getHours();
@@ -23,7 +23,7 @@ export default function DashboardLayout({ nav, children }) {
     <div className="min-h-screen flex">
       <aside className="w-56 shrink-0 bg-card border-r border-line flex flex-col fixed inset-y-0 z-30" data-testid="sidebar">
         <div className="flex items-center gap-2 px-5 h-16 border-b border-line">
-          <div className="bg-accent p-1.5 rounded"><Dumbbell size={16} aria-hidden="true" /></div>
+          <img src="/logo.png" alt="CT Spartan" className="w-8 h-8" />
           <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>
         </div>
         <nav className="flex-1 py-4 space-y-0.5">

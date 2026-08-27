@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Dumbbell } from 'lucide-react';
-
 const BG = '/login-hero.webp';
 
 export default function Login() {
@@ -41,7 +39,7 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center px-6">
         <form onSubmit={submit} className="w-full max-w-sm fade-up" data-testid="login-form">
           <div className="flex items-center gap-2 mb-10">
-            <div className="bg-accent p-2 rounded"><Dumbbell size={20} aria-hidden="true" /></div>
+            <img src="/logo.png" alt="CT Spartan" className="w-11 h-11" />
             <span className="font-display text-3xl uppercase tracking-tight">CT Spartan</span>
           </div>
           <h1 className="font-display text-4xl uppercase tracking-tight mb-1">Acesse sua conta</h1>
