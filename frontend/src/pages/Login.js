@@ -42,7 +42,7 @@ export default function Login() {
         <form onSubmit={submit} className="w-full max-w-sm fade-up" data-testid="login-form">
           <div className="flex items-center gap-2 mb-10">
             <div className="bg-accent p-2 rounded"><Dumbbell size={20} aria-hidden="true" /></div>
-            <span className="font-display text-3xl uppercase tracking-tight">Iron Hub</span>
+            <span className="font-display text-3xl uppercase tracking-tight">CT Spartan</span>
           </div>
           <h1 className="font-display text-4xl uppercase tracking-tight mb-1">Acesse sua conta</h1>
           <p className="text-muted text-sm mb-8">Painel de gestão da academia</p>

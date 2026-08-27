@@ -17,7 +17,7 @@ export default function StudentLayout({ children }) {
   return (
     <div className="min-h-screen max-w-lg mx-auto pb-24">
       <header className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-line px-5 h-14 flex items-center justify-between">
-        <span className="font-display text-2xl uppercase tracking-tight">Iron <span className="text-accent">Hub</span></span>
+        <span className="font-display text-2xl uppercase tracking-tight">CT <span className="text-accent">Spartan</span></span>
         <span className="text-xs text-muted truncate max-w-[50%]">{user?.name}</span>
       </header>
       <main className="px-5 py-6">{children}</main>

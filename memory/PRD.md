@@ -1,4 +1,4 @@
-# PRD — IRON HUB (Sistema de Gestão de Academia)
+# PRD — CT SPARTAN (Sistema de Gestão de Academia)
 
 ## Problema original
 Sistema para gerenciamento de academia com Dashboard do ADM, Dashboard do Personal e app web para o Aluno/atleta. Backend em Node.js, banco MongoDB. Página de login + dashboards completas para os 3 perfis. Cadastro de exercícios (carga, repetições, séries e/ou tempo) disponível para ADM e Personal. Idioma: Português (BR). Auth: JWT email/senha. Envio ao GitHub via botão "Save to GitHub" da plataforma.

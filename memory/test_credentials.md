@@ -1,4 +1,4 @@
-# Credenciais de Teste — IRON HUB (Gestão de Academia)
+# Credenciais de Teste — CT SPARTAN (Gestão de Academia)
 
 ## Contas
 | Perfil | Email | Senha |
