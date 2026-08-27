@@ -71,7 +71,7 @@ export default function DashboardLayout({ nav, children }) {
       </aside>
 
       {/* Main Sidebar */}
-      <aside className="w-56 shrink-0 bg-card shadow-lg shadow-black/40 rounded-xl flex flex-col fixed left-[80px] top-4 bottom-4 z-30 overflow-hidden" data-testid="sidebar">
+      <aside className="w-56 shrink-0 bg-card shadow-lg shadow-black/40 rounded-xl flex flex-col fixed lg:left-[80px] left-4 top-4 bottom-4 z-30 overflow-hidden" data-testid="sidebar">
         <div className="flex items-center gap-2 px-5 h-16 border-b border-line">
           <img src="/logo.png" alt="CT Spartan" className="w-8 h-8" />
           <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>

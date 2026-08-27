@@ -100,11 +100,11 @@ export default function Login() {
         </header>
 
         {/* Main Content Layout */}
-        <div className="flex-1 max-w-7xl mx-auto w-full px-6 lg:px-16 grid grid-cols-1 lg:grid-cols-2 items-center gap-12 pt-16">
+        <div className="flex-1 max-w-7xl mx-auto w-full px-6 lg:px-16 grid grid-cols-1 md:grid-cols-2 items-center gap-12 pt-16">
           
           {/* Left Side: Slogan */}
-          <div className="hidden lg:flex flex-col justify-center fade-up" style={{ animationDelay: '0.1s' }}>
-            <h1 className="font-display text-[5.5rem] xl:text-[7.5rem] uppercase leading-[0.85] tracking-tight mb-8 text-white drop-shadow-2xl">
+          <div className="hidden md:flex flex-col justify-center fade-up" style={{ animationDelay: '0.1s' }}>
+            <h1 className="font-display text-[4rem] lg:text-[5.5rem] xl:text-[7.5rem] uppercase leading-[0.85] tracking-tight mb-8 text-white drop-shadow-2xl">
               Treine.<br />
               <span className="text-accent">Evolua.</span><br />
               Domine.
@@ -116,14 +116,14 @@ export default function Login() {
           </div>
 
           {/* Right Side: Formulário de Login */}
-          <div className="flex justify-center lg:justify-end fade-up w-full" style={{ animationDelay: '0.2s' }}>
+          <div className="flex justify-center md:justify-end fade-up w-full" style={{ animationDelay: '0.2s' }}>
             <form
               onSubmit={submit}
               data-testid="login-form"
               className="w-full max-w-md bg-white/[0.04] backdrop-blur-3xl border border-white/10 rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/60"
             >
               {/* Logo Mobile */}
-              <div className="flex items-center gap-3 mb-8 lg:hidden">
+              <div className="flex items-center gap-3 mb-8 md:hidden">
                 <img src="/logo.png" alt="CT Spartan" className="w-10 h-10" />
                 <span className="font-display text-3xl uppercase tracking-tight">CT Spartan</span>
               </div>
