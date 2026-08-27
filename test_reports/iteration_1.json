@@ -1,0 +1,69 @@
+{
+  "summary": "Full e2e testing of IRON HUB (Node/Express behind ASGI shim + React). Backend: 48 pytest cases across auth, users, plans, payments, exercises, workouts, sessions, stats and student routes — 48/48 passing (repeatable across 2 runs). A separate security suite (test_security_ownership.py) exposed 3 confirmed IDOR / mass-assignment failures. Frontend: all 3 login flows + redirects, admin CRUD (aluno, personal, plano, exercício, pagamento incl. mark-as-paid), personal flows (novo aluno auto-vinculado, exercício, treino com dias + exercícios do catálogo e overrides de séries/reps/carga/tempo, agenda criar/concluir/excluir) and the whole aluno mobile app (treino do dia, concluir, evolução, mensalidade, perfil, logout) verified working. ONE CRITICAL frontend crash was found and fixed by me (Hoje.js useEffect returning a Promise crashed the entire student app on tab change).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "PUT/DELETE /api/workouts/:id", "issue": "IDOR — no ownership check. Personal B can update/delete workouts belonging to Personal A (returns 200). Verified: test_personal_b_cannot_modify_personal_a_workout.", "priority": "HIGH"},
+      {"endpoint": "PUT/DELETE /api/sessions/:id", "issue": "IDOR — no ownership check. Personal B can cancel/conclude/delete Personal A's sessions (returns 200). Verified: test_personal_b_cannot_modify_personal_a_session.", "priority": "HIGH"},
+      {"endpoint": "PUT /api/workouts/:id, /api/sessions/:id, /api/exercises/:id, /api/payments/:id", "issue": "Mass assignment — req.body is spread straight into findByIdAndUpdate with no whitelist/validation. A personal can overwrite `personalId` (ownership transfer) and any other field. Verified: test_workout_personalid_cannot_be_overwritten.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "DELETE /api/users/:id", "issue": "No cascade / referential cleanup. Deleting an aluno leaves orphan Payments, Workouts, Sessions, WorkoutLogs and Measurements; admin dashboard 'Pagamentos Recentes' then renders the student name as '—' and stats/pendências still count the orphan amounts."},
+      {"endpoint": "DELETE /api/exercises/:id", "issue": "Any personal/admin can delete an exercise created by someone else (createdBy is stored but never enforced). Deleting a catalog exercise silently leaves stale copies embedded in existing workouts."},
+      {"endpoint": "POST /api/auth/login", "issue": "Brute-force counter is an in-memory Map keyed by ip:email — resets on every backend restart, is not shared across replicas, and never evicts entries (unbounded memory growth). Lockout itself works (5 fails -> 429)."},
+      {"endpoint": "global CORS (src/index.js)", "issue": "cors({origin: true, credentials: true}) reflects ANY origin while allowing credentials. backend/.env defines CORS_ORIGINS but it is never read — use explicit origins from env."},
+      {"endpoint": "N/A (db.js seed)", "issue": "Informational: bcryptjs produces $2a$ hashes (60 chars, valid bcrypt) not $2b$. seed_admin correctly re-hashes when ADMIN_PASSWORD changes — verified idempotent."},
+      {"endpoint": "DELETE /api/users|plans|payments|exercises|workouts|sessions/:id", "issue": "All DELETEs return 200 {ok:true} even when the id does not exist (no 404). Cosmetic/REST-correctness only."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "pages/student/Hoje.js", "issue": "FIXED BY TESTER (1 line): `useEffect(load, [])` returned a Promise, so React invoked it as the cleanup fn on unmount -> 'TypeError: destroy is not a function'. The whole student SPA crashed as soon as the user left the 'Hoje' tab, making Evolução / Mensalidade / Perfil / logout completely unreachable. Changed to `useEffect(() => { load(); }, [])`. Please review/keep this fix.", "selector": "[data-testid=\"nav-evolucao\"]", "priority": "CRITICAL"},
+      {"component": "App.js", "issue": "No React error boundary. Any render/effect error (as above) blanks the entire app instead of degrading gracefully.", "selector": "n/a", "priority": "MEDIUM"},
+      {"component": "AdminDashboard / PersonalDashboard / Mensalidade / Perfil", "issue": "API errors are swallowed with `.catch(() => {})`, so a failing request leaves the page stuck on 'Carregando...' forever with no error state or retry.", "selector": "[data-testid=\"admin-dashboard-page\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All admin/personal list pages (desktop 1920px)", "issues": ["Sonner toast is pinned top-right and visually covers the primary page action button ('+ Novo Aluno', '+ Nova Sessão', '+ Novo Plano') for ~4s after every save — reproduced on Alunos and Agenda screenshots. Move the toaster to bottom-right / top-center or add top offset."]},
+      {"screen": "Pagamentos (Vencimento) and Agenda (Data/Hora)", "issues": ["Uses raw browser-native <input type=\"date\"> / <input type=\"time\"> pickers; the native picker UI clashes with the dark theme and the calendar icon is nearly invisible on the #1A1A1A surface. Consider a themed calendar component."]},
+      {"screen": "PersonalDashboard", "issues": ["Missing data-testid on 2 of the 4 stat cards ('Treinos Ativos', 'Sessões de hoje' count) — only stat-meus-alunos and stat-concluidos-hoje exist, which makes those metrics untestable."]},
+      {"screen": "Perfil (aluno)", "issues": ["'Treinos concluídos (N)' counter and the Empty state have no data-testid; also no loading skeleton, so the section flashes empty before /student/history resolves."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/conftest.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_security_ownership.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Add ownership guards to PUT/DELETE /api/workouts/:id and /api/sessions/:id (personal may only touch rows where personalId === req.user._id) — currently cross-personal IDOR.",
+    "Whitelist updatable fields on all PUT handlers instead of spreading req.body into findByIdAndUpdate (personalId/studentId/createdBy must never be client-settable).",
+    "Keep the Hoje.js useEffect fix; audit for the same pattern elsewhere (Alunos.js / Pagamentos.js / Agenda.js / Treinos.js use `useEffect(load, [])` but their `load` returns undefined, so they are safe today — wrap them anyway to prevent regressions).",
+    "Add an error boundary in App.js and real error states instead of `.catch(() => {})`.",
+    "Cascade-delete (or soft-delete) dependent Payments/Workouts/Sessions/WorkoutLogs/Measurements when a user is removed.",
+    "Read CORS_ORIGINS from backend/.env instead of `origin: true` with credentials.",
+    "Reposition the Sonner toaster so it stops covering the page's primary action button.",
+    "Add data-testid to the missing PersonalDashboard stat cards."
+  ],
+  "critical_code_review_comments": [
+    "src/routes/workouts.js:27 & src/routes/sessions.js:21 — findByIdAndUpdate/findByIdAndDelete without a personalId ownership filter = horizontal privilege escalation between personals.",
+    "src/routes/workouts.js:28, sessions.js:22, exercises.js:20, payments.js:24 — `{...req.body}` / `req.body` passed directly to Mongoose update: no schema-level validation of client input, allows ownership fields to be rewritten.",
+    "src/routes/auth.js:7 — module-level `attempts` Map is not restart-safe, not multi-instance safe, and never pruned.",
+    "src/index.js:19 — `cors({origin:true, credentials:true})` echoes any Origin with credentials; CORS_ORIGINS env key is dead config.",
+    "frontend/src/pages/student/Hoje.js:13 — `useEffect(load, [])` with a promise-returning `load` is an app-crashing React misuse (fixed).",
+    "frontend/src/pages/admin/*.js and personal/*.js repeat an identical modal+form+CRUD block (~60 lines each) — extract a shared useCrudResource hook / CrudTable component (DRY)."
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/student/Hoje.js",
+    "/app/backend/tests/conftest.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_security_ownership.py"
+  ],
+  "success_rate": {"backend": "94% (48/48 functional pass; 3/3 dedicated security-ownership cases fail)", "frontend": "97% (all flows pass after the 1 critical crash fix)"},
+  "seed_data_creation": "No permanent seed data added. All TEST_-prefixed records (alunos, personais, planos, exercícios, treinos, pagamentos, sessões) created during testing were deleted; DB verified back to seed state (3 users, 1 plan, 4 exercises, 1 workout, 1 payment, 0 sessions). scripts/seed.js confirmed idempotent. Today's WorkoutLog for aluno@academia.com exists because the 'concluir treino' flow was exercised — a 2nd attempt correctly returns 400 'Treino já concluído hoje'.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "/app/memory/test_credentials.md present and fully valid — admin@academia.com/admin123, personal@academia.com/senha123, aluno@academia.com/senha123 all log in and redirect correctly.",
+  "context_for_next_testing_agent": "Run `cd /app/backend/tests && python -m pytest backend_test.py -q` (48 tests, all should pass, self-cleaning and repeatable — the brute-force test uses a random email per run because the 429 lockout key ip:email persists 15 min). `test_security_ownership.py` is an intentional FAILING suite documenting 3 IDOR/mass-assignment bugs; it should turn green after the developer adds ownership guards + field whitelists. For the aluno UI 'concluir treino' flow, delete today's log first: db.workoutlogs.delete_many({studentId: <aluno id>, date: today}). All data-testids listed in the review request exist and work; missing ones are stat-treinos / stat-sessoes-hoje on PersonalDashboard. Frontend fix applied by tester: Hoje.js line 13 useEffect wrapper — verify it is still present, otherwise the student app crashes on tab navigation.",
+  "rca_of_the_issue": "Student app blank-screen crash: /app/frontend/src/pages/student/Hoje.js used `useEffect(load, [])` where `load = () => api.get('/student/today').then(...)`. React treats an effect's return value as the cleanup function; here it received a Promise and called `destroy()` on it during unmount, throwing 'TypeError: destroy is not a function' inside commitHookEffectListUnmount. Reproduction: login as aluno@academia.com -> tap 'Evolução' in the bottom nav -> React unmounts Hoje -> whole tree crashes, Evolução/Mensalidade/Perfil/logout unreachable. Mitigation applied: wrap in `useEffect(() => { load(); }, [])`. IDOR issues: workouts/sessions PUT+DELETE call findByIdAndUpdate/findByIdAndDelete with only requireRole('admin','personal') and no `personalId: req.user._id` filter, so any authenticated personal can mutate another personal's records; the same handlers spread req.body unvalidated, letting a client rewrite personalId/studentId."
+}

@@ -1,0 +1,133 @@
+{
+  "theme": "dark",
+  "archetype": "THE PERFORMANCE PRO",
+  "typography": {
+    "headings": {
+      "font_family": "Bebas Neue",
+      "fallback": "sans-serif",
+      "styles": "Strong condensed, uppercase, tracking-tight to tracking-tighter for headers.",
+      "sizes": {
+        "h1": "text-4xl sm:text-5xl lg:text-6xl",
+        "h2": "text-2xl sm:text-3xl lg:text-4xl",
+        "h3": "text-xl sm:text-2xl",
+        "h4": "text-lg sm:text-xl"
+      },
+      "rules": "DO NOT use Inter or generic sans for headings. Keep line-height tight (leading-none). Maximum size is text-6xl."
+    },
+    "body": {
+      "font_family": "DM Sans",
+      "fallback": "sans-serif",
+      "styles": "Geometric Sans with increased tracking for legibility.",
+      "sizes": {
+        "base": "text-base",
+        "small": "text-sm",
+        "tiny": "text-xs uppercase tracking-[0.2em]"
+      },
+      "rules": "Left-align dense content. Use leading-relaxed for body text."
+    }
+  },
+  "colors": {
+    "background_primary": "#0A0A0A",
+    "background_secondary": "#121212",
+    "surface": "#1A1A1A",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A1A1AA",
+    "brand_accent": "#FF3B30",
+    "brand_accent_hover": "#FF645A",
+    "success": "#22C55E",
+    "border": "#27272A",
+    "rules": "Never use pure #000000. Tint neutrals with cool gray/blue. Use Electric Blaze (#FF3B30) sparingly as the kinetic trigger. Text must be high contrast (Pure White). Avoid Vibrating Lime."
+  },
+  "visual enhancers": {
+    "shadows": "Replace soft shadows with 1px solid strokes (border-white/10) or 2px 'Inner Glow' highlights.",
+    "borders": "Grid Borders (The Technical Look). Expose the skeleton. Subtle borders on right and bottom of grid items.",
+    "corners": "Subtle roundness, max 8px border-radius.",
+    "surfaces": "Tactical Minimalism. Flat solid backgrounds with crisp edges. No muddy gray transparency. If glassmorphism is needed, use bg-black/60 with backdrop-blur-xl and 1px delicate inner stroke."
+  },
+  "component name": {
+    "cards": "Flat background, 1px subtle border (border-border), no shadow. Hover: slight lift (-translate-y-1), subtle shadow, border color darkens.",
+    "buttons": "Use sharp edges or slight roundness. High-saturation accent blocks for primary actions. Active states must have higher contrast.",
+    "inputs": "Shadcn components customized. High contrast focus rings. No native <input> or <select>.",
+    "navigation": "Desktop: Solid Background with a hard bottom/right border. Mobile: Bottom nav for the Aluno app with high-contrast active icons.",
+    "toasts": "Use sonner. Customize to match dark/tactical aesthetic.",
+    "tables_lists": "Dense and compact spacing for Admin/Personal dashboards. Every pixel utilized."
+  },
+  "grids": {
+    "mode": "High Density Grid (For Dashboards / Analytics)",
+    "base_grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4",
+    "gap": "Tight (gap-4 or gap-6)",
+    "spans": {
+      "summary": "col-span-1 (Single metric)",
+      "primary_data": "col-span-2 row-span-2 or col-span-3 (Main chart)",
+      "feed_list": "col-span-1 row-span-2 (Tall narrow lists)"
+    },
+    "rules": "Grid items MUST be direct children of grid containers. Override default stretch behavior with align-items: start where necessary."
+  },
+  "layouts": {
+    "admin_dashboard": "Sidebar navigation (left), top header with user profile, high-density bento grid for financial overview, members, and plans.",
+    "personal_dashboard": "Sidebar navigation (left), focus on agenda (calendar) and student list. Generous spacing in workout builder forms.",
+    "student_app": "Mobile-first layout. No sidebar. Bottom navigation bar. Large, high-impact numerals for workout progress. Focus on today's workout."
+  },
+  "motion": {
+    "interactions": "Hover states (lighter hue), click/press states, focus states. Transition specific properties (transition: transform 0.2s ease, opacity 0.2s ease).",
+    "entrance": "Staggered entrance animations for lists.",
+    "rules": "DO NOT use 'transition: all'. Disable/reduce animations for prefers-reduced-motion."
+  },
+  "accessibility": {
+    "contrast": "Minimum 4.5:1 ratio for text below 18px. ALWAYS explicitly set text color on hover (e.g., hover:bg-slate-900 hover:text-white).",
+    "focus": "Focus States must have HIGHER contrast than default state.",
+    "testing": "All interactive and key informational elements MUST include a `data-testid` attribute (kebab-case, role-based). Example: `data-testid=\"login-submit-button\"`.",
+    "aria": "Add aria-hidden=\"true\" to purely decorative elements."
+  },
+  "media": {
+    "image_constraints": "Mobile Height Limit: Images MUST NOT exceed 80vh on mobile devices (max-h-[80vh]).",
+    "overlays": "Hero Image Overlay: Max opacity bg-black/50. If text contrast is needed, use gradient overlay rather than a flat blanket overlay."
+  },
+  "3d libraries and steps": {
+    "instructions": "For data-heavy Admin dashboards, use Recharts for clear data visualization. No heavy 3D required for this operational app, keep it 2D and highly functional. If dynamic visual appeal is needed on the login screen, use Framer Motion for simple entrance animations.",
+    "steps": [
+      "1. Install recharts: yarn add recharts",
+      "2. Import Recharts components (BarChart, LineChart, etc.) in dashboard views.",
+      "3. Use dark mode compatible colors for chart lines (e.g., #FF3B30 and #FFFFFF)."
+    ]
+  },
+  "image urls": [
+    {
+      "url": "https://images.unsplash.com/photo-1611672585731-fa10603fb9e0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHw0fHxhdGhsZXRlJTIwdHJhaW5pbmclMjBkYXJrJTIwZ3ltfGVufDB8fHx8MTc4Nzc5NjM2NXww&ixlib=rb-4.1.0&q=85",
+      "category": "login_background",
+      "description": "Man in black tank top wearing headphones. Perfect for a moody, high-energy login screen."
+    },
+    {
+      "url": "https://images.unsplash.com/photo-1738523686534-7055df5858d6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxhdGhsZXRlJTIwdHJhaW5pbmclMjBkYXJrJTIwZ3ltfGVufDB8fHx8MTc4Nzc5NjM2NXww&ixlib=rb-4.1.0&q=85",
+      "category": "admin_dashboard_hero",
+      "description": "Gym with exercise machines in dark lighting. Use as a subtle header background for the Admin overview."
+    },
+    {
+      "url": "https://images.pexels.com/photos/6551439/pexels-photo-6551439.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "personal_trainer_dashboard",
+      "description": "Trainer interacting with a student. Use in the 'My Students' or 'Workout Builder' empty states/headers."
+    },
+    {
+      "url": "https://images.pexels.com/photos/35540076/pexels-photo-35540076.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "student_app_workout",
+      "description": "Athletic man working out. Use as the banner for 'Today's Workout' in the Student Web App."
+    }
+  ],
+  "component_path": {
+    "ui_components": "/app/frontend/src/components/ui",
+    "pages": "/app/frontend/src/pages",
+    "layouts": "/app/frontend/src/layouts"
+  },
+  "instructions_to_main_agent": [
+    "Design specifically for the 'The Performance Pro' archetype. Dark mode, tactical minimalism, high contrast.",
+    "Generate .js files for React components, not .tsx. All configurations should expect JavaScript.",
+    "Ensure the Aluno (Student) interface is optimized as a mobile web app with bottom navigation, while Admin and Personal are desktop-first dashboards with sidebars.",
+    "Do NOT use HTML-based components for advanced user interactions (dropdown, calendar, toast). Always use Shadcn.",
+    "Implement Shadcn 'sonner' for toast notifications.",
+    "Do not use complete transparent backgrounds in headers or dropdowns. Use bg-black/80 with backdrop-blur-xl.",
+    "Add 'data-testid' to ALL interactive elements. e.g., 'data-testid=\"admin-login-button\"'",
+    "Use @phosphor-icons/react or lucide-react for icons. Do not use AI emojis."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Avoid generic 'AI slop'. Do not make centered text layouts. Create depth through layered design elements with z-index hierarchy. Apply Generous Spacing (p-6, p-8). Never use generic sans-serif for headings (use Bebas Neue). Include micro-animations for interactions. Never apply 'transition: all'. Never center align the app container. Use pre-existing Shadcn components from src/components/ui where possible. DO NOT use placeholder images.",
+  "general_ui_ux_design_guidelines": "Emotion First: Every design decision maps to a feeling. Here, the feeling is 'Elite Athleticism'. Contrast: Use light vs. dark, rough vs. smooth. Negative Space: Value the empty areas. Prioritize optical alignment over geometrical alignment. Always left-align dense content. The system must feel emotionally directed like a scene in a film, empowering users in their fitness journey."
+}

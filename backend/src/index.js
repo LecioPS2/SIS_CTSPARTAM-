@@ -1,0 +1,41 @@
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const { connectDb } = require('./db');
+
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const planRoutes = require('./routes/plans');
+const paymentRoutes = require('./routes/payments');
+const exerciseRoutes = require('./routes/exercises');
+const workoutRoutes = require('./routes/workouts');
+const sessionRoutes = require('./routes/sessions');
+const statsRoutes = require('./routes/stats');
+const studentRoutes = require('./routes/student');
+
+const app = express();
+app.use(express.json());
+app.use(cookieParser());
+const corsOrigins = (process.env.CORS_ORIGINS || '*').split(',').map((o) => o.trim());
+app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentials: !corsOrigins.includes('*') }));
+
+app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express' }));
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/plans', planRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/exercises', exerciseRoutes);
+app.use('/api/workouts', workoutRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/student', studentRoutes);
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Erro interno do servidor' });
+});
+
+const PORT = process.env.PORT || 8002;
+connectDb().then(() => {
+  app.listen(PORT, '127.0.0.1', () => console.log(`Node backend rodando na porta ${PORT}`));
+});
