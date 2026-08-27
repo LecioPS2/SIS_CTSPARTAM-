@@ -7,7 +7,7 @@ const { requireAuth } = require('../middleware/auth');
 const attempts = new Map();
 
 function createToken(user) {
-  return jwt.sign({ sub: user._id.toString(), role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ sub: user._id.toString(), role: user.role }, process.env.JWT_SECRET || 'supersecret_ctspartan_2026_fallback', { expiresIn: '7d' });
 }
 
 router.post('/login', async (req, res) => {
