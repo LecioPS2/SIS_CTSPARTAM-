@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+
 const BG = '/login-hero.webp';
 
 export default function Login() {
@@ -28,58 +29,77 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <img src={BG} alt="Atleta treinando" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-bg" />
-        <div className="absolute bottom-12 left-12">
-          <p className="font-display text-6xl uppercase leading-none tracking-tight">Treine.<br /><span className="text-accent">Evolua.</span><br />Domine.</p>
+    <div className="relative min-h-screen overflow-hidden">
+      <img src={BG} alt="Atleta treinando" className="absolute inset-0 w-full h-full object-cover object-left" />
+      <div className="absolute inset-0 bg-gradient-to-r from-bg/40 via-bg/70 to-bg/95" />
+      <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent" />
+
+      <div className="relative z-10 min-h-screen max-w-6xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 items-center gap-10">
+        <div className="hidden lg:block fade-up">
+          <div className="flex items-center gap-3 mb-8">
+            <img src="/logo.png" alt="CT Spartan" className="w-14 h-14" />
+            <span className="font-display text-4xl uppercase tracking-tight">CT Spartan</span>
+          </div>
+          <p className="font-display text-6xl uppercase leading-none tracking-tight mb-4">
+            Treine.<br /><span className="text-accent">Evolua.</span><br />Domine.
+          </p>
+          <p className="text-muted text-sm max-w-sm leading-relaxed">
+            Espaço exclusivo para mulheres. Treinos personalizados, acompanhamento de evolução e gestão completa em um só lugar.
+          </p>
         </div>
-      </div>
-      <div className="flex-1 flex items-center justify-center px-6">
-        <form onSubmit={submit} className="w-full max-w-sm fade-up" data-testid="login-form">
-          <div className="flex items-center gap-2 mb-10">
-            <img src="/logo.png" alt="CT Spartan" className="w-11 h-11" />
-            <span className="font-display text-3xl uppercase tracking-tight">CT Spartan</span>
-          </div>
-          <h1 className="font-display text-4xl uppercase tracking-tight mb-1">Acesse sua conta</h1>
-          <p className="text-muted text-sm mb-8">Painel de gestão da academia</p>
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-muted block mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="seu@email.com"
-                data-testid="login-email-input"
-                className="w-full bg-surface border border-line rounded px-3 py-2.5 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              />
+
+        <div className="flex justify-center lg:justify-end">
+          <form
+            onSubmit={submit}
+            data-testid="login-form"
+            className="w-full max-w-md bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-10 fade-up"
+          >
+            <div className="flex items-center gap-2 mb-8 lg:hidden">
+              <img src="/logo.png" alt="CT Spartan" className="w-10 h-10" />
+              <span className="font-display text-3xl uppercase tracking-tight">CT Spartan</span>
             </div>
-            <div>
-              <label className="text-xs uppercase tracking-[0.2em] text-muted block mb-1.5">Senha</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-                data-testid="login-password-input"
-                className="w-full bg-surface border border-line rounded px-3 py-2.5 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              />
+            <h1 className="font-display text-4xl uppercase tracking-tight mb-1">Acesse sua conta</h1>
+            <p className="text-muted text-sm mb-8">Painel de gestão da academia</p>
+            <div className="space-y-5">
+              <div>
+                <label className="text-xs uppercase tracking-[0.2em] text-muted block mb-2">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="seu@email.com"
+                  data-testid="login-email-input"
+                  className="w-full bg-surface/80 border border-line rounded-lg px-4 py-3 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs uppercase tracking-[0.2em] text-muted block mb-2">Senha</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="••••••••"
+                  data-testid="login-password-input"
+                  className="w-full bg-surface/80 border border-line rounded-lg px-4 py-3 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                />
+              </div>
+              {error && <p className="text-accent text-sm" data-testid="login-error-message">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                data-testid="login-submit-button"
+                className="w-full bg-accent hover:bg-accenth text-white font-medium py-3.5 rounded-lg transition-colors duration-200 disabled:opacity-50"
+              >
+                {loading ? 'Entrando...' : 'Entrar'}
+              </button>
+              <p className="text-center text-xs text-muted pt-2">
+                Esqueceu a senha? Fale com a recepção da academia.
+              </p>
             </div>
-            {error && <p className="text-accent text-sm" data-testid="login-error-message">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              data-testid="login-submit-button"
-              className="w-full bg-accent hover:bg-accenth text-white font-medium py-2.5 rounded transition-colors duration-200 disabled:opacity-50"
-            >
-              {loading ? 'Entrando...' : 'Entrar'}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
