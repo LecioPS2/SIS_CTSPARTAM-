@@ -32,7 +32,7 @@ app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentia
 // Servir arquivos de upload como estáticos
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express', v: 2 }));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
