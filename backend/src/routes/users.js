@@ -3,6 +3,31 @@ const bcrypt = require('bcryptjs');
 const { User } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
+// ROTA TEMPORÁRIA PARA RECRIAR O ADMIN (caso o Seed tenha falhado)
+router.get('/fix-admin', async (req, res) => {
+  try {
+    const hash = await bcrypt.hash('admin123', 10);
+    const existing = await User.findOne({ email: 'admin@academia.com' });
+    
+    if (existing) {
+      existing.passwordHash = hash;
+      await existing.save();
+      return res.json({ message: 'Senha do admin resetada para admin123' });
+    } else {
+      await User.create({
+        name: 'Administrador',
+        email: 'admin@academia.com',
+        passwordHash: hash,
+        role: 'admin',
+        active: true
+      });
+      return res.json({ message: 'Conta admin criada com sucesso! (admin123)' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.use(requireAuth);
 
 router.get('/', requireRole('admin', 'personal'), async (req, res) => {
