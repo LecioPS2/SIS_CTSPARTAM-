@@ -16,7 +16,7 @@ export default function PersonalDashboard() {
     <div data-testid="personal-dashboard-page">
       <PageHeader title="Visão Geral" subtitle="Seu dia como personal trainer" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatCard label="Meus Alunos" value={stats.totalAlunos} icon={Users} testId="stat-meus-alunos" />
+        <StatCard label="Minhas Alunas" value={stats.totalAlunos} icon={Users} testId="stat-meus-alunos" />
         <StatCard label="Treinos Ativos" value={stats.totalTreinos} icon={ClipboardList} testId="stat-treinos-ativos" />
         <StatCard label="Treinos Concluídos Hoje" value={stats.completedToday} icon={CheckCircle2} accent testId="stat-concluidos-hoje" />
       </div>

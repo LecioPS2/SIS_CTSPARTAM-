@@ -23,7 +23,7 @@ import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, Clipboar
 
 const adminNav = [
   { to: '/admin', label: 'Visão Geral', icon: LayoutDashboard, end: true, testId: 'admin-dashboard' },
-  { to: '/admin/alunos', label: 'Alunos', icon: Users, testId: 'admin-alunos' },
+  { to: '/admin/alunos', label: 'Alunas', icon: Users, testId: 'admin-alunos' },
   { to: '/admin/personais', label: 'Personais', icon: UserCog, testId: 'admin-personais' },
   { to: '/admin/planos', label: 'Planos', icon: CreditCard, testId: 'admin-planos' },
   { to: '/admin/pagamentos', label: 'Pagamentos', icon: Wallet, testId: 'admin-pagamentos' },
@@ -32,7 +32,7 @@ const adminNav = [
 
 const personalNav = [
   { to: '/personal', label: 'Visão Geral', icon: LayoutDashboard, end: true, testId: 'personal-dashboard' },
-  { to: '/personal/alunos', label: 'Meus Alunos', icon: Users, testId: 'personal-alunos' },
+  { to: '/personal/alunos', label: 'Minhas Alunas', icon: Users, testId: 'personal-alunos' },
   { to: '/personal/treinos', label: 'Treinos', icon: ClipboardList, testId: 'personal-treinos' },
   { to: '/personal/agenda', label: 'Agenda', icon: CalendarDays, testId: 'personal-agenda' },
   { to: '/personal/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'personal-exercicios' },

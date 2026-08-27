@@ -17,11 +17,15 @@ router.get('/', requireRole('admin', 'personal'), async (req, res) => {
   res.json(users.map((u) => u.toJSON()));
 });
 
+const ANAMNESIS_FIELDS = ['goal', 'healthConditions', 'medications', 'injuries', 'experienceLevel', 'trainingFrequency', 'anamnesisNotes'];
+
 router.post('/', requireRole('admin', 'personal'), async (req, res) => {
-  const { name, email, password, role, phone, personalId, planId, birthDate, goal } = req.body;
+  const { name, email, password, role, phone, personalId, planId, birthDate } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'Nome, email e senha são obrigatórios' });
   const newRole = req.user.role === 'personal' ? 'aluno' : role || 'aluno';
   if (await User.findOne({ email: email.toLowerCase().trim() })) return res.status(400).json({ error: 'Email já cadastrado' });
+  const anamnesis = {};
+  ANAMNESIS_FIELDS.forEach((f) => { if (req.body[f] !== undefined) anamnesis[f] = req.body[f]; });
   const user = await User.create({
     name,
     email: email.toLowerCase().trim(),
@@ -31,7 +35,7 @@ router.post('/', requireRole('admin', 'personal'), async (req, res) => {
     personalId: req.user.role === 'personal' ? req.user._id : personalId || null,
     planId: planId || null,
     birthDate,
-    goal,
+    ...anamnesis,
   });
   res.status(201).json(user.toJSON());
 });
@@ -42,12 +46,12 @@ router.put('/:id', requireRole('admin', 'personal'), async (req, res) => {
   if (req.user.role === 'personal' && String(user.personalId) !== String(req.user._id)) {
     return res.status(403).json({ error: 'Acesso negado' });
   }
-  const { name, email, phone, personalId, planId, active, password, birthDate, goal } = req.body;
+  const { name, email, phone, personalId, planId, active, password, birthDate } = req.body;
   if (name) user.name = name;
   if (email) user.email = email.toLowerCase().trim();
   if (phone !== undefined) user.phone = phone;
   if (birthDate !== undefined) user.birthDate = birthDate;
-  if (goal !== undefined) user.goal = goal;
+  ANAMNESIS_FIELDS.forEach((f) => { if (req.body[f] !== undefined) user[f] = req.body[f]; });
   if (req.user.role === 'admin') {
     if (personalId !== undefined) user.personalId = personalId || null;
     if (planId !== undefined) user.planId = planId || null;

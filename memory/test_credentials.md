@@ -4,8 +4,8 @@
 | Perfil | Email | Senha |
 |---|---|---|
 | Admin | admin@academia.com | admin123 |
-| Personal | personal@academia.com | senha123 |
-| Aluno | aluno@academia.com | senha123 |
+| Personal | personal@academia.com | senha123 | (Carla Trainer)
+| Aluna | aluno@academia.com | senha123 | (Maria Atleta)
 
 ## Arquitetura
 - Backend: Node.js + Express (porta interna 8002), exposto via shim ASGI Python (`/app/backend/server.py`) na porta 8001 (supervisor)

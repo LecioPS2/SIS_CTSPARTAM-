@@ -120,9 +120,9 @@ export default function Treinos() {
         <form onSubmit={save} className="space-y-4" data-testid="treino-form">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Nome do Treino"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Ex: Treino A — Peito e Tríceps" data-testid="treino-name-input" /></Field>
-            <Field label="Aluno">
+            <Field label="Aluna">
               <Select value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} required data-testid="treino-aluno-select">
-                <option value="">Selecione o aluno</option>
+                <option value="">Selecione a aluna</option>
                 {alunos.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </Select>
             </Field>

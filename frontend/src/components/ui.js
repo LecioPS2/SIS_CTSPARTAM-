@@ -27,6 +27,16 @@ export function Input({ className = '', ...props }) {
   );
 }
 
+export function Textarea({ className = '', ...props }) {
+  return (
+    <textarea
+      rows={3}
+      className={`w-full bg-surface border border-line rounded px-3 py-2 text-sm text-white placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y ${className}`}
+      {...props}
+    />
+  );
+}
+
 export function Select({ className = '', children, ...props }) {
   return (
     <select
@@ -84,6 +94,12 @@ export function Badge({ children, tone = 'muted' }) {
 }
 
 export function Modal({ open, onClose, title, children, wide = false }) {
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 backdrop-blur-sm p-4 pt-12" onClick={onClose} data-testid="modal-overlay">

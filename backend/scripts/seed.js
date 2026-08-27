@@ -8,13 +8,13 @@ async function run() {
   const hash = await bcrypt.hash('senha123', 10);
 
   let personal = await User.findOne({ email: 'personal@academia.com' });
-  if (!personal) personal = await User.create({ name: 'Carlos Trainer', email: 'personal@academia.com', passwordHash: hash, role: 'personal', phone: '(11) 99999-1111' });
+  if (!personal) personal = await User.create({ name: 'Carla Trainer', email: 'personal@academia.com', passwordHash: hash, role: 'personal', phone: '(11) 99999-1111' });
 
   let plan = await Plan.findOne({ name: 'Mensal' });
   if (!plan) plan = await Plan.create({ name: 'Mensal', price: 129.9, durationDays: 30, description: 'Acesso livre à academia + app' });
 
   let aluno = await User.findOne({ email: 'aluno@academia.com' });
-  if (!aluno) aluno = await User.create({ name: 'João Atleta', email: 'aluno@academia.com', passwordHash: hash, role: 'aluno', phone: '(11) 98888-2222', personalId: personal._id, planId: plan._id, goal: 'Hipertrofia' });
+  if (!aluno) aluno = await User.create({ name: 'Maria Atleta', email: 'aluno@academia.com', passwordHash: hash, role: 'aluno', phone: '(11) 98888-2222', personalId: personal._id, planId: plan._id, goal: 'Hipertrofia' });
 
   if ((await Exercise.countDocuments()) === 0) {
     await Exercise.insertMany([

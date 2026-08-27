@@ -19,7 +19,7 @@ export default function AdminDashboard() {
     <div data-testid="admin-dashboard-page">
       <PageHeader title="Visão Geral" subtitle="Panorama financeiro e operacional da academia" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Alunos Ativos" value={stats.totalAlunos} icon={Users} testId="stat-total-alunos" />
+        <StatCard label="Alunas Ativas" value={stats.totalAlunos} icon={Users} testId="stat-total-alunos" />
         <StatCard label="Personais" value={stats.totalPersonais} icon={UserCog} testId="stat-total-personais" />
         <StatCard label="Receita do Mês" value={brl(stats.monthRevenue)} icon={Wallet} accent testId="stat-receita-mes" />
         <StatCard label="Pendências" value={`${stats.pendingCount} · ${brl(stats.pendingAmount)}`} icon={AlertCircle} testId="stat-pendencias" />

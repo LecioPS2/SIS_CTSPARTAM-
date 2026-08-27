@@ -1,4 +1,6 @@
 const express = require('express');
+require('express-async-errors');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { connectDb } = require('./db');
@@ -12,6 +14,7 @@ const workoutRoutes = require('./routes/workouts');
 const sessionRoutes = require('./routes/sessions');
 const statsRoutes = require('./routes/stats');
 const studentRoutes = require('./routes/student');
+const measurementRoutes = require('./routes/measurements');
 
 const app = express();
 app.use(express.json());
@@ -29,11 +32,21 @@ app.use('/api/workouts', workoutRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/student', studentRoutes);
+app.use('/api/measurements', measurementRoutes);
+
+app.param('id', (req, res, next, id) => {
+  if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'ID inválido' });
+  next();
+});
 
 app.use((err, req, res, next) => {
+  if (err.name === 'CastError') return res.status(400).json({ error: 'ID ou valor inválido' });
+  if (err.name === 'ValidationError') return res.status(400).json({ error: 'Dados inválidos' });
   console.error(err);
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
+
+process.on('unhandledRejection', (err) => console.error('unhandledRejection:', err));
 
 const PORT = process.env.PORT || 8002;
 connectDb().then(() => {

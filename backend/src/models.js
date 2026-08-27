@@ -14,6 +14,12 @@ const userSchema = new Schema({
   active: { type: Boolean, default: true },
   birthDate: String,
   goal: String,
+  healthConditions: String,
+  medications: String,
+  injuries: String,
+  experienceLevel: String,
+  trainingFrequency: String,
+  anamnesisNotes: String,
 }, opts);
 
 const planSchema = new Schema({

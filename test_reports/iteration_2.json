@@ -1,0 +1,68 @@
+{
+  "summary": "Iteration 2 (IRON HUB) full-stack test: anamnesis fields on /api/users, new /api/measurements/:studentId (physical assessment) with ownership rules, feminine UI language, plus regression of iteration-1 suites. Backend: 62/63 pytest tests pass (1 validation gap) + 1 CRITICAL crash found. Frontend: all requested flows (admin anamnesis create/edit persistence, personal anamnesis + avaliação física with 2-entry history, aluna /aluno/evolucao showing the personal's assessments, feminine wording, treino do dia, exercícios) PASS.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "ANY route with an ObjectId path param (reproduced on GET /api/measurements/not-an-objectid and PUT /api/users/bad-id)",
+        "issue": "Malformed ObjectId triggers a Mongoose CastError inside an async Express handler. Express 4 does not catch rejected promises, so the rejection is unhandled and the Node process EXITS. Log shows 'Failed running src/index.js' and every subsequent request returns 502 until the backend is manually restarted (node --watch only restarts on file change, so there is NO auto-recovery). Unauthenticated-adjacent DoS: any logged-in user (or a stale/typo'd frontend id) can take the whole API down. Fix: wrap all async handlers (e.g. a tiny asyncHandler/express-async-errors) + validate mongoose.isValidObjectId(param) -> 400, and add process.on('unhandledRejection') logging. Also consider autorestart in supervisor/node start script instead of --watch.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "POST /api/measurements/:studentId",
+        "issue": "Accepts an empty body {} and creates a blank Measurement record (201). No validation that at least one measure is present (frontend guards it, API does not). Also no numeric validation — a non-numeric weight would produce a CastError and crash the process (see CRITICAL)."
+      },
+      {
+        "endpoint": "POST /api/measurements/:studentId",
+        "issue": "canAccess does not check that the target user has role 'aluno' — an admin can create measurements for a personal/admin account."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Modal (components/ui.js)",
+        "issue": "No Escape-key handler to close modals (only overlay click / X button). Minor a11y/UX gap; test had to use modal-close-button.",
+        "selector": "[data-testid=\"modal-overlay\"]",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Nova/Editar Aluna modal (admin + personal)",
+        "issues": ["'Data de nascimento' uses the native browser date input showing mm/dd/yyyy (US format) in a pt-BR app — inconsistent with the dd/MM/yyyy shown everywhere else; consider a custom/locale-aware date field", "Anamnesis 'Observações gerais' is a single-line Input; a textarea would fit the free-text intent better"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_anamnesis_measurements.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_security_ownership.py",
+    "/app/backend/tests/cleanup_test_data.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "CRITICAL: catch async errors in Express (asyncHandler / express-async-errors) and validate ObjectId path params -> 400, so a bad id returns 400 instead of killing the Node process (currently causes a full 502 outage with no auto-recovery).",
+    "Add validation to POST /api/measurements/:studentId: reject empty payload with 400 and coerce/validate numeric fields.",
+    "Optional: restrict measurements to users with role 'aluno'.",
+    "Optional UX: Escape-to-close on Modal; locale-aware date input; textarea for anamnesis notes."
+  ],
+  "critical_code_review_comments": [
+    "Every route in /app/backend/src/routes/*.js uses bare async handlers with no try/catch; the global error middleware never sees these rejections. This is a single systemic defect that makes the API crashable via any malformed id or bad-typed body field.",
+    "measurements.js POST persists whatever comes in req.body with no Pydantic-equivalent validation (no required fields, no number coercion).",
+    "Backend start uses `node --watch`; after a crash the process stays dead until a file changes — production/preview availability risk."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_anamnesis_measurements.py (new)",
+    "/app/backend/tests/cleanup_test_data.py (new)"
+  ],
+  "success_rate": {"backend": "98% (62/63 pytest assertions pass; 1 validation gap + 1 crash defect)", "frontend": "100% of requested flows passed"},
+  "seed_data_creation": "Created and then deleted TEST_ users (admin/personal-created alunas) and their measurements. Verified only the 3 seed users remain via /app/backend/tests/cleanup_test_data.py.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "admin@academia.com/admin123, personal@academia.com/senha123, aluno@academia.com/senha123 (from /app/memory/test_credentials.md — file present and valid)",
+  "context_for_next_testing_agent": "Suites: backend_test.py (51), test_security_ownership.py (3), test_anamnesis_measurements.py (new, 13). Run: `cd /app/backend && python -m pytest tests/ -v --junitxml=/app/test_reports/pytest/pytest_results.xml`. WARNING: test_anamnesis_measurements.py::TestMeasurements::test_invalid_student_id_not_500 CRASHES the backend (documented CRITICAL bug) and every test after it fails with 502 — until the fix lands, deselect it and run it last, then `sudo supervisorctl restart backend`. Verified working E2E: admin anamnesis create+edit persistence, personal anamnesis (auto-linked), avaliação física modal with growing history, aluna /aluno/evolucao chart+history from personal-registered measurements, feminine language (Alunas / Alunas Ativas / Minhas Alunas / Selecione a aluna), ownership 403s, aluno 403 on /api/measurements. Playbook checks re-verified: bcrypt $2b$ hash, httpOnly cookie on login, brute-force lockout after 5 fails.",
+  "rca_of_the_issue": "GET /api/measurements/not-an-objectid: canAccess calls `await User.findById('not-an-objectid')` which rejects with a Mongoose CastError. The handler is an async function passed directly to Express 4, which ignores the returned rejected promise, so Node raises unhandledRejection and (default since Node 15) terminates the process. supervisor's backend program runs `node --watch src/index.js`, which logs 'Failed running src/index.js' and idles waiting for a file change, leaving the API permanently 502 until manual restart. Reproduced twice (measurements and users routes) — systemic, not route-specific."
+}

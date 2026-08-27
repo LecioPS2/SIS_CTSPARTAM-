@@ -68,7 +68,7 @@ export default function Pagamentos() {
           <div className="p-6"><Empty text="Nenhum pagamento registrado ainda" /></div>
         ) : (
           <table className="w-full" data-testid="pagamentos-table">
-            <thead><tr><Th>Aluno</Th><Th>Plano</Th><Th>Valor</Th><Th>Vencimento</Th><Th>Pago em</Th><Th>Status</Th><Th></Th></tr></thead>
+            <thead><tr><Th>Aluna</Th><Th>Plano</Th><Th>Valor</Th><Th>Vencimento</Th><Th>Pago em</Th><Th>Status</Th><Th></Th></tr></thead>
             <tbody>
               {payments.map((p) => (
                 <tr key={p.id} className="hover:bg-surface transition-colors">
@@ -94,9 +94,9 @@ export default function Pagamentos() {
       </Card>
       <Modal open={modal} onClose={() => setModal(false)} title="Novo Pagamento">
         <form onSubmit={save} className="space-y-4" data-testid="pagamento-form">
-          <Field label="Aluno">
+          <Field label="Aluna">
             <Select value={form.studentId} onChange={set('studentId')} required data-testid="pagamento-aluno-select">
-              <option value="">Selecione o aluno</option>
+              <option value="">Selecione a aluna</option>
               {alunos.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Select>
           </Field>
