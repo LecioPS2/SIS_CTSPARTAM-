@@ -39,7 +39,7 @@ export default function DashboardLayout({ nav, children }) {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar de Acesso Rápido */}
-      <aside className="fixed left-0 top-0 bottom-0 w-[64px] bg-black/40 backdrop-blur-md border-r border-white/5 hidden lg:flex flex-col items-center justify-center z-40 shadow-2xl">
+      <aside className="fixed left-0 top-0 bottom-0 w-[64px] bg-black/40 backdrop-blur-md border-r border-white/5 hidden lg:flex flex-col items-center justify-center z-40 shadow-2xl print:hidden">
         <div className="flex flex-col items-center gap-10 mt-8">
           <div 
             className="text-[9px] uppercase tracking-[0.3em] text-white/50 font-bold whitespace-nowrap"
@@ -71,7 +71,7 @@ export default function DashboardLayout({ nav, children }) {
       </aside>
 
       {/* Main Sidebar */}
-      <aside className="w-56 shrink-0 bg-card shadow-lg shadow-black/40 rounded-xl flex flex-col fixed lg:left-[80px] left-4 top-4 bottom-4 z-30 overflow-hidden" data-testid="sidebar">
+      <aside className="w-56 shrink-0 bg-card shadow-lg shadow-black/40 rounded-xl flex flex-col fixed lg:left-[80px] left-4 top-4 bottom-4 z-30 overflow-hidden print:hidden" data-testid="sidebar">
         <div className="flex items-center gap-2 px-5 h-16 border-b border-line">
           <img src="/logo.png" alt="CT Spartan" className="w-8 h-8" />
           <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>
@@ -122,7 +122,7 @@ export default function DashboardLayout({ nav, children }) {
 
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-[320px] ml-64 flex flex-col px-6 pt-4">
-        <header className="sticky top-4 z-20 h-16 bg-card/90 backdrop-blur-xl shadow-lg shadow-black/40 rounded-xl flex items-center justify-between px-6 gap-4" data-testid="dashboard-header">
+        <header className="sticky top-4 z-20 h-16 bg-card/90 backdrop-blur-xl shadow-lg shadow-black/40 rounded-xl flex items-center justify-between px-6 gap-4 print:hidden" data-testid="dashboard-header">
           {/* Lado Esquerdo - Espaço reservado (Redes foram para a sidebar lateral) */}
           <div className="hidden md:flex flex-1"></div>
 

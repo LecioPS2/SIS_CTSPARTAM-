@@ -334,6 +334,58 @@ export default function Financeiro() {
         </div>
       </Modal>
 
+      {/* CONTEÚDO EXCLUSIVO PARA IMPRESSÃO */}
+      <div className="hidden print:block fixed inset-0 z-[9999] bg-white text-black p-10 text-sm">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b-2 border-black pb-4 mb-6">
+          <div className="flex items-center gap-4">
+            <img src="/logo.png" alt="CT Spartan Logo" className="w-24 object-contain brightness-0" />
+            <div>
+              <h1 className="font-black text-2xl uppercase tracking-tight">CT Spartan</h1>
+              <p className="text-gray-600 text-sm mt-1">Rua dos Espartanos, 300 - Centro</p>
+              <p className="text-gray-600 text-sm">Telefone: (11) 99999-9999 | Email: contato@ctspartan.com</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <h2 className="text-2xl font-black uppercase tracking-tight">Relatório Financeiro</h2>
+            <p className="font-bold uppercase text-sm mt-1">Filtro: {filter === 'todos' ? 'Geral' : filter}</p>
+            <p className="text-xs text-gray-500 mt-1">Gerado em: {new Date().toLocaleDateString('pt-BR')}</p>
+          </div>
+        </div>
+        
+        <div className="flex gap-12 mb-8 border-b border-gray-300 pb-8">
+          <div><p className="text-xs text-gray-500 uppercase tracking-wider">Entradas (Pagas)</p><p className="text-xl font-bold text-green-600">{brl(totalEntradas)}</p></div>
+          <div><p className="text-xs text-gray-500 uppercase tracking-wider">Saídas (Pagas)</p><p className="text-xl font-bold text-red-600">{brl(totalSaidas)}</p></div>
+          <div><p className="text-xs text-gray-500 uppercase tracking-wider">Saldo Líquido</p><p className="text-xl font-bold">{brl(saldoLiquido)}</p></div>
+          <div><p className="text-xs text-gray-500 uppercase tracking-wider">Inadimplentes</p><p className="text-xl font-bold text-red-600">{brl(totalInadimplente)}</p></div>
+        </div>
+        
+        <table className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="border-b-2 border-black bg-gray-100">
+              <th className="py-2 px-2 font-bold uppercase text-xs">Tipo</th>
+              <th className="py-2 px-2 font-bold uppercase text-xs">Referência</th>
+              <th className="py-2 px-2 font-bold uppercase text-xs">Valor</th>
+              <th className="py-2 px-2 font-bold uppercase text-xs">Vencimento</th>
+              <th className="py-2 px-2 font-bold uppercase text-xs">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPayments.map(p => (
+              <tr key={p.id} className="border-b border-gray-300">
+                <td className="py-2 px-2">{p.type === 'entrada' ? 'Entrada' : 'Saída'}</td>
+                <td className="py-2 px-2 font-semibold">{p.type === 'entrada' ? p.studentId?.name : p.description}</td>
+                <td className="py-2 px-2">{brl(p.amount)}</td>
+                <td className="py-2 px-2">{fmtDate(p.dueDate)}</td>
+                <td className="py-2 px-2 uppercase font-bold text-[10px]">{p.status}</td>
+              </tr>
+            ))}
+            {filteredPayments.length === 0 && (
+              <tr><td colSpan="5" className="py-4 text-center text-gray-500">Nenhum registro para exibir neste relatório.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 }
