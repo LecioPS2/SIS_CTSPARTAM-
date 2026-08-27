@@ -30,7 +30,7 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <img src={BG} alt="Atleta treinando" className="absolute inset-0 w-full h-full object-cover object-left" />
+      <img src={BG} alt="Atleta treinando" className="absolute inset-0 w-full h-full object-cover object-[25%_12%]" />
       <div className="absolute inset-0 bg-gradient-to-r from-bg/40 via-bg/70 to-bg/95" />
       <div className="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent" />
 
@@ -52,7 +52,7 @@ export default function Login() {
           <form
             onSubmit={submit}
             data-testid="login-form"
-            className="w-full max-w-md bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 sm:p-10 fade-up"
+            className="w-full max-w-md bg-white/[0.06] backdrop-blur-2xl rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/40 fade-up"
           >
             <div className="flex items-center gap-2 mb-8 lg:hidden">
               <img src="/logo.png" alt="CT Spartan" className="w-10 h-10" />
