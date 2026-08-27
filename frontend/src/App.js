@@ -80,7 +80,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <ErrorBoundary>
-        <Toaster theme="dark" position="bottom-right" toastOptions={{ style: { background: '#1A1A1A', border: '1px solid #27272A', color: '#fff' } }} />
+        <Toaster theme="dark" position="bottom-right" toastOptions={{ style: { background: '#0a1428', border: '1px solid #1c2a45', color: '#fff' } }} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

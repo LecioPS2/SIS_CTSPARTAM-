@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Dumbbell } from 'lucide-react';
 
-const BG = 'https://images.unsplash.com/photo-1611672585731-fa10603fb9e0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHw0fHxhdGhsZXRlJTIwdHJhaW5pbmclMjBkYXJrJTIwZ3ltfGVufDB8fHx8MTc4Nzc5NjM2NXww&ixlib=rb-4.1.0&q=85';
+const BG = '/login-hero.webp';
 
 export default function Login() {
   const { login } = useAuth();

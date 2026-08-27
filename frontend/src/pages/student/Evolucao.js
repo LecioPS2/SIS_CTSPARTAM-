@@ -59,10 +59,10 @@ export default function Evolucao() {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272A" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1c2a45" vertical={false} />
                 <XAxis dataKey="date" stroke="#A1A1AA" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="#A1A1AA" fontSize={11} tickLine={false} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} />
-                <Tooltip contentStyle={{ background: '#1A1A1A', border: '1px solid #27272A', borderRadius: 6 }} labelStyle={{ color: '#fff' }} />
+                <Tooltip contentStyle={{ background: '#0a1428', border: '1px solid #1c2a45', borderRadius: 6 }} labelStyle={{ color: '#fff' }} />
                 <Line type="monotone" dataKey="peso" stroke="#FF3B30" strokeWidth={2} dot={{ fill: '#FF3B30', r: 3 }} />
               </LineChart>
             </ResponsiveContainer>

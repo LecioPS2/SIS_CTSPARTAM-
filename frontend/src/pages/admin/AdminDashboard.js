@@ -30,10 +30,10 @@ export default function AdminDashboard() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.revenueChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272A" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1c2a45" vertical={false} />
                 <XAxis dataKey="month" stroke="#A1A1AA" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#A1A1AA" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: '#1A1A1A', border: '1px solid #27272A', borderRadius: 6 }} labelStyle={{ color: '#fff' }} formatter={(v) => [brl(v), 'Receita']} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+                <Tooltip contentStyle={{ background: '#0a1428', border: '1px solid #1c2a45', borderRadius: 6 }} labelStyle={{ color: '#fff' }} formatter={(v) => [brl(v), 'Receita']} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
                 <Bar dataKey="receita" fill="#FF3B30" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
