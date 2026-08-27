@@ -60,11 +60,6 @@ export default function Alunos() {
       toast.error(err.response?.data?.error || 'Erro ao salvar');
     }
   };
-      load();
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Erro ao salvar');
-    }
-  };
 
   const remove = async (id) => {
     if (!window.confirm('Excluir esta aluna?')) return;
