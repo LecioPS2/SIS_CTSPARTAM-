@@ -28,7 +28,7 @@ const adminNav = [
   { to: '/admin/alunos', label: 'Alunas', icon: Users, testId: 'admin-alunos' },
   { to: '/admin/personais', label: 'Personais', icon: UserCog, testId: 'admin-personais' },
   { to: '/admin/planos', label: 'Planos', icon: CreditCard, testId: 'admin-planos' },
-  { to: '/admin/pagamentos', label: 'Pagamentos', icon: Wallet, testId: 'admin-pagamentos' },
+  { to: '/admin/pagamentos', label: 'Financeiro', icon: Wallet, testId: 'admin-pagamentos' },
   { to: '/admin/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'admin-exercicios' },
   { to: '/admin/checkin', label: 'Check-in', icon: QrCode, testId: 'admin-checkin' },
   { to: '/admin/configuracoes', label: 'Configurações', icon: Settings, testId: 'admin-configuracoes' },
