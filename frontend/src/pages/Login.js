@@ -54,14 +54,6 @@ export default function Login() {
       <aside className="relative z-50 w-20 min-h-screen border-r border-white/10 bg-black/40 backdrop-blur-md hidden lg:flex flex-col items-center justify-center">
         
         <div className="flex flex-col items-center gap-10 mt-16">
-          {/* Texto Vertical */}
-          <div 
-            className="text-[10px] uppercase tracking-[0.3em] text-white/50 font-bold whitespace-nowrap"
-            style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-          >
-            Menu de Acesso Rápido do Sistema
-          </div>
-
           {/* Ícones de Redes */}
           <div className="flex flex-col gap-6">
             {socialLinks.map(link => (
