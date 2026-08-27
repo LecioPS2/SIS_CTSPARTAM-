@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api, { brl, fmtDate } from '../../lib/api';
 import { StatCard, Card, PageHeader, Badge, Empty } from '../../components/ui';
-import { Users, UserCog, Wallet, AlertCircle } from 'lucide-react';
+import { Users, UserCog, Wallet, AlertCircle, Download } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export default function AdminDashboard() {
@@ -26,7 +26,22 @@ export default function AdminDashboard() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="p-5 lg:col-span-2 fade-up" data-testid="revenue-chart-card">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted mb-4">Receita — últimos 6 meses</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted">Receita — últimos 6 meses</p>
+            <button
+              onClick={() => {
+                const token = localStorage.getItem('token');
+                const baseUrl = process.env.REACT_APP_BACKEND_URL || '';
+                fetch(`${baseUrl}/api/reports/payments/csv`, { headers: { Authorization: `Bearer ${token}` } })
+                  .then((r) => r.blob())
+                  .then((blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `pagamentos_${new Date().toISOString().slice(0, 10)}.csv`; a.click(); });
+              }}
+              className="flex items-center gap-1 text-xs text-muted hover:text-accent transition-colors"
+              data-testid="dashboard-export-button"
+            >
+              <Download size={13} /> Exportar
+            </button>
+          </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.revenueChart}>

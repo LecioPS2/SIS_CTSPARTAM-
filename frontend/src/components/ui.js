@@ -59,7 +59,7 @@ export function Field({ label, children }) {
 
 export function Card({ children, className = '', ...props }) {
   return (
-    <div className={`bg-card border border-line rounded-lg ${className}`} {...props}>
+    <div className={`bg-card shadow-lg shadow-black/40 rounded-lg ${className}`} {...props}>
       {children}
     </div>
   );
@@ -102,18 +102,18 @@ export function Modal({ open, onClose, title, children, wide = false }) {
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 backdrop-blur-sm p-4 pt-12" onClick={onClose} data-testid="modal-overlay">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose} data-testid="modal-overlay">
       <div
-        className={`bg-card border border-line rounded-lg w-full ${wide ? 'max-w-2xl' : 'max-w-md'} fade-up`}
+        className={`bg-card border border-line rounded-lg w-full max-h-[90vh] flex flex-col shadow-2xl shadow-black/80 ${wide ? 'max-w-2xl' : 'max-w-md'} fade-up`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line shrink-0">
           <h3 className="font-display text-2xl tracking-tight uppercase">{title}</h3>
           <button onClick={onClose} className="text-muted hover:text-white transition-colors" data-testid="modal-close-button" aria-label="Fechar">
             <X size={18} />
           </button>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="p-6 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

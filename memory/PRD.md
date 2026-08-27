@@ -24,10 +24,10 @@ Sistema para gerenciamento de academia com Dashboard do ADM, Dashboard do Person
 - Iteração 2: academia exclusiva para mulheres (linguagem feminina em toda UI; roles internas inalteradas para aceitar homens no futuro); questionário de anamnese no cadastro (meta, doenças, medicamentos, lesões, nível, frequência, observações — campos no User model); Avaliação Física registrada pelo personal (/api/measurements/:studentId GET/POST com ownership, modal em Minhas Alunas com histórico); tela de login com foto de atleta mulher enviada pelo usuário e fundo #040d1e
 
 - Iteração 3: header nas dashboards (busca visual, redes sociais, notificações visual, saudação + avatar + cargo); planos com dias de treino por semana (daysPerWeek 1–7, cobrança mensal) exibidos no card do plano e na mensalidade da aluna; Comparativo de Evolução (primeira vs última avaliação por medida, com delta) na tela Evolução da aluna e no modal de Avaliação Física do personal (componente EvolutionCompare)
+- Iteração 4: Notificações de vencimento de mensalidade no header; Relatórios financeiros exportáveis em CSV (Admin); Upload de fotos de perfil (aluna) e de exercícios (com armazenamento local e fallback para iniciais); Check-in por QR Code diário rotativo para alunas com scanner via câmera no Admin e histórico na página de perfil.
 
 ## Backlog priorizado
-- P1: Notificações de vencimento de mensalidade; relatórios financeiros exportáveis; avaliação física registrada pelo personal
-- P2: Upload de foto de perfil/exercício (object storage); check-in por QR code; dark date-picker customizado (substituir input nativo); recuperação de senha por email
+- P2: Dark date-picker customizado (substituir input nativo); recuperação de senha por email
 - P2: Refatorar CRUDs repetidos do frontend em hook compartilhado
 
 ## Credenciais de teste

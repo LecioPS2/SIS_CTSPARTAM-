@@ -13,6 +13,7 @@ const userSchema = new Schema({
   planId: { type: Schema.Types.ObjectId, ref: 'Plan', default: null },
   active: { type: Boolean, default: true },
   birthDate: String,
+  avatarUrl: String,
   goal: String,
   healthConditions: String,
   medications: String,
@@ -50,6 +51,8 @@ const exerciseSchema = new Schema({
   load: { type: Number, default: 0 },
   timeSeconds: { type: Number, default: 0 },
   notes: String,
+  imageUrl: String,
+  videoUrl: String,
   createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
 }, opts);
 
@@ -99,6 +102,14 @@ const sessionSchema = new Schema({
   status: { type: String, enum: ['agendada', 'concluida', 'cancelada'], default: 'agendada' },
 }, opts);
 
+const checkInSchema = new Schema({
+  studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
+  method: { type: String, enum: ['qrcode', 'manual'], default: 'qrcode' },
+}, opts);
+checkInSchema.index({ studentId: 1, date: 1 }, { unique: true });
+
 module.exports = {
   User: mongoose.model('User', userSchema),
   Plan: mongoose.model('Plan', planSchema),
@@ -108,4 +119,5 @@ module.exports = {
   WorkoutLog: mongoose.model('WorkoutLog', workoutLogSchema),
   Measurement: mongoose.model('Measurement', measurementSchema),
   Session: mongoose.model('Session', sessionSchema),
+  CheckIn: mongoose.model('CheckIn', checkInSchema),
 };

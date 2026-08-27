@@ -13,6 +13,7 @@ export default function MeusAlunos() {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
+  const [step, setStep] = useState(1);
   const [evalModal, setEvalModal] = useState(null);
   const [evalForm, setEvalForm] = useState(emptyMeasure);
   const [history, setHistory] = useState([]);
@@ -28,6 +29,7 @@ export default function MeusAlunos() {
       injuries: a.injuries || '', experienceLevel: a.experienceLevel || '', trainingFrequency: a.trainingFrequency || '',
       anamnesisNotes: a.anamnesisNotes || '',
     } : empty);
+    setStep(1);
     setModal(true);
   };
 
@@ -108,42 +110,104 @@ export default function MeusAlunos() {
         )}
       </Card>
 
-      <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Editar Aluna' : 'Nova Aluna'} wide>
-        <form onSubmit={save} className="space-y-4" data-testid="meu-aluno-form">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">Dados da aluna</p>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Nome"><Input value={form.name} onChange={set('name')} required data-testid="meu-aluno-name-input" /></Field>
-            <Field label="Email"><Input type="email" value={form.email} onChange={set('email')} required data-testid="meu-aluno-email-input" /></Field>
-            <Field label={editing ? 'Nova senha (opcional)' : 'Senha'}><Input type="password" value={form.password} onChange={set('password')} required={!editing} data-testid="meu-aluno-password-input" /></Field>
-            <Field label="Telefone"><Input value={form.phone} onChange={set('phone')} data-testid="meu-aluno-phone-input" /></Field>
-            <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} data-testid="meu-aluno-nascimento-input" /></Field>
-            <Field label="Meta / Objetivo"><Input value={form.goal} onChange={set('goal')} placeholder="Ex: hipertrofia" data-testid="meu-aluno-goal-input" /></Field>
+      <Modal open={modal} onClose={() => { setModal(false); setStep(1); }} title={editing ? 'Editar Aluna' : 'Nova Aluna'} wide>
+        {/* Indicador de Passos */}
+        <div className="flex justify-between items-center mb-8 relative px-4">
+          <div className="absolute top-1/2 left-8 right-8 h-[2px] bg-line -z-10 -translate-y-1/2"></div>
+          {[
+            { id: 1, label: 'Dados Básicos' },
+            { id: 2, label: 'Saúde & Restrições' },
+            { id: 3, label: 'Metas & Treino' }
+          ].map((s) => (
+            <div key={s.id} className="flex flex-col items-center gap-2 bg-card px-2">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s.id ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-surface text-muted border border-line'}`}>
+                {s.id}
+              </div>
+              <span className={`text-[10px] uppercase tracking-wider font-semibold ${step >= s.id ? 'text-white' : 'text-muted'}`}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (step < 3) setStep(step + 1);
+          else save(e);
+        }} className="space-y-6" data-testid="meu-aluno-form">
+          
+          {/* PASSO 1: DADOS BÁSICOS */}
+          {step === 1 && (
+            <div className="space-y-4 fade-up">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Nome"><Input value={form.name} onChange={set('name')} required autoFocus /></Field>
+                <Field label="Email"><Input type="email" value={form.email} onChange={set('email')} required /></Field>
+                <Field label={editing ? 'Nova senha (opcional)' : 'Senha'}><Input type="password" value={form.password} onChange={set('password')} required={!editing} /></Field>
+                <Field label="Telefone"><Input value={form.phone} onChange={set('phone')} /></Field>
+                <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} /></Field>
+              </div>
+            </div>
+          )}
+
+          {/* PASSO 2: SAÚDE E RESTRIÇÕES */}
+          {step === 2 && (
+            <div className="space-y-4 fade-up">
+              <p className="text-xs uppercase tracking-[0.2em] text-accent mb-4">Anamnese de Saúde</p>
+              <div className="grid grid-cols-1 gap-4">
+                <Field label="Possui alguma doença? (Hipertensão, Diabetes, etc)">
+                  <Input value={form.healthConditions} onChange={set('healthConditions')} placeholder="Detalhe se houver..." autoFocus />
+                </Field>
+                <Field label="Faz uso contínuo de medicamentos?">
+                  <Input value={form.medications} onChange={set('medications')} placeholder="Quais medicamentos?" />
+                </Field>
+                <Field label="Lesões ou cirurgias recentes?">
+                  <Input value={form.injuries} onChange={set('injuries')} placeholder="Joelho, coluna, ombro..." />
+                </Field>
+              </div>
+            </div>
+          )}
+
+          {/* PASSO 3: METAS E TREINO */}
+          {step === 3 && (
+            <div className="space-y-4 fade-up">
+              <p className="text-xs uppercase tracking-[0.2em] text-accent mb-4">Plano de Ação</p>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Meta / Objetivo Principal">
+                  <Input value={form.goal} onChange={set('goal')} placeholder="Ex: Hipertrofia, emagrecimento..." autoFocus />
+                </Field>
+                <Field label="Nível de experiência">
+                  <Select value={form.experienceLevel} onChange={set('experienceLevel')}>
+                    <option value="">Selecione</option>
+                    <option value="iniciante">Iniciante</option>
+                    <option value="intermediaria">Intermediária</option>
+                    <option value="avancada">Avançada</option>
+                  </Select>
+                </Field>
+                <Field label="Frequência semanal desejada">
+                  <Select value={form.trainingFrequency} onChange={set('trainingFrequency')}>
+                    <option value="">Selecione</option>
+                    <option value="1-2x">1–2x por semana</option>
+                    <option value="3-4x">3–4x por semana</option>
+                    <option value="5-6x">5–6x por semana</option>
+                    <option value="todos os dias">Todos os dias</option>
+                  </Select>
+                </Field>
+              </div>
+              <Field label="Observações gerais e restrições extras">
+                <Textarea value={form.anamnesisNotes} onChange={set('anamnesisNotes')} placeholder="Outras informações relevantes para o Personal..." rows={3} />
+              </Field>
+            </div>
+          )}
+
+          {/* Botões de Navegação */}
+          <div className="flex gap-4 pt-6 mt-4 border-t border-line">
+            {step > 1 && (
+              <Button type="button" variant="ghost" onClick={() => setStep(step - 1)} className="flex-1">
+                Voltar
+              </Button>
+            )}
+            <Button type="submit" className="flex-1 shadow-lg shadow-accent/20">
+              {step < 3 ? 'Próximo Passo' : 'Salvar Aluna'}
+            </Button>
           </div>
-          <p className="text-xs uppercase tracking-[0.2em] text-accent pt-2 border-t border-line">Questionário (Anamnese)</p>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Possui alguma doença?"><Input value={form.healthConditions} onChange={set('healthConditions')} placeholder="Ex: hipertensão, nenhuma" data-testid="meu-aluno-doencas-input" /></Field>
-            <Field label="Faz uso de medicamentos?"><Input value={form.medications} onChange={set('medications')} placeholder="Ex: quais, ou nenhum" data-testid="meu-aluno-medicamentos-input" /></Field>
-            <Field label="Lesões ou cirurgias"><Input value={form.injuries} onChange={set('injuries')} placeholder="Ex: lesão no joelho, nenhuma" data-testid="meu-aluno-lesoes-input" /></Field>
-            <Field label="Nível de experiência">
-              <Select value={form.experienceLevel} onChange={set('experienceLevel')} data-testid="meu-aluno-experiencia-select">
-                <option value="">Selecione</option>
-                <option value="iniciante">Iniciante</option>
-                <option value="intermediaria">Intermediária</option>
-                <option value="avancada">Avançada</option>
-              </Select>
-            </Field>
-            <Field label="Frequência semanal desejada">
-              <Select value={form.trainingFrequency} onChange={set('trainingFrequency')} data-testid="meu-aluno-frequencia-select">
-                <option value="">Selecione</option>
-                <option value="1-2x">1–2x por semana</option>
-                <option value="3-4x">3–4x por semana</option>
-                <option value="5-6x">5–6x por semana</option>
-                <option value="todos os dias">Todos os dias</option>
-              </Select>
-            </Field>
-            <Field label="Observações gerais"><Textarea value={form.anamnesisNotes} onChange={set('anamnesisNotes')} data-testid="meu-aluno-observacoes-input" /></Field>
-          </div>
-          <Button type="submit" className="w-full" data-testid="meu-aluno-save-button">Salvar</Button>
         </form>
       </Modal>
 

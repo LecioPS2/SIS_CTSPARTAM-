@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 require('express-async-errors');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const { connectDb } = require('./db');
 
 const authRoutes = require('./routes/auth');
@@ -15,12 +17,19 @@ const sessionRoutes = require('./routes/sessions');
 const statsRoutes = require('./routes/stats');
 const studentRoutes = require('./routes/student');
 const measurementRoutes = require('./routes/measurements');
+const notificationRoutes = require('./routes/notifications');
+const reportRoutes = require('./routes/reports');
+const uploadRoutes = require('./routes/uploads');
+const checkinRoutes = require('./routes/checkin');
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 const corsOrigins = (process.env.CORS_ORIGINS || '*').split(',').map((o) => o.trim());
 app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentials: !corsOrigins.includes('*') }));
+
+// Servir arquivos de upload como estáticos
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express' }));
 app.use('/api/auth', authRoutes);
@@ -33,6 +42,10 @@ app.use('/api/sessions', sessionRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/measurements', measurementRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/uploads', uploadRoutes);
+app.use('/api/checkin', checkinRoutes);
 
 app.param('id', (req, res, next, id) => {
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'ID inválido' });

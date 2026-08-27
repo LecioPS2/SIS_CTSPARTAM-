@@ -1,7 +1,9 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Flame, TrendingUp, CreditCard, User } from 'lucide-react';
+import NotificationsPanel from '../components/NotificationsPanel';
+import QRCodeAluna from '../components/QRCodeAluna';
 
 const nav = [
   { to: '/aluno', label: 'Hoje', icon: Flame, end: true, testId: 'hoje' },
@@ -12,7 +14,6 @@ const nav = [
 
 export default function StudentLayout({ children }) {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen max-w-lg mx-auto pb-24">
@@ -21,7 +22,11 @@ export default function StudentLayout({ children }) {
           <img src="/logo.png" alt="CT Spartan" className="w-7 h-7" />
           CT <span className="text-accent">Spartan</span>
         </span>
-        <span className="text-xs text-muted truncate max-w-[50%]">{user?.name}</span>
+        <div className="flex items-center gap-4">
+          <QRCodeAluna inline />
+          <NotificationsPanel />
+          <span className="text-xs text-muted truncate max-w-[80px]">{user?.name}</span>
+        </div>
       </header>
       <main className="px-5 py-6">{children}</main>
       <nav className="fixed bottom-0 inset-x-0 z-40 bg-black/80 backdrop-blur-xl border-t border-line" data-testid="student-bottom-nav">
