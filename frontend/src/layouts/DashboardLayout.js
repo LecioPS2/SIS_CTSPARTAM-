@@ -130,13 +130,14 @@ export default function DashboardLayout({ nav, children }) {
           </div>
 
           {/* Lado Direito - Notificações e Perfil */}
-          <div className="flex items-center justify-end gap-5 flex-1">
+          <div className="flex items-center justify-end gap-16 flex-1">
             <NotificationsPanel />
-            <div className="flex items-center gap-3 pl-5 border-l border-line" data-testid="header-user-info">
-              <div className="text-right leading-tight">
-                <p className="text-xs text-muted">{greeting()},</p>
-                <p className="text-sm font-medium truncate max-w-[160px]">{user?.name}</p>
-                <p className="text-[10px] uppercase tracking-[0.15em] text-accent">{cargo}</p>
+            <div className="flex items-center gap-3" data-testid="header-user-info">
+              <div className="text-right leading-tight hidden sm:block">
+                <p className="text-[11px] text-muted">
+                  {greeting()}, <strong className="text-white font-medium capitalize">{user?.name}</strong>
+                </p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-accent">{cargo}</p>
               </div>
               {user?.avatarUrl ? (
                 <img src={`${backendUrl}${user.avatarUrl}`} alt="" className="w-10 h-10 rounded-full object-cover border border-line" data-testid="header-avatar" />
