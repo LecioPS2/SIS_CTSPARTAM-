@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input, Textarea, Field } from './ui';
 import api from '../lib/api';
 import { toast } from 'sonner';
-import { Search, Send, CheckSquare, Square, Users } from 'lucide-react';
+import { Search, Send, CheckSquare, Square, Users, Paperclip, X, Image as ImageIcon, FileVideo, Music } from 'lucide-react';
 
 export default function WhatsAppModal({ open, onClose }) {
   const [alunas, setAlunas] = useState([]);
@@ -10,9 +10,11 @@ export default function WhatsAppModal({ open, onClose }) {
   const [selected, setSelected] = useState(new Set());
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [attachment, setAttachment] = useState(null);
 
   useEffect(() => {
     if (open) {
+      setAttachment(null);
       api.get('/users?role=aluno').then((r) => setAlunas(r.data));
       setSelected(new Set());
       setMessage('');
@@ -117,21 +119,69 @@ export default function WhatsAppModal({ open, onClose }) {
             </p>
           </div>
 
-          <div className="flex-1 flex flex-col">
-            <Field label="Mensagem">
+          <div className="flex-1 flex flex-col gap-4">
+            <Field label="Mensagem" className="flex-1 flex flex-col h-full">
               <Textarea 
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 placeholder="Ex: Olá {nome}, não esqueça do seu treino amanhã!" 
-                className="flex-1 resize-none bg-surface/50 border-line text-sm min-h-[250px]" 
+                className="flex-1 resize-none bg-surface/50 border-line text-sm min-h-[160px]" 
               />
             </Field>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase text-muted">Mídia (Opcional)</span>
+                <input 
+                  type="file" 
+                  id="wa-attachment" 
+                  className="hidden" 
+                  accept="image/*,video/*,audio/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setAttachment(e.target.files[0]);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+                <label 
+                  htmlFor="wa-attachment" 
+                  className="cursor-pointer text-xs text-ok hover:text-ok/80 flex items-center gap-1 transition-colors"
+                >
+                  <Paperclip size={14} /> Anexar Arquivo
+                </label>
+              </div>
+              
+              {attachment && (
+                <div className="flex items-center justify-between bg-surface/50 border border-line rounded-lg p-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="w-8 h-8 rounded bg-ok/10 flex items-center justify-center text-ok shrink-0">
+                      {attachment.type.startsWith('image/') ? <ImageIcon size={16} /> : 
+                       attachment.type.startsWith('video/') ? <FileVideo size={16} /> : 
+                       attachment.type.startsWith('audio/') ? <Music size={16} /> : 
+                       <Paperclip size={16} />}
+                    </div>
+                    <div className="truncate">
+                      <p className="text-sm font-medium text-white truncate">{attachment.name}</p>
+                      <p className="text-xs text-muted">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setAttachment(null)}
+                    className="text-muted hover:text-accent p-1 transition-colors"
+                    title="Remover anexo"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-line mt-auto">
             <Button 
               onClick={handleSend} 
-              disabled={sending || selected.size === 0 || !message.trim()}
+              disabled={sending || selected.size === 0 || (!message.trim() && !attachment)}
               className="w-full bg-ok hover:bg-ok/80 text-white shadow-lg shadow-ok/20 flex items-center justify-center gap-2 py-3"
             >
               {sending ? 'Enviando Mensagens...' : (
