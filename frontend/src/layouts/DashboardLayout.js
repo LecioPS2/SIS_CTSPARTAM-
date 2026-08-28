@@ -86,20 +86,7 @@ export default function DashboardLayout({ nav, children }) {
             </NavLink>
           ))}
         </nav>
-        <div className="border-t border-line p-4 flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            {user?.avatarUrl ? (
-              <img src={`${backendUrl}${user.avatarUrl}`} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-surface shadow-sm" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display text-lg shrink-0 shadow-sm">
-                {initials(user?.name)}
-              </div>
-            )}
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate text-white/90">{user?.name}</p>
-              <p className="text-[10px] text-accent uppercase tracking-[0.1em] font-medium">{cargo}</p>
-            </div>
-          </div>
+        <div className="border-t border-line p-4">
           <button
             onClick={async () => { await logout(); navigate('/login'); }}
             data-testid="logout-button"
