@@ -40,7 +40,7 @@ export default function DashboardLayout({ nav, children }) {
     <div className="min-h-screen flex">
       {/* Sidebar de Acesso Rápido */}
       <aside className="fixed left-0 top-0 bottom-0 w-[64px] bg-black/40 backdrop-blur-md border-r border-white/5 hidden lg:flex flex-col items-center justify-center z-40 shadow-2xl print:hidden">
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full gap-3">
           {socialLinks.map(link => (
             <a 
               key={link.id}
