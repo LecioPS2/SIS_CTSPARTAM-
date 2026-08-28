@@ -96,6 +96,7 @@ export default function App() {
           <Route path="/admin/planos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Planos /></DashboardLayout></Protected>} />
           <Route path="/admin/pagamentos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Pagamentos /></DashboardLayout></Protected>} />
           <Route path="/admin/exercicios" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Exercicios /></DashboardLayout></Protected>} />
+          <Route path="/admin/montar-treino" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Treinos /></DashboardLayout></Protected>} />
           <Route path="/admin/checkin" element={<Protected role="admin"><DashboardLayout nav={adminNav}><CheckinAdmin /></DashboardLayout></Protected>} />
           <Route path="/admin/avisos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Avisos /></DashboardLayout></Protected>} />
           <Route path="/admin/configuracoes" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Configuracoes /></DashboardLayout></Protected>} />

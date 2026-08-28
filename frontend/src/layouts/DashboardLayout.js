@@ -40,27 +40,23 @@ export default function DashboardLayout({ nav, children }) {
     <div className="min-h-screen flex">
       {/* Sidebar de Acesso Rápido */}
       <aside className="fixed left-0 top-0 bottom-0 w-[64px] bg-black/40 backdrop-blur-md border-r border-white/5 hidden lg:flex flex-col items-center justify-center z-40 shadow-2xl print:hidden">
-        <div className="flex flex-col items-center gap-10 mt-8">
-          <div className="flex flex-col gap-6">
-            {socialLinks.map(link => (
-              <a 
-                key={link.id}
-                href={link.url || '#'} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="flex flex-col items-center gap-1.5 group"
-                title={link.label}
-                onClick={(e) => !link.url && e.preventDefault()}
-              >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${link.url ? 'bg-accent text-white group-hover:scale-110 shadow-accent/20' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}>
-                  <link.icon size={14} />
-                </div>
-                <span className={`text-[6.5px] font-bold uppercase tracking-[0.1em] transition-colors ${link.url ? 'text-white/60 group-hover:text-white' : 'text-white/20'}`}>
-                  {link.label}
-                </span>
-              </a>
-            ))}
-          </div>
+        <div className="flex flex-col w-full">
+          {socialLinks.map(link => (
+            <a 
+              key={link.id}
+              href={link.url || '#'} 
+              target="_blank" 
+              rel="noreferrer" 
+              className={`flex flex-col items-center justify-center w-[64px] h-[64px] transition-all duration-300 ${link.url ? 'bg-accent text-white hover:bg-accent/80 hover:scale-[1.02] shadow-lg shadow-accent/20 z-10' : 'bg-white/5 text-white/20 cursor-not-allowed'}`}
+              title={link.label}
+              onClick={(e) => !link.url && e.preventDefault()}
+            >
+              <link.icon size={22} className="mb-1" />
+              <span className="text-[7px] font-bold uppercase tracking-[0.1em]">
+                {link.label}
+              </span>
+            </a>
+          ))}
         </div>
       </aside>
 
@@ -155,14 +151,24 @@ export default function DashboardLayout({ nav, children }) {
         <main className="flex-1 py-8 px-2">{children}</main>
       </div>
 
-      {/* Botão Flutuante do WhatsApp */}
-      <button
-        onClick={() => setWaModal(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-ok text-white rounded-full flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-110 hover:bg-ok/90 transition-all z-50 group"
-        title="Disparar Notificações via WhatsApp"
-      >
-        <MessageCircle size={28} className="group-hover:animate-bounce" />
-      </button>
+      {/* Botões Flutuantes */}
+      <div className="fixed bottom-6 right-6 flex items-center gap-4 z-50 print:hidden">
+        {user?.role === 'admin' && (
+          <button
+            onClick={() => navigate('/admin/montar-treino')}
+            className="h-14 px-6 bg-ok text-white font-bold rounded-xl flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-105 hover:bg-ok/90 transition-all uppercase tracking-wider text-sm"
+          >
+            Montar Treino
+          </button>
+        )}
+        <button
+          onClick={() => setWaModal(true)}
+          className="w-14 h-14 bg-ok text-white rounded-full flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-110 hover:bg-ok/90 transition-all group"
+          title="Disparar Notificações via WhatsApp"
+        >
+          <MessageCircle size={28} className="group-hover:animate-bounce" />
+        </button>
+      </div>
 
       {/* Modal de Disparo */}
       <WhatsAppModal open={waModal} onClose={() => setWaModal(false)} />
