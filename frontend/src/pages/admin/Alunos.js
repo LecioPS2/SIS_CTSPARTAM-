@@ -17,6 +17,7 @@ export default function Alunos() {
   const [step, setStep] = useState(1);
   const [contractModal, setContractModal] = useState(false);
   const [contractStudent, setContractStudent] = useState(null);
+  const [activeTab, setActiveTab] = useState('TODAS');
 
   const load = () => {
     api.get('/users?role=aluno').then((r) => setAlunas(r.data));
@@ -73,6 +74,8 @@ export default function Alunos() {
 
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
+  const filteredAlunas = activeTab === 'TODAS' ? alunas : alunas.filter(a => a.timeSlot === activeTab);
+
   return (
     <div data-testid="admin-alunos-page">
       <PageHeader
@@ -80,9 +83,28 @@ export default function Alunos() {
         subtitle="Gerencie o cadastro e planos das alunas"
         action={<Button onClick={() => open()} data-testid="new-aluno-button"><Plus size={16} className="inline mr-2" /> Nova Aluna</Button>}
       />
+
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 scrollbar-thin">
+        <button
+          onClick={() => setActiveTab('TODAS')}
+          className={`px-4 py-2 rounded-t-lg font-bold text-[10px] uppercase tracking-widest whitespace-nowrap transition-colors ${activeTab === 'TODAS' ? 'bg-white text-black' : 'bg-surface text-white hover:bg-white/10'}`}
+        >
+          TODAS
+        </button>
+        {classes.map(c => (
+          <button
+            key={c.time}
+            onClick={() => setActiveTab(c.time)}
+            className={`px-4 py-2 rounded-t-lg font-bold text-[10px] uppercase tracking-widest whitespace-nowrap transition-colors ${activeTab === c.time ? 'bg-white text-black' : 'bg-surface text-white hover:bg-white/10'}`}
+          >
+            TURMA {c.time.replace(':00', ' H').replace(':', 'H')}
+          </button>
+        ))}
+      </div>
+
       <Card>
-        {alunas.length === 0 ? (
-          <Empty title="Nenhuma aluna encontrada" subtitle="Cadastre a primeira aluna para começar." />
+        {filteredAlunas.length === 0 ? (
+          <Empty title="Nenhuma aluna encontrada" subtitle={activeTab === 'TODAS' ? 'Cadastre a primeira aluna para começar.' : 'Nenhuma aluna nesta turma.'} />
         ) : (
           <table className="w-full text-left border-collapse" data-testid="alunos-table">
             <thead>
@@ -96,7 +118,7 @@ export default function Alunos() {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {alunas.map((a) => (
+              {filteredAlunas.map((a) => (
                 <tr key={a.id} className="hover:bg-surface/50 transition-colors" data-testid={`aluno-row-${a.id}`}>
                   <Td className="font-medium text-white">{a.name}</Td>
                   <Td className="text-muted">{a.email}</Td>
