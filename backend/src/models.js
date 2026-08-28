@@ -73,6 +73,7 @@ const workoutSchema = new Schema({
   personalId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   days: [{ type: Number }],
   exercises: [{
+    day: Number, // Dia da semana específico para este exercício (0 a 6)
     exerciseId: { type: Schema.Types.ObjectId, ref: 'Exercise' },
     name: String,
     muscleGroup: String,

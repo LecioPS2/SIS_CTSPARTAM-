@@ -14,6 +14,7 @@ export default function Treinos() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [pickExercise, setPickExercise] = useState('');
+  const [activeDay, setActiveDay] = useState(null);
 
   const load = () => {
     api.get('/workouts').then((r) => setWorkouts(r.data));
@@ -24,33 +25,44 @@ export default function Treinos() {
 
   const open = (w) => {
     setEditing(w || null);
-    setForm(w ? { name: w.name, studentId: w.studentId?.id || w.studentId, days: w.days || [], exercises: w.exercises || [] } : emptyForm);
+    const initialDays = w?.days || [];
+    setForm(w ? { name: w.name, studentId: w.studentId?.id || w.studentId, days: initialDays, exercises: w.exercises || [] } : emptyForm);
+    setActiveDay(initialDays.length > 0 ? initialDays[0] : null);
     setModal(true);
   };
 
   const toggleDay = (d) => {
-    setForm((f) => ({ ...f, days: f.days.includes(d) ? f.days.filter((x) => x !== d) : [...f.days, d] }));
+    setForm((f) => {
+      const isAdding = !f.days.includes(d);
+      const newDays = isAdding ? [...f.days, d].sort() : f.days.filter((x) => x !== d);
+      const newExercises = isAdding ? f.exercises : f.exercises.filter(ex => ex.day !== d);
+      if (isAdding) setActiveDay(d);
+      else if (activeDay === d) setActiveDay(newDays.length > 0 ? newDays[0] : null);
+      else setActiveDay(activeDay); // preserve
+      return { ...f, days: newDays, exercises: newExercises };
+    });
   };
 
   const addExercise = () => {
+    if (activeDay === null) { toast.error('Selecione um dia da semana primeiro'); return; }
     const ex = catalog.find((e) => e.id === pickExercise);
     if (!ex) return;
     setForm((f) => ({
       ...f,
-      exercises: [...f.exercises, { exerciseId: ex.id, name: ex.name, muscleGroup: ex.muscleGroup, sets: ex.sets, reps: ex.reps, load: ex.load, timeSeconds: ex.timeSeconds, notes: '' }],
+      exercises: [...f.exercises, { day: activeDay, exerciseId: ex.id, name: ex.name, muscleGroup: ex.muscleGroup, sets: ex.sets, reps: ex.reps, load: ex.load, timeSeconds: ex.timeSeconds, notes: '' }],
     }));
     setPickExercise('');
   };
 
-  const updateEx = (i, k, v) => {
+  const updateEx = (globalIndex, k, v) => {
     setForm((f) => {
       const exercises = [...f.exercises];
-      exercises[i] = { ...exercises[i], [k]: v };
+      exercises[globalIndex] = { ...exercises[globalIndex], [k]: v };
       return { ...f, exercises };
     });
   };
 
-  const removeEx = (i) => setForm((f) => ({ ...f, exercises: f.exercises.filter((_, idx) => idx !== i) }));
+  const removeEx = (globalIndex) => setForm((f) => ({ ...f, exercises: f.exercises.filter((_, idx) => idx !== globalIndex) }));
 
   const save = async (e) => {
     e.preventDefault();
@@ -144,34 +156,63 @@ export default function Treinos() {
               ))}
             </div>
           </Field>
-          <Field label="Adicionar exercício do catálogo">
-            <div className="flex gap-2">
-              <Select value={pickExercise} onChange={(e) => setPickExercise(e.target.value)} data-testid="treino-exercise-picker">
-                <option value="">Selecione um exercício</option>
-                {catalog.map((ex) => <option key={ex.id} value={ex.id}>{ex.name} ({ex.muscleGroup})</option>)}
-              </Select>
-              <Button type="button" variant="ghost" onClick={addExercise} data-testid="treino-add-exercise-button">Adicionar</Button>
-            </div>
-          </Field>
-          {form.exercises.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted">Exercícios do treino</p>
-              {form.exercises.map((ex, i) => (
-                <div key={i} className="bg-surface border border-line rounded p-3" data-testid={`treino-exercise-row-${i}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{ex.name}</span>
-                    <button type="button" onClick={() => removeEx(i)} className="text-muted hover:text-accent transition-colors" aria-label="Remover"><X size={14} /></button>
+          
+          {form.days.length > 0 && (
+            <div className="border border-line rounded-lg overflow-hidden mt-4">
+              <div className="flex bg-surface overflow-x-auto scrollbar-thin border-b border-line">
+                {form.days.map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setActiveDay(d)}
+                    className={`flex-1 min-w-[80px] py-2 text-xs uppercase tracking-wider font-bold transition-colors ${
+                      activeDay === d ? 'bg-accent text-white' : 'text-muted hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {DAYS[d]}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="p-4 space-y-4">
+                <Field label={`Adicionar exercício para ${DAYS[activeDay]}`}>
+                  <div className="flex gap-2">
+                    <Select value={pickExercise} onChange={(e) => setPickExercise(e.target.value)} data-testid="treino-exercise-picker">
+                      <option value="">Selecione um exercício</option>
+                      {catalog.map((ex) => <option key={ex.id} value={ex.id}>{ex.name} ({ex.muscleGroup})</option>)}
+                    </Select>
+                    <Button type="button" variant="ghost" onClick={addExercise} data-testid="treino-add-exercise-button">Adicionar</Button>
                   </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    <div><label className="text-[10px] uppercase text-muted">Séries</label><Input type="number" min="0" value={ex.sets} onChange={(e) => updateEx(i, 'sets', e.target.value)} /></div>
-                    <div><label className="text-[10px] uppercase text-muted">Reps</label><Input type="number" min="0" value={ex.reps} onChange={(e) => updateEx(i, 'reps', e.target.value)} /></div>
-                    <div><label className="text-[10px] uppercase text-muted">Carga kg</label><Input type="number" step="0.5" min="0" value={ex.load} onChange={(e) => updateEx(i, 'load', e.target.value)} /></div>
-                    <div><label className="text-[10px] uppercase text-muted">Tempo s</label><Input type="number" min="0" value={ex.timeSeconds} onChange={(e) => updateEx(i, 'timeSeconds', e.target.value)} /></div>
+                </Field>
+                
+                {form.exercises.filter(ex => ex.day === activeDay).length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs uppercase tracking-[0.2em] text-muted">Exercícios de {DAYS[activeDay]}</p>
+                    {form.exercises.map((ex, i) => {
+                      if (ex.day !== activeDay) return null;
+                      return (
+                        <div key={i} className="bg-surface border border-line rounded p-3" data-testid={`treino-exercise-row-${i}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium">{ex.name}</span>
+                            <button type="button" onClick={() => removeEx(i)} className="text-muted hover:text-accent transition-colors" aria-label="Remover"><X size={14} /></button>
+                          </div>
+                          <div className="grid grid-cols-4 gap-2">
+                            <div><label className="text-[10px] uppercase text-muted">Séries</label><Input type="number" min="0" value={ex.sets} onChange={(e) => updateEx(i, 'sets', e.target.value)} /></div>
+                            <div><label className="text-[10px] uppercase text-muted">Reps</label><Input type="number" min="0" value={ex.reps} onChange={(e) => updateEx(i, 'reps', e.target.value)} /></div>
+                            <div><label className="text-[10px] uppercase text-muted">Carga kg</label><Input type="number" step="0.5" min="0" value={ex.load} onChange={(e) => updateEx(i, 'load', e.target.value)} /></div>
+                            <div><label className="text-[10px] uppercase text-muted">Tempo s</label><Input type="number" min="0" value={ex.timeSeconds} onChange={(e) => updateEx(i, 'timeSeconds', e.target.value)} /></div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
-              ))}
+                ) : (
+                  <p className="text-xs text-center text-muted py-4 border border-dashed border-line rounded">Nenhum exercício para {DAYS[activeDay]}</p>
+                )}
+              </div>
             </div>
           )}
+
           <Button type="submit" className="w-full" data-testid="treino-save-button">Salvar Treino</Button>
         </form>
       </Modal>

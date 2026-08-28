@@ -55,18 +55,22 @@ export default function Hoje() {
                 )}
               </div>
               <div className="space-y-3 mb-5">
-                {w.exercises.map((ex, i) => (
-                  <div key={i} className="flex items-center justify-between border-b border-line pb-3 last:border-0">
-                    <div>
-                      <p className="text-sm font-medium">{ex.name}</p>
-                      <p className="text-xs text-muted">{ex.muscleGroup}{ex.notes ? ` · ${ex.notes}` : ''}</p>
+                {w.exercises.filter(ex => ex.day === undefined || ex.day === today.getDay()).length > 0 ? (
+                  w.exercises.filter(ex => ex.day === undefined || ex.day === today.getDay()).map((ex, i) => (
+                    <div key={i} className="flex items-center justify-between border-b border-line pb-3 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium">{ex.name}</p>
+                        <p className="text-xs text-muted">{ex.muscleGroup}{ex.notes ? ` · ${ex.notes}` : ''}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-display text-2xl leading-none">{ex.sets}<span className="text-muted text-lg">x</span>{ex.reps}</p>
+                        <p className="text-xs text-muted">{ex.load ? `${ex.load}kg` : ''}{ex.load && ex.timeSeconds ? ' · ' : ''}{ex.timeSeconds ? `${ex.timeSeconds}s` : ''}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-display text-2xl leading-none">{ex.sets}<span className="text-muted text-lg">x</span>{ex.reps}</p>
-                      <p className="text-xs text-muted">{ex.load ? `${ex.load}kg` : ''}{ex.load && ex.timeSeconds ? ' · ' : ''}{ex.timeSeconds ? `${ex.timeSeconds}s` : ''}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted text-center py-2">Dia de descanso programado nesta ficha.</p>
+                )}
               </div>
               {!w.completedToday && (
                 <button
