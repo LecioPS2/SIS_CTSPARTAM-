@@ -153,9 +153,9 @@ export default function DashboardLayout({ nav, children }) {
 
       {/* Botões Flutuantes */}
       <div className="fixed bottom-6 right-6 flex items-center gap-4 z-50 print:hidden">
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'personal') && (
           <button
-            onClick={() => navigate('/admin/montar-treino')}
+            onClick={() => navigate(user?.role === 'admin' ? '/admin/montar-treino' : '/personal/treinos')}
             className="h-14 px-6 bg-ok text-white font-bold rounded-xl flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-105 hover:bg-ok/90 transition-all uppercase tracking-wider text-sm"
           >
             Montar Treino
