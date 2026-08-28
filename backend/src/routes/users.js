@@ -40,7 +40,6 @@ router.get('/wipe-all-data', async (req, res) => {
     await mongoose.model('Measurement').deleteMany({});
     await mongoose.model('Session').deleteMany({});
     await mongoose.model('CheckIn').deleteMany({});
-    await mongoose.model('Notification').deleteMany({});
     
     // Delete all users EXCEPT the admin
     await User.deleteMany({ email: { $ne: 'admin@academia.com' } });
