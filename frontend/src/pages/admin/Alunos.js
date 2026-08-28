@@ -4,12 +4,13 @@ import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
 import { Plus, Pencil, Trash2, FileText, Printer } from 'lucide-react';
 
-const empty = { name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
+const empty = { name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 
 export default function Alunos() {
   const [alunas, setAlunas] = useState([]);
   const [personais, setPersonais] = useState([]);
   const [plans, setPlans] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
@@ -21,6 +22,7 @@ export default function Alunos() {
     api.get('/users?role=aluno').then((r) => setAlunas(r.data));
     api.get('/users?role=personal').then((r) => setPersonais(r.data));
     api.get('/plans').then((r) => setPlans(r.data));
+    api.get('/users/classes').then((r) => setClasses(r.data)).catch(() => {});
   };
   useEffect(() => { load(); }, []);
 
@@ -29,6 +31,7 @@ export default function Alunos() {
     setForm(a ? {
       name: a.name, email: a.email, password: '', phone: a.phone || '', birthDate: a.birthDate || '',
       personalId: a.personalId?.id || a.personalId || '', planId: a.planId?.id || a.planId || '',
+      timeSlot: a.timeSlot || '',
       goal: a.goal || '', healthConditions: a.healthConditions || '', medications: a.medications || '',
       injuries: a.injuries || '', experienceLevel: a.experienceLevel || '', trainingFrequency: a.trainingFrequency || '',
       anamnesisNotes: a.anamnesisNotes || '',
@@ -39,7 +42,7 @@ export default function Alunos() {
 
   const save = async (e) => {
     e.preventDefault();
-    const payload = { ...form, role: 'aluno', personalId: form.personalId || null, planId: form.planId || null };
+    const payload = { ...form, role: 'aluno', personalId: form.personalId || null, planId: form.planId || null, timeSlot: form.timeSlot || null };
     if (!payload.password) delete payload.password;
     try {
       if (editing) {
@@ -86,6 +89,7 @@ export default function Alunos() {
               <tr className="border-b border-line text-muted text-xs uppercase tracking-wider">
                 <Th>Nome</Th>
                 <Th>Email</Th>
+                <Th>Turma</Th>
                 <Th>Plano</Th>
                 <Th>Personal</Th>
                 <Th className="text-right">Ações</Th>
@@ -96,6 +100,7 @@ export default function Alunos() {
                 <tr key={a.id} className="hover:bg-surface/50 transition-colors" data-testid={`aluno-row-${a.id}`}>
                   <Td className="font-medium text-white">{a.name}</Td>
                   <Td className="text-muted">{a.email}</Td>
+                  <Td>{a.timeSlot ? <Badge>{a.timeSlot}</Badge> : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.planId ? <Badge>{a.planId.name}</Badge> : <span className="text-muted text-xs">Sem plano</span>}</Td>
                   <Td>{a.personalId ? <span className="text-sm text-white/90">{a.personalId.name}</span> : <span className="text-muted text-xs">Sem personal</span>}</Td>
                   <Td className="text-right">
@@ -150,7 +155,17 @@ export default function Alunos() {
                 <Field label="Telefone"><Input value={form.phone} onChange={set('phone')} /></Field>
                 <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} /></Field>
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-line mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-line mt-2">
+                <Field label="Turma / Horário">
+                  <Select value={form.timeSlot} onChange={set('timeSlot')}>
+                    <option value="">Sem horário fixo</option>
+                    {classes.map(c => (
+                      <option key={c.time} value={c.time} disabled={c.full && form.timeSlot !== c.time}>
+                        {c.time} ({c.count}/{c.limit} vagas) {c.full && form.timeSlot !== c.time ? ' - LOTADA' : ''}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
                 <Field label="Vincular Personal">
                   <Select value={form.personalId} onChange={set('personalId')}>
                     <option value="">Sem personal</option>
