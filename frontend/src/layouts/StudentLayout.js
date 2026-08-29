@@ -35,8 +35,8 @@ export default function StudentLayout({ children }) {
           </div>
         </header>
       <main className="px-5 py-6">{children}</main>
-      <nav className="fixed bottom-0 inset-x-0 z-40 bg-black/80 backdrop-blur-xl border-t border-line" data-testid="student-bottom-nav">
-        <div className="max-w-lg mx-auto grid grid-cols-4">
+      <nav className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[480px] z-40 bg-black/70 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/50 rounded-2xl overflow-hidden" data-testid="student-bottom-nav">
+        <div className="grid grid-cols-4">
           {nav.map((item) => (
             <NavLink
               key={item.to}
