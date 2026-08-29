@@ -16,18 +16,24 @@ export default function StudentLayout({ children }) {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen max-w-lg mx-auto pb-24">
-      <header className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-line px-5 h-14 flex items-center justify-between">
-        <span className="flex items-center gap-2 font-display text-2xl uppercase tracking-tight">
-          <img src="/logo.png" alt="CT Spartan" className="w-7 h-7" />
-          CT <span className="text-accent">Spartan</span>
-        </span>
-        <div className="flex items-center gap-4">
-          <QRCodeAluna inline />
-          <NotificationsPanel />
-          <span className="text-xs text-muted truncate max-w-[80px]">{user?.name}</span>
-        </div>
-      </header>
+    <div className="min-h-screen pb-24 relative bg-background">
+      {/* Imagem de fundo com 70% de transparência (opacity 30) */}
+      <div 
+        className="fixed inset-0 z-[0] bg-cover bg-center bg-no-repeat opacity-30 pointer-events-none"
+        style={{ backgroundImage: 'url(/student-bg.png)' }}
+      />
+      <div className="relative z-10 max-w-lg mx-auto">
+        <header className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-line px-5 h-14 flex items-center justify-between">
+          <span className="flex items-center gap-2 font-display text-2xl uppercase tracking-tight">
+            <img src="/logo.png" alt="CT Spartan" className="w-7 h-7" />
+            CT <span className="text-accent">Spartan</span>
+          </span>
+          <div className="flex items-center gap-4">
+            <QRCodeAluna inline />
+            <NotificationsPanel />
+            <span className="text-xs text-muted truncate max-w-[80px]">{user?.name}</span>
+          </div>
+        </header>
       <main className="px-5 py-6">{children}</main>
       <nav className="fixed bottom-0 inset-x-0 z-40 bg-black/80 backdrop-blur-xl border-t border-line" data-testid="student-bottom-nav">
         <div className="max-w-lg mx-auto grid grid-cols-4">
@@ -49,6 +55,7 @@ export default function StudentLayout({ children }) {
           ))}
         </div>
       </nav>
+      </div>
     </div>
   );
 }
