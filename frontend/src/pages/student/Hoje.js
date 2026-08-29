@@ -44,21 +44,21 @@ export default function Hoje() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-6 fade-up" style={{ animationDelay: '0.1s' }}>
-        <button onClick={() => setAvisosModal(true)} className="bg-surface border border-line rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
+        <button onClick={() => setAvisosModal(true)} className="bg-black/40 backdrop-blur-md border border-white/10 shadow-xl rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
           <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center">
             <Bell size={20} />
           </div>
           <span className="text-[10px] uppercase font-bold tracking-wider">Avisos</span>
         </button>
 
-        <Link to="/aluno/evolucao" className="bg-surface border border-line rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
+        <Link to="/aluno/evolucao" className="bg-black/40 backdrop-blur-md border border-white/10 shadow-xl rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
           <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center">
             <TrendingUp size={20} />
           </div>
           <span className="text-[10px] uppercase font-bold tracking-wider">Evolução</span>
         </Link>
 
-        <Link to="/aluno/mensalidade" className="bg-surface border border-line rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
+        <Link to="/aluno/mensalidade" className="bg-black/40 backdrop-blur-md border border-white/10 shadow-xl rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
           <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center">
             <CreditCard size={20} />
           </div>
@@ -86,11 +86,13 @@ export default function Hoje() {
       </Modal>
 
       {data.todayWorkouts.length === 0 ? (
-        <Empty text="Nenhum treino programado para hoje. Dia de descanso! 💤" />
+        <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg text-center py-12 text-muted text-sm shadow-xl fade-up">
+          Nenhum treino programado para hoje. Dia de descanso! 💤
+        </div>
       ) : (
         <div className="space-y-4">
           {data.todayWorkouts.map((w) => (
-            <Card key={w.id} className="p-5 fade-up" data-testid={`workout-card-${w.id}`}>
+            <div key={w.id} className="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg shadow-xl p-5 fade-up" data-testid={`workout-card-${w.id}`}>
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h2 className="font-display text-3xl uppercase tracking-tight leading-none">{w.name}</h2>
@@ -129,7 +131,7 @@ export default function Hoje() {
                   <CheckCircle2 size={18} aria-hidden="true" /> Concluir Treino
                 </button>
               )}
-            </Card>
+            </div>
           ))}
         </div>
       )}
@@ -139,17 +141,17 @@ export default function Hoje() {
           <p className="text-xs uppercase tracking-[0.2em] text-muted mb-3">Minha ficha completa</p>
           <div className="space-y-2">
             {data.allWorkouts.map((w) => (
-              <Card key={w.id} className="p-4 flex items-center justify-between" data-testid={`ficha-item-${w.id}`}>
+              <div key={w.id} className="bg-black/40 backdrop-blur-md border border-white/10 rounded-lg shadow-xl p-4 flex items-center justify-between" data-testid={`ficha-item-${w.id}`}>
                 <div>
                   <p className="text-sm font-medium">{w.name}</p>
                   <p className="text-xs text-muted">{w.exercises.length} exercício(s)</p>
                 </div>
                 <div className="flex gap-1">
                   {w.days.sort().map((d) => (
-                    <span key={d} className="text-[10px] uppercase px-1.5 py-0.5 bg-surface border border-line rounded text-muted">{DAYS[d]}</span>
+                    <span key={d} className="text-[10px] uppercase px-1.5 py-0.5 bg-white/10 border border-white/5 rounded text-white">{DAYS[d]}</span>
                   ))}
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
