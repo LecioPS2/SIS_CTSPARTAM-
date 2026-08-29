@@ -67,7 +67,7 @@ router.get('/', requireRole('admin', 'personal'), async (req, res) => {
 const ANAMNESIS_FIELDS = ['goal', 'healthConditions', 'medications', 'injuries', 'experienceLevel', 'trainingFrequency', 'anamnesisNotes'];
 
 router.get('/classes', requireRole('admin', 'personal'), async (req, res) => {
-  const slots = ['06:00', '07:00', '08:00', '09:00', '10:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+  const slots = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
   const counts = await User.aggregate([
     { $match: { role: 'aluno', active: true, timeSlot: { $ne: null } } },
     { $group: { _id: '$timeSlot', count: { $sum: 1 } } }
