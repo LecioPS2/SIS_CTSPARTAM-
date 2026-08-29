@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api, { DAYS } from '../../lib/api';
 import { toast } from 'sonner';
 import { Card, Badge, Empty, Modal } from '../../components/ui';
-import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard } from 'lucide-react';
+import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard, Utensils } from 'lucide-react';
 
 const BANNER = 'https://images.pexels.com/photos/35540076/pexels-photo-35540076.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940';
 
@@ -65,6 +65,16 @@ export default function Hoje() {
           <span className="text-[10px] uppercase font-bold tracking-wider">Mensalidade</span>
         </Link>
       </div>
+
+      <Link to="/aluno/dieta" className="bg-black/40 backdrop-blur-md shadow-md shadow-black/50 rounded-lg p-4 flex items-center gap-4 hover:border-accent transition-colors mb-6 fade-up" style={{ animationDelay: '0.2s' }}>
+        <div className="w-12 h-12 rounded-full bg-accent/20 text-accent flex items-center justify-center shrink-0">
+          <Utensils size={24} />
+        </div>
+        <div>
+          <h3 className="font-display text-lg tracking-wide uppercase text-white">Plano Alimentar</h3>
+          <p className="text-xs text-muted">Acesse sua dieta e recomendações</p>
+        </div>
+      </Link>
 
       <Modal open={avisosModal} onClose={() => setAvisosModal(false)} title="Mural de Avisos">
         <div className="space-y-3 mt-4">

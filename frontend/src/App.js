@@ -20,6 +20,7 @@ import Hoje from './pages/student/Hoje';
 import Evolucao from './pages/student/Evolucao';
 import Mensalidade from './pages/student/Mensalidade';
 import Perfil from './pages/student/Perfil';
+import Dieta from './pages/student/Dieta';
 import CheckinAdmin from './pages/admin/CheckinAdmin';
 import Configuracoes from './pages/admin/Configuracoes';
 import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings, Megaphone } from 'lucide-react';
@@ -109,6 +110,7 @@ export default function App() {
           <Route path="/aluno/evolucao" element={<Protected role="aluno"><StudentLayout><Evolucao /></StudentLayout></Protected>} />
           <Route path="/aluno/mensalidade" element={<Protected role="aluno"><StudentLayout><Mensalidade /></StudentLayout></Protected>} />
           <Route path="/aluno/perfil" element={<Protected role="aluno"><StudentLayout><Perfil /></StudentLayout></Protected>} />
+          <Route path="/aluno/dieta" element={<Protected role="aluno"><StudentLayout><Dieta /></StudentLayout></Protected>} />
           <Route path="*" element={<Home />} />
         </Routes>
         </ErrorBoundary>
