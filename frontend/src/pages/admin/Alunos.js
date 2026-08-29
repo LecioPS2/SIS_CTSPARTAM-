@@ -84,22 +84,21 @@ export default function Alunos() {
         action={<Button onClick={() => open()} data-testid="new-aluno-button"><Plus size={16} className="inline mr-2" /> Nova Aluna</Button>}
       />
 
-      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 scrollbar-thin">
-        <button
-          onClick={() => setActiveTab('TODAS')}
-          className={`px-4 py-2 rounded-t-lg font-bold text-[10px] uppercase tracking-widest whitespace-nowrap transition-colors ${activeTab === 'TODAS' ? 'bg-white text-black' : 'bg-surface text-white hover:bg-white/10'}`}
-        >
-          TODAS
-        </button>
-        {classes.map(c => (
-          <button
-            key={c.time}
-            onClick={() => setActiveTab(c.time)}
-            className={`px-4 py-2 rounded-t-lg font-bold text-[10px] uppercase tracking-widest whitespace-nowrap transition-colors ${activeTab === c.time ? 'bg-white text-black' : 'bg-surface text-white hover:bg-white/10'}`}
+      <div className="mb-4">
+        <div className="w-full max-w-xs">
+          <Select 
+            value={activeTab} 
+            onChange={(e) => setActiveTab(e.target.value)}
+            className="w-full bg-surface border-line"
           >
-            TURMA {c.time.replace(':00', ' H').replace(':', 'H')}
-          </button>
-        ))}
+            <option value="TODAS">TODAS AS TURMAS</option>
+            {classes.map(c => (
+              <option key={c.time} value={c.time}>
+                TURMA {c.time.replace(':00', ' H').replace(':', 'H')}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       <Card>
