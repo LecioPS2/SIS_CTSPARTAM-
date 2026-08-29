@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api, { DAYS } from '../../lib/api';
 import { toast } from 'sonner';
-import { Card, Badge, Empty } from '../../components/ui';
-import { CheckCircle2, Flame } from 'lucide-react';
+import { Card, Badge, Empty, Modal } from '../../components/ui';
+import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard } from 'lucide-react';
 
 const BANNER = 'https://images.pexels.com/photos/35540076/pexels-photo-35540076.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940';
 
 export default function Hoje() {
   const [data, setData] = useState(null);
+  const [avisosModal, setAvisosModal] = useState(false);
+  const [avisos, setAvisos] = useState([]);
 
-  const load = () => api.get('/student/today').then((r) => setData(r.data)).catch(() => setData({ todayWorkouts: [], allWorkouts: [] }));
+  const load = () => {
+    api.get('/student/today').then((r) => setData(r.data)).catch(() => setData({ todayWorkouts: [], allWorkouts: [] }));
+    api.get('/notifications').then((r) => setAvisos(r.data)).catch(() => setAvisos([]));
+  };
   useEffect(() => { load(); }, []);
 
   const complete = async (id) => {
@@ -36,6 +42,48 @@ export default function Hoje() {
           <h1 className="font-display text-4xl uppercase tracking-tight leading-none">Treino de <span className="text-accent">Hoje</span></h1>
         </div>
       </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-6 fade-up" style={{ animationDelay: '0.1s' }}>
+        <button onClick={() => setAvisosModal(true)} className="bg-surface border border-line rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
+          <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center">
+            <Bell size={20} />
+          </div>
+          <span className="text-[10px] uppercase font-bold tracking-wider">Avisos</span>
+        </button>
+
+        <Link to="/aluno/evolucao" className="bg-surface border border-line rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
+          <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center">
+            <TrendingUp size={20} />
+          </div>
+          <span className="text-[10px] uppercase font-bold tracking-wider">Evolução</span>
+        </Link>
+
+        <Link to="/aluno/mensalidade" className="bg-surface border border-line rounded-lg p-3 flex flex-col items-center justify-center gap-2 hover:border-accent transition-colors">
+          <div className="w-10 h-10 rounded-full bg-accent/20 text-accent flex items-center justify-center">
+            <CreditCard size={20} />
+          </div>
+          <span className="text-[10px] uppercase font-bold tracking-wider">Mensalidade</span>
+        </Link>
+      </div>
+
+      <Modal open={avisosModal} onClose={() => setAvisosModal(false)} title="Mural de Avisos">
+        <div className="space-y-3 mt-4">
+          {avisos.length === 0 ? (
+            <p className="text-sm text-muted text-center py-4 border border-dashed border-line rounded-lg">Nenhum aviso no momento.</p>
+          ) : (
+            avisos.map(a => (
+              <div key={a.id} className="p-4 rounded-lg border border-accent/20 bg-accent/5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Bell size={16} className="text-accent" />
+                  <h4 className="font-bold text-white text-sm">{a.title}</h4>
+                </div>
+                <p className="text-sm text-muted whitespace-pre-wrap">{a.content}</p>
+                <p className="text-[10px] text-muted mt-3 uppercase tracking-wider">Publicado em {new Date(a.createdAt).toLocaleDateString('pt-BR')}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </Modal>
 
       {data.todayWorkouts.length === 0 ? (
         <Empty text="Nenhum treino programado para hoje. Dia de descanso! 💤" />
