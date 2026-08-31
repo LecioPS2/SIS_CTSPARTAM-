@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -12,6 +12,7 @@ import Planos from './pages/admin/Planos';
 import Pagamentos from './pages/admin/Pagamentos';
 import Avisos from './pages/admin/Avisos';
 import Exercicios from './pages/shared/Exercicios';
+import PlanosAlimentares from './pages/shared/PlanosAlimentares';
 import PersonalDashboard from './pages/personal/PersonalDashboard';
 import MeusAlunos from './pages/personal/MeusAlunos';
 import Treinos from './pages/personal/Treinos';
@@ -23,7 +24,7 @@ import Perfil from './pages/student/Perfil';
 import Dieta from './pages/student/Dieta';
 import CheckinAdmin from './pages/admin/CheckinAdmin';
 import Configuracoes from './pages/admin/Configuracoes';
-import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings, Megaphone } from 'lucide-react';
+import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings, Megaphone, Utensils } from 'lucide-react';
 
 const adminNav = [
   { to: '/admin', label: 'Visão Geral', icon: LayoutDashboard, end: true, testId: 'admin-dashboard' },
@@ -32,6 +33,7 @@ const adminNav = [
   { to: '/admin/planos', label: 'Planos', icon: CreditCard, testId: 'admin-planos' },
   { to: '/admin/pagamentos', label: 'Financeiro', icon: Wallet, testId: 'admin-pagamentos' },
   { to: '/admin/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'admin-exercicios' },
+  { to: '/admin/dieta', label: 'Plano Alimentar', icon: Utensils, testId: 'admin-dieta' },
   { to: '/admin/checkin', label: 'Check-in', icon: QrCode, testId: 'admin-checkin' },
   { to: '/admin/avisos', label: 'Avisos', icon: Megaphone, testId: 'admin-avisos' },
   { to: '/admin/configuracoes', label: 'Configurações', icon: Settings, testId: 'admin-configuracoes' },
@@ -43,6 +45,7 @@ const personalNav = [
   { to: '/personal/treinos', label: 'Treinos', icon: ClipboardList, testId: 'personal-treinos' },
   { to: '/personal/agenda', label: 'Agenda', icon: CalendarDays, testId: 'personal-agenda' },
   { to: '/personal/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'personal-exercicios' },
+  { to: '/personal/dieta', label: 'Plano Alimentar', icon: Utensils, testId: 'personal-dieta' },
 ];
 
 function Protected({ role, children }) {
@@ -97,6 +100,7 @@ export default function App() {
           <Route path="/admin/planos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Planos /></DashboardLayout></Protected>} />
           <Route path="/admin/pagamentos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Pagamentos /></DashboardLayout></Protected>} />
           <Route path="/admin/exercicios" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Exercicios /></DashboardLayout></Protected>} />
+          <Route path="/admin/dieta" element={<Protected role="admin"><DashboardLayout nav={adminNav}><PlanosAlimentares /></DashboardLayout></Protected>} />
           <Route path="/admin/montar-treino" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Treinos /></DashboardLayout></Protected>} />
           <Route path="/admin/checkin" element={<Protected role="admin"><DashboardLayout nav={adminNav}><CheckinAdmin /></DashboardLayout></Protected>} />
           <Route path="/admin/avisos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Avisos /></DashboardLayout></Protected>} />
@@ -106,6 +110,7 @@ export default function App() {
           <Route path="/personal/treinos" element={<Protected role="personal"><DashboardLayout nav={personalNav}><Treinos /></DashboardLayout></Protected>} />
           <Route path="/personal/agenda" element={<Protected role="personal"><DashboardLayout nav={personalNav}><Agenda /></DashboardLayout></Protected>} />
           <Route path="/personal/exercicios" element={<Protected role="personal"><DashboardLayout nav={personalNav}><Exercicios /></DashboardLayout></Protected>} />
+          <Route path="/personal/dieta" element={<Protected role="personal"><DashboardLayout nav={personalNav}><PlanosAlimentares /></DashboardLayout></Protected>} />
           <Route path="/aluno" element={<Protected role="aluno"><StudentLayout><Hoje /></StudentLayout></Protected>} />
           <Route path="/aluno/evolucao" element={<Protected role="aluno"><StudentLayout><Evolucao /></StudentLayout></Protected>} />
           <Route path="/aluno/mensalidade" element={<Protected role="aluno"><StudentLayout><Mensalidade /></StudentLayout></Protected>} />
@@ -118,3 +123,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+
