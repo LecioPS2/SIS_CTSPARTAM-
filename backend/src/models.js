@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const opts = { timestamps: true, toJSON: { virtuals: true, transform: (doc, ret) => { ret.id = ret._id.toString(); delete ret._id; delete ret.__v; delete ret.passwordHash; return ret; } } };
@@ -122,6 +122,21 @@ const checkInSchema = new Schema({
 }, opts);
 checkInSchema.index({ studentId: 1, date: 1 }, { unique: true });
 
+const dietPlanSchema = new Schema({
+  studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  title: { type: String, required: true },
+  goal: String,
+  notes: String,
+  meals: [{
+    name: { type: String }, // e.g. Café da manhã
+    time: { type: String }, // e.g. 08:00
+    items: [{
+      food: String,
+      quantity: String
+    }]
+  }]
+}, opts);
 module.exports = {
   User: mongoose.model('User', userSchema),
   Plan: mongoose.model('Plan', planSchema),
@@ -133,4 +148,6 @@ module.exports = {
   Session: mongoose.model('Session', sessionSchema),
   CheckIn: mongoose.model('CheckIn', checkInSchema),
   Notice: mongoose.model('Notice', noticeSchema),
+  DietPlan: mongoose.model('DietPlan', dietPlanSchema),
 };
+
