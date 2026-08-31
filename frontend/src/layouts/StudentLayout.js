@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Flame, TrendingUp, CreditCard, User } from 'lucide-react';
+import { Flame, TrendingUp, CreditCard, User, LogOut } from 'lucide-react';
 import NotificationsPanel from '../components/NotificationsPanel';
 import QRCodeAluna from '../components/QRCodeAluna';
 
@@ -13,7 +13,7 @@ const nav = [
 ];
 
 export default function StudentLayout({ children }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen pb-24 relative bg-background">
@@ -28,10 +28,13 @@ export default function StudentLayout({ children }) {
             <img src="/logo.png" alt="CT Spartan" className="w-7 h-7" />
             CT <span className="text-accent">Spartan</span>
           </span>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <QRCodeAluna inline />
             <NotificationsPanel />
-            <span className="text-xs text-muted truncate max-w-[80px]">{user?.name}</span>
+            <span className="text-xs text-muted truncate max-w-[70px]">{user?.name}</span>
+            <button onClick={logout} className="text-muted hover:text-accent transition-colors ml-1" title="Sair do sistema">
+              <LogOut size={18} />
+            </button>
           </div>
         </header>
       <main className="px-5 py-6">{children}</main>
