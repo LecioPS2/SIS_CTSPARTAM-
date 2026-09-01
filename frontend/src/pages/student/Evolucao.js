@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import api, { fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Field, Card, Modal, PageHeader, Empty } from '../../components/ui';
@@ -115,7 +115,7 @@ export default function Evolucao() {
       ) : (
         <div className="space-y-2">
           {[...list].reverse().map((m) => (
-            <Card key={m.id} className="p-4" data-testid={medida-item- + m.id}>
+            <Card key={m.id} className="p-4" data-testid={`medida-item-${m.id}`}>
               <p className="text-xs text-muted mb-2">{fmtDate(m.date)}</p>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 text-sm">
                 {m.weight != null && <div><span className="text-muted text-[10px] uppercase block">Peso</span>{m.weight}kg</div>}
