@@ -1,4 +1,4 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const { User } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
@@ -85,7 +85,7 @@ router.get('/classes', requireRole('admin', 'personal'), async (req, res) => {
 });
 
 router.post('/', requireRole('admin', 'personal'), async (req, res) => {
-  const { name, email, password, role, phone, personalId, planId, birthDate, timeSlot } = req.body;
+  const { name, email, password, role, phone, personalId, planId, birthDate, timeSlot, paymentDueDate } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'Nome, email e senha são obrigatórios' });
   const newRole = req.user.role === 'personal' ? 'aluno' : role || 'aluno';
   if (await User.findOne({ email: email.toLowerCase().trim() })) return res.status(400).json({ error: 'Email já cadastrado' });
@@ -107,6 +107,7 @@ router.post('/', requireRole('admin', 'personal'), async (req, res) => {
     planId: planId || null,
     birthDate,
     timeSlot: timeSlot || null,
+    paymentDueDate,
     ...anamnesis,
   });
   res.status(201).json(user.toJSON());
@@ -118,7 +119,7 @@ router.put('/:id', requireRole('admin', 'personal'), async (req, res) => {
   if (req.user.role === 'personal' && String(user.personalId) !== String(req.user._id)) {
     return res.status(403).json({ error: 'Acesso negado' });
   }
-  const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot } = req.body;
+  const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot, paymentDueDate } = req.body;
   
   if (timeSlot !== undefined && timeSlot !== user.timeSlot && user.role === 'aluno') {
     if (timeSlot) {
@@ -133,6 +134,7 @@ router.put('/:id', requireRole('admin', 'personal'), async (req, res) => {
   if (phone !== undefined) user.phone = phone;
   if (birthDate !== undefined) user.birthDate = birthDate;
   ANAMNESIS_FIELDS.forEach((f) => { if (req.body[f] !== undefined) user[f] = req.body[f]; });
+  if (paymentDueDate !== undefined) user.paymentDueDate = paymentDueDate;
   if (req.user.role === 'admin') {
     if (personalId !== undefined) user.personalId = personalId || null;
     if (planId !== undefined) user.planId = planId || null;
@@ -158,3 +160,5 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
 });
 
 module.exports = router;
+
+

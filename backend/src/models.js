@@ -21,7 +21,8 @@ const userSchema = new Schema({
   experienceLevel: String,
   trainingFrequency: String,
   anamnesisNotes: String,
-  timeSlot: String, // Horário da turma (ex: "06:00", "07:00")
+  timeSlot: String, //
+  paymentDueDate: String,
 }, opts);
 
 const planSchema = new Schema({
@@ -150,4 +151,7 @@ module.exports = {
   Notice: mongoose.model('Notice', noticeSchema),
   DietPlan: mongoose.model('DietPlan', dietPlanSchema),
 };
+
+
+
 

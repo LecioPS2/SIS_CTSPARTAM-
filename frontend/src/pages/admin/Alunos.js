@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import api from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
 import { Plus, Pencil, Trash2, FileText, Printer } from 'lucide-react';
 
-const empty = { name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
+const empty = { paymentDueDate: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 
 export default function Alunos() {
   const [alunas, setAlunas] = useState([]);
@@ -31,7 +31,7 @@ export default function Alunos() {
     setEditing(a || null);
     setForm(a ? {
       name: a.name, email: a.email, password: '', phone: a.phone || '', birthDate: a.birthDate || '',
-      personalId: a.personalId?.id || a.personalId || '', planId: a.planId?.id || a.planId || '',
+      personalId: a.personalId?.id || a.personalId || '', planId: a.planId?.id || a.planId || '', paymentDueDate: a.paymentDueDate || '',
       timeSlot: a.timeSlot || '',
       goal: a.goal || '', healthConditions: a.healthConditions || '', medications: a.medications || '',
       injuries: a.injuries || '', experienceLevel: a.experienceLevel || '', trainingFrequency: a.trainingFrequency || '',
@@ -112,6 +112,7 @@ export default function Alunos() {
                 <Th>Email</Th>
                 <Th>Turma</Th>
                 <Th>Plano</Th>
+                <Th>Vencimento</Th>
                 <Th>Personal</Th>
                 <Th className="text-right">Ações</Th>
               </tr>
@@ -123,6 +124,7 @@ export default function Alunos() {
                   <Td className="text-muted">{a.email}</Td>
                   <Td>{a.timeSlot ? <Badge>{a.timeSlot}</Badge> : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.planId ? <Badge>{a.planId.name}</Badge> : <span className="text-muted text-xs">Sem plano</span>}</Td>
+                    <Td>{a.paymentDueDate ? new Date(a.paymentDueDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.personalId ? <span className="text-sm text-white/90">{a.personalId.name}</span> : <span className="text-muted text-xs">Sem personal</span>}</Td>
                   <Td className="text-right">
                     <button onClick={() => { 
@@ -176,7 +178,7 @@ export default function Alunos() {
                 <Field label="Telefone"><Input value={form.phone} onChange={set('phone')} /></Field>
                 <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} /></Field>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-line mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2 border-t border-line mt-2">
                 <Field label="Turma / Horário">
                   <Select value={form.timeSlot} onChange={set('timeSlot')}>
                     <option value="">Sem horário fixo</option>
@@ -199,6 +201,7 @@ export default function Alunos() {
                     {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </Select>
                 </Field>
+                  <Field label="Vencimento"><Input type="date" value={form.paymentDueDate} onChange={set('paymentDueDate')} /></Field>
               </div>
             </div>
           )}
@@ -386,3 +389,8 @@ export default function Alunos() {
     </div>
   );
 }
+
+
+
+
+
