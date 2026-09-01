@@ -37,7 +37,7 @@ router.get('/measurements', requireRole('aluno'), async (req, res) => {
 });
 
 router.post('/measurements', requireRole('aluno'), async (req, res) => {
-  const { weight, height, chest, waist, hip, arm, thigh, bodyFat, muscleMass, bodyFat, muscleMass, date } = req.body;
+  const { weight, height, chest, waist, hip, arm, thigh, bodyFat, muscleMass, date } = req.body;
   const m = await Measurement.create({
     studentId: req.user._id,
     date: date || new Date().toISOString().slice(0, 10),
@@ -53,4 +53,5 @@ router.get('/membership', requireRole('aluno'), async (req, res) => {
 });
 
 module.exports = router;
+
 
