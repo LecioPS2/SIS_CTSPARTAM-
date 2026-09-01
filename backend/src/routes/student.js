@@ -1,4 +1,4 @@
-const router = require('express').Router();
+﻿const router = require('express').Router();
 const { Workout, WorkoutLog, Measurement, Payment, User } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
@@ -37,11 +37,11 @@ router.get('/measurements', requireRole('aluno'), async (req, res) => {
 });
 
 router.post('/measurements', requireRole('aluno'), async (req, res) => {
-  const { weight, height, chest, waist, hip, arm, thigh, date } = req.body;
+  const { weight, height, chest, waist, hip, arm, thigh, bodyFat, muscleMass, bodyFat, muscleMass, date } = req.body;
   const m = await Measurement.create({
     studentId: req.user._id,
     date: date || new Date().toISOString().slice(0, 10),
-    weight, height, chest, waist, hip, arm, thigh,
+    weight, height, chest, waist, hip, arm, thigh, bodyFat, muscleMass,
   });
   res.status(201).json(m.toJSON());
 });
@@ -53,3 +53,4 @@ router.get('/membership', requireRole('aluno'), async (req, res) => {
 });
 
 module.exports = router;
+

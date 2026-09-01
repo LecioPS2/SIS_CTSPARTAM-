@@ -103,6 +103,8 @@ const measurementSchema = new Schema({
   hip: Number,
   arm: Number,
   thigh: Number,
+  bodyFat: Number,
+  muscleMass: Number,
 }, opts);
 
 const sessionSchema = new Schema({
@@ -151,6 +153,7 @@ module.exports = {
   Notice: mongoose.model('Notice', noticeSchema),
   DietPlan: mongoose.model('DietPlan', dietPlanSchema),
 };
+
 
 
 
