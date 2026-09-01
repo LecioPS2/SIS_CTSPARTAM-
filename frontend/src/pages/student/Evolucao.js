@@ -42,9 +42,9 @@ export default function Evolucao() {
   }));
   
   const latest = list[list.length - 1];
-  const hasWeight = chartData.filter(d => d.peso != null).length > 0;
-  const hasFat = chartData.filter(d => d.gordura != null).length > 0;
-  const hasMass = chartData.filter(d => d.massa != null).length > 0;
+  const hasWeight = chartData.filter(d => d.peso != null).length > 1;
+  const hasFat = chartData.filter(d => d.gordura != null).length > 1;
+  const hasMass = chartData.filter(d => d.massa != null).length > 1;
 
   return (
     <div data-testid="student-evolucao-page" className="pb-20">
