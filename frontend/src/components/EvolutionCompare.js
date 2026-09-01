@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { TrendingDown, TrendingUp, Minus } from 'lucide-react';
 
 const FIELDS = [
@@ -44,17 +44,17 @@ export default function EvolutionCompare({ history }) {
           }
 
           return (
-            <div key={r.key} className="border border-line rounded p-3" data-testid={compare- + r.key}>
+            <div key={r.key} className="border border-line rounded p-3" data-testid={`compare-${r.key}`}>
               <p className="text-[10px] uppercase tracking-[0.15em] text-muted mb-1">{r.label}</p>
               <p className="text-sm text-muted">{r.first}{r.unit} <span className="text-white">→ {r.last}{r.unit}</span></p>
               
               <div className="flex items-center justify-between mt-2">
-                <p className={lex items-center gap-1 font-display text-xl leading-none \}>
+                <p className={`flex items-center gap-1 font-display text-xl leading-none ${colorClass}`}>
                   {r.delta < 0 ? <TrendingDown size={16} /> : r.delta > 0 ? <TrendingUp size={16} /> : <Minus size={16} />}
                   {r.delta > 0 ? '+' : ''}{r.delta}{r.unit}
                 </p>
                 {r.pct !== 0 && (
-                  <span className={	ext-xs font-bold px-1.5 py-0.5 rounded \}>
+                  <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${colorClass === 'text-ok' ? 'bg-ok/20' : 'bg-accent/20'}`}>
                     {r.pct > 0 ? '+' : ''}{r.pct}%
                   </span>
                 )}
