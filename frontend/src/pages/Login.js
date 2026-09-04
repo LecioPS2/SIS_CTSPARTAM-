@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Globe, Instagram, Phone, Smartphone, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 const BG = '/login-hero.webp';
 
@@ -13,12 +13,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const [social, setSocial] = useState({ site: '', instagram: '', whatsapp: '', tiktok: '' });
-  useEffect(() => {
-    const saved = localStorage.getItem('gym_social_settings');
-    if (saved) setSocial(JSON.parse(saved));
-  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -36,13 +30,6 @@ export default function Login() {
     }
   };
 
-  const socialLinks = [
-    { id: 'site', label: 'SITE', icon: Globe, url: social.site },
-    { id: 'instagram', label: 'INSTAGRAM', icon: Instagram, url: social.instagram },
-    { id: 'whatsapp', label: 'WHATSAPP', icon: Phone, url: social.whatsapp ? `https://wa.me/${social.whatsapp.replace(/\D/g, '')}` : '' },
-    { id: 'tiktok', label: 'TIKTOK', icon: Smartphone, url: social.tiktok },
-  ];
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-bg flex">
       {/* Background Image & Gradients */}
@@ -50,33 +37,7 @@ export default function Login() {
       <div className="absolute inset-0 bg-gradient-to-r from-bg/90 via-bg/70 to-bg/95" />
       <div className="absolute inset-0 bg-gradient-to-t from-bg/95 via-transparent to-transparent" />
 
-      {/* Sidebar de Acesso Rápido */}
-      <aside className="relative z-50 w-20 min-h-screen border-r border-white/10 bg-black/40 backdrop-blur-md hidden lg:flex flex-col items-center justify-center">
-        
-        <div className="flex flex-col items-center gap-10 mt-16">
-          {/* Ícones de Redes */}
-          <div className="flex flex-col gap-6">
-            {socialLinks.map(link => (
-              <a 
-                key={link.id}
-                href={link.url || '#'} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="flex flex-col items-center gap-1.5 group"
-                title={link.label}
-                onClick={(e) => !link.url && e.preventDefault()}
-              >
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${link.url ? 'bg-accent text-white group-hover:scale-110 shadow-accent/20' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}>
-                  <link.icon size={16} />
-                </div>
-                <span className={`text-[7px] font-bold uppercase tracking-[0.15em] transition-colors ${link.url ? 'text-white/60 group-hover:text-white' : 'text-white/20'}`}>
-                  {link.label}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </aside>
+
 
       {/* Container Principal que ocupa o restante da tela */}
       <div className="relative z-10 flex-1 flex flex-col min-h-screen">
@@ -113,7 +74,7 @@ export default function Login() {
             <form
               onSubmit={submit}
               data-testid="login-form"
-              className="w-full max-w-md bg-white/[0.04] backdrop-blur-3xl border border-white/10 rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/60"
+              className="w-full max-w-md bg-white/[0.04] backdrop-blur-3xl rounded-2xl p-8 sm:p-10 shadow-2xl shadow-black/60"
             >
               {/* Logo Mobile */}
               <div className="flex items-center gap-3 mb-8 md:hidden">

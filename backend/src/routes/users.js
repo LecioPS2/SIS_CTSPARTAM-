@@ -1,4 +1,4 @@
-﻿const router = require('express').Router();
+const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const { User } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
@@ -6,22 +6,24 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 // ROTA TEMPORÁRIA PARA RECRIAR O ADMIN (caso o Seed tenha falhado)
 router.get('/fix-admin', async (req, res) => {
   try {
-    const hash = await bcrypt.hash('admin123', 10);
-    const existing = await User.findOne({ email: 'admin@academia.com' });
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@ctspartan.com';
+    const adminPass = process.env.ADMIN_PASSWORD || 'adminCT123';
+    const hash = await bcrypt.hash(adminPass, 10);
+    const existing = await User.findOne({ email: adminEmail });
     
     if (existing) {
       existing.passwordHash = hash;
       await existing.save();
-      return res.json({ message: 'Senha do admin resetada para admin123' });
+      return res.json({ message: 'Senha do admin resetada' });
     } else {
       await User.create({
         name: 'Administrador',
-        email: 'admin@academia.com',
+        email: adminEmail,
         passwordHash: hash,
         role: 'admin',
         active: true
       });
-      return res.json({ message: 'Conta admin criada com sucesso! (admin123)' });
+      return res.json({ message: 'Conta admin criada com sucesso!' });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -30,6 +32,7 @@ router.get('/fix-admin', async (req, res) => {
 
 router.get('/wipe-all-data', async (req, res) => {
   try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@ctspartan.com';
     const mongoose = require('mongoose');
     await mongoose.model('Plan').deleteMany({});
     await mongoose.model('Payment').deleteMany({});
@@ -42,7 +45,7 @@ router.get('/wipe-all-data', async (req, res) => {
     await mongoose.model('CheckIn').deleteMany({});
     
     // Delete all users EXCEPT the admin
-    await User.deleteMany({ email: { $ne: 'admin@academia.com' } });
+    await User.deleteMany({ email: { $ne: adminEmail } });
     
     res.json({ message: 'Banco de dados limpo com sucesso! Apenas o admin sobrou.' });
   } catch (err) {
@@ -160,5 +163,3 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
 });
 
 module.exports = router;
-
-

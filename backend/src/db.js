@@ -42,12 +42,12 @@ async function seedAll() {
     return;
   }
 
-  const hash = await bcrypt.hash('admin123', 10);
+  const hash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'adminCT123', 10);
   const hashUser = await bcrypt.hash('senha123', 10);
 
   // Admin
-  await User.create({ name: 'Administrador', email: 'admin@academia.com', passwordHash: hash, role: 'admin' });
-  console.log('Admin criado: admin@academia.com');
+  await User.create({ name: 'Administrador', email: process.env.ADMIN_EMAIL || 'admin@ctspartan.com', passwordHash: hash, role: 'admin' });
+  console.log('Admin criado:', process.env.ADMIN_EMAIL || 'admin@ctspartan.com');
 }
 
 module.exports = { connectDb };
