@@ -1,4 +1,4 @@
-﻿const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const opts = { timestamps: true, toJSON: { virtuals: true, transform: (doc, ret) => { ret.id = ret._id.toString(); delete ret._id; delete ret.__v; delete ret.passwordHash; return ret; } } };
@@ -7,7 +7,7 @@ const userSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   passwordHash: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'personal', 'aluno'], required: true },
+  role: { type: String, enum: ['admin', 'personal', 'aluno', 'assessor'], required: true },
   phone: String,
   personalId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   planId: { type: Schema.Types.ObjectId, ref: 'Plan', default: null },

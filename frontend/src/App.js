@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -44,18 +44,19 @@ const personalNav = [
   { to: '/personal/alunos', label: 'Minhas Alunas', icon: Users, testId: 'personal-alunos' },
   { to: '/personal/treinos', label: 'Treinos', icon: ClipboardList, testId: 'personal-treinos' },
   { to: '/personal/agenda', label: 'Agenda', icon: CalendarDays, testId: 'personal-agenda' },
-  { to: '/personal/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'personal-exercicios' },
+  { to: '/personal/exercicios', icon: Dumbbell, testId: 'personal-exercicios' },
   { to: '/personal/dieta', label: 'Plano Alimentar', icon: Utensils, testId: 'personal-dieta' },
 ];
 
-function Protected({ role, children }) {
+function Protected({ role, roles, children }) {
   const { user } = useAuth();
   if (user === null) {
     return <div className="min-h-screen flex items-center justify-center text-muted">Carregando...</div>;
   }
   if (user === false) return <Navigate to="/login" replace />;
-  if (user.role !== role) {
-    const home = user.role === 'admin' ? '/admin' : user.role === 'personal' ? '/personal' : '/aluno';
+  const allowedRoles = roles || [role];
+  if (!allowedRoles.includes(user.role)) {
+    const home = user.role === 'admin' || user.role === 'assessor' ? '/admin' : user.role === 'personal' ? '/personal' : '/aluno';
     return <Navigate to={home} replace />;
   }
   return children;
@@ -65,7 +66,7 @@ function Home() {
   const { user } = useAuth();
   if (user === null) return <div className="min-h-screen flex items-center justify-center text-muted">Carregando...</div>;
   if (user === false) return <Navigate to="/login" replace />;
-  const home = user.role === 'admin' ? '/admin' : user.role === 'personal' ? '/personal' : '/aluno';
+  const home = user.role === 'admin' || user.role === 'assessor' ? '/admin' : user.role === 'personal' ? '/personal' : '/aluno';
   return <Navigate to={home} replace />;
 }
 
@@ -94,15 +95,15 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Protected role="admin"><DashboardLayout nav={adminNav}><AdminDashboard /></DashboardLayout></Protected>} />
-          <Route path="/admin/alunos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Alunos /></DashboardLayout></Protected>} />
+          <Route path="/admin" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><AdminDashboard /></DashboardLayout></Protected>} />
+          <Route path="/admin/alunos" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><Alunos /></DashboardLayout></Protected>} />
           <Route path="/admin/personais" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Personais /></DashboardLayout></Protected>} />
           <Route path="/admin/planos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Planos /></DashboardLayout></Protected>} />
-          <Route path="/admin/pagamentos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Pagamentos /></DashboardLayout></Protected>} />
+          <Route path="/admin/pagamentos" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><Pagamentos /></DashboardLayout></Protected>} />
           <Route path="/admin/exercicios" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Exercicios /></DashboardLayout></Protected>} />
           <Route path="/admin/dieta" element={<Protected role="admin"><DashboardLayout nav={adminNav}><PlanosAlimentares /></DashboardLayout></Protected>} />
           <Route path="/admin/montar-treino" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Treinos /></DashboardLayout></Protected>} />
-          <Route path="/admin/checkin" element={<Protected role="admin"><DashboardLayout nav={adminNav}><CheckinAdmin /></DashboardLayout></Protected>} />
+          <Route path="/admin/checkin" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><CheckinAdmin /></DashboardLayout></Protected>} />
           <Route path="/admin/avisos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Avisos /></DashboardLayout></Protected>} />
           <Route path="/admin/configuracoes" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Configuracoes /></DashboardLayout></Protected>} />
           <Route path="/personal" element={<Protected role="personal"><DashboardLayout nav={personalNav}><PersonalDashboard /></DashboardLayout></Protected>} />

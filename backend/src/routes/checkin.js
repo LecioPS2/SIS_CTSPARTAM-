@@ -17,7 +17,7 @@ router.get('/token', requireRole('aluno'), async (req, res) => {
 });
 
 // POST /api/checkin/validate — Admin valida QR e registra check-in
-router.post('/validate', requireRole('admin'), async (req, res) => {
+router.post('/validate', requireRole('admin', 'assessor'), async (req, res) => {
   const { token } = req.body;
   if (!token) return res.status(400).json({ error: 'Token não informado' });
 
@@ -63,7 +63,7 @@ router.post('/validate', requireRole('admin'), async (req, res) => {
 });
 
 // POST /api/checkin/manual — Check-in manual pelo Admin
-router.post('/manual', requireRole('admin'), async (req, res) => {
+router.post('/manual', requireRole('admin', 'assessor'), async (req, res) => {
   const { studentId } = req.body;
   if (!studentId) return res.status(400).json({ error: 'ID da aluna não informado' });
 
@@ -89,7 +89,7 @@ router.post('/manual', requireRole('admin'), async (req, res) => {
 });
 
 // GET /api/checkin/today — lista check-ins do dia (Admin)
-router.get('/today', requireRole('admin'), async (req, res) => {
+router.get('/today', requireRole('admin', 'assessor'), async (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const checkins = await CheckIn.find({ date: today })
     .populate('studentId', 'name avatarUrl')
@@ -106,7 +106,7 @@ router.get('/history', requireRole('aluno'), async (req, res) => {
 });
 
 // GET /api/checkin/report — Relatórios dinâmicos de check-ins (Admin)
-router.get('/report', requireRole('admin'), async (req, res) => {
+router.get('/report', requireRole('admin', 'assessor'), async (req, res) => {
   const { start, end, studentId } = req.query;
   const filter = {};
   

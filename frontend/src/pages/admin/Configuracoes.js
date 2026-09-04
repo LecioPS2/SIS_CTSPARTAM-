@@ -72,6 +72,14 @@ export default function Configuracoes() {
         >
           Institucional & Redes Sociais
         </button>
+        {user?.role === 'admin' && (
+          <button 
+            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${tab === 'acessos' ? 'border-accent text-white' : 'border-transparent text-muted hover:text-white'}`}
+            onClick={() => setTab('acessos')}
+          >
+            Gestão de Acessos
+          </button>
+        )}
       </div>
 
       {/* Aba: Meu Perfil */}
@@ -223,6 +231,130 @@ export default function Configuracoes() {
           </div>
         </div>
       )}
+
+      {/* Aba: Acessos */}
+      {tab === 'acessos' && user?.role === 'admin' && <GestaoAcessos />}
+    </div>
+  );
+}
+
+function GestaoAcessos() {
+  const [assessores, setAssessores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
+
+  useEffect(() => {
+    fetchAssessores();
+  }, []);
+
+  const fetchAssessores = async () => {
+    try {
+      const { data } = await api.get('/users?role=assessor');
+      setAssessores(data);
+    } catch (err) {
+      toast.error('Erro ao carregar assessores');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/users', { ...form, role: 'assessor' });
+      toast.success('Assessor criado com sucesso!');
+      setShowForm(false);
+      setForm({ name: '', email: '', password: '', phone: '' });
+      fetchAssessores();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erro ao criar assessor');
+    }
+  };
+
+  const toggleStatus = async (id, currentStatus) => {
+    try {
+      await api.put(`/users/${id}`, { active: !currentStatus });
+      toast.success('Status atualizado!');
+      fetchAssessores();
+    } catch (err) {
+      toast.error('Erro ao atualizar status');
+    }
+  };
+
+  if (loading) return <div>Carregando...</div>;
+
+  return (
+    <div className="fade-up space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="font-display text-xl uppercase tracking-wide">Assessores</h3>
+        <Button onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Cancelar' : 'Novo Assessor'}
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label="Nome">
+                <Input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+              </Field>
+              <Field label="E-mail">
+                <Input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+              </Field>
+              <Field label="Senha">
+                <Input required type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} />
+              </Field>
+              <Field label="Telefone">
+                <Input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+              </Field>
+            </div>
+            <div className="pt-4 border-t border-line">
+              <Button type="submit"><Save size={16} className="inline mr-2" /> Salvar Assessor</Button>
+            </div>
+          </form>
+        </Card>
+      )}
+
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-surface/50 border-b border-line text-xs uppercase text-muted">
+              <tr>
+                <th className="px-6 py-4 font-medium">Nome</th>
+                <th className="px-6 py-4 font-medium">E-mail</th>
+                <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-6 py-4 font-medium text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {assessores.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="px-6 py-8 text-center text-muted">Nenhum assessor cadastrado</td>
+                </tr>
+              ) : (
+                assessores.map(assessor => (
+                  <tr key={assessor.id} className="hover:bg-surface/30 transition-colors">
+                    <td className="px-6 py-4">{assessor.name}</td>
+                    <td className="px-6 py-4">{assessor.email}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${assessor.active ? 'bg-ok/20 text-ok' : 'bg-danger/20 text-danger'}`}>
+                        {assessor.active ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => toggleStatus(assessor.id, assessor.active)}>
+                        {assessor.active ? 'Desativar' : 'Ativar'}
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }

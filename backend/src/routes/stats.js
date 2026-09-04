@@ -4,7 +4,7 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 router.use(requireAuth);
 
-router.get('/admin', requireRole('admin'), async (req, res) => {
+router.get('/admin', requireRole('admin', 'assessor'), async (req, res) => {
   const now = new Date();
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
   const [totalAlunos, totalPersonais, payments] = await Promise.all([

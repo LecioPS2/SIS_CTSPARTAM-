@@ -19,7 +19,7 @@ function initials(name = '') {
 export default function DashboardLayout({ nav, children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const cargo = user?.role === 'admin' ? 'Administrador' : 'Personal Trainer';
+  const cargo = user?.role === 'admin' ? 'Administrador' : user?.role === 'assessor' ? 'Assessor' : 'Personal Trainer';
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
   const [social, setSocial] = useState({ site: '', instagram: '', whatsapp: '', tiktok: '' });
@@ -35,6 +35,13 @@ export default function DashboardLayout({ nav, children }) {
     { id: 'whatsapp', label: 'WHATS', icon: Phone, url: social.whatsapp ? `https://wa.me/${social.whatsapp.replace(/\D/g, '')}` : '' },
     { id: 'tiktok', label: 'TIKTOK', icon: Smartphone, url: social.tiktok },
   ];
+
+  const filteredNav = nav.filter(item => {
+    if (user?.role === 'assessor') {
+      return ['Visão Geral', 'Alunas', 'Financeiro', 'Check-in'].includes(item.label);
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen flex">
@@ -67,7 +74,7 @@ export default function DashboardLayout({ nav, children }) {
           <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>
         </div>
         <nav className="flex-1 py-4 space-y-0.5">
-          {nav.map((item) => (
+          {filteredNav.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

@@ -20,7 +20,7 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await login(email, password);
-      if (user.role === 'admin') navigate('/admin');
+      if (user.role === 'admin' || user.role === 'assessor') navigate('/admin');
       else if (user.role === 'personal') navigate('/personal');
       else navigate('/aluno');
     } catch (err) {

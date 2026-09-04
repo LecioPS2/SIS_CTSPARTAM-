@@ -55,7 +55,7 @@ router.get('/wipe-all-data', async (req, res) => {
 
 router.use(requireAuth);
 
-router.get('/', requireRole('admin', 'personal'), async (req, res) => {
+router.get('/', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
   const { role } = req.query;
   const filter = {};
   if (role) filter.role = role;
@@ -63,13 +63,16 @@ router.get('/', requireRole('admin', 'personal'), async (req, res) => {
     filter.role = 'aluno';
     filter.personalId = req.user._id;
   }
+  if (req.user.role === 'assessor' && !role) {
+      filter.role = 'aluno';
+  }
   const users = await User.find(filter).populate('planId', 'name price').populate('personalId', 'name').sort({ createdAt: -1 });
   res.json(users.map((u) => u.toJSON()));
 });
 
 const ANAMNESIS_FIELDS = ['goal', 'healthConditions', 'medications', 'injuries', 'experienceLevel', 'trainingFrequency', 'anamnesisNotes'];
 
-router.get('/classes', requireRole('admin', 'personal'), async (req, res) => {
+router.get('/classes', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
   const slots = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
   const counts = await User.aggregate([
     { $match: { role: 'aluno', active: true, timeSlot: { $ne: null } } },
@@ -87,10 +90,10 @@ router.get('/classes', requireRole('admin', 'personal'), async (req, res) => {
   res.json(result);
 });
 
-router.post('/', requireRole('admin', 'personal'), async (req, res) => {
+router.post('/', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
   const { name, email, password, role, phone, personalId, planId, birthDate, timeSlot, paymentDueDate } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'Nome, email e senha são obrigatórios' });
-  const newRole = req.user.role === 'personal' ? 'aluno' : role || 'aluno';
+  const newRole = (req.user.role === 'personal' || req.user.role === 'assessor') ? 'aluno' : role || 'aluno';
   if (await User.findOne({ email: email.toLowerCase().trim() })) return res.status(400).json({ error: 'Email já cadastrado' });
   
   if (timeSlot && newRole === 'aluno') {
@@ -116,11 +119,14 @@ router.post('/', requireRole('admin', 'personal'), async (req, res) => {
   res.status(201).json(user.toJSON());
 });
 
-router.put('/:id', requireRole('admin', 'personal'), async (req, res) => {
+router.put('/:id', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
   if (req.user.role === 'personal' && String(user.personalId) !== String(req.user._id)) {
     return res.status(403).json({ error: 'Acesso negado' });
+  }
+  if (req.user.role === 'assessor' && user.role !== 'aluno') {
+    return res.status(403).json({ error: 'Assessores só podem editar alunas' });
   }
   const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot, paymentDueDate } = req.body;
   
@@ -138,7 +144,7 @@ router.put('/:id', requireRole('admin', 'personal'), async (req, res) => {
   if (birthDate !== undefined) user.birthDate = birthDate;
   ANAMNESIS_FIELDS.forEach((f) => { if (req.body[f] !== undefined) user[f] = req.body[f]; });
   if (paymentDueDate !== undefined) user.paymentDueDate = paymentDueDate;
-  if (req.user.role === 'admin') {
+  if (req.user.role === 'admin' || req.user.role === 'assessor') {
     if (personalId !== undefined) user.personalId = personalId || null;
     if (planId !== undefined) user.planId = planId || null;
     if (active !== undefined) user.active = active;

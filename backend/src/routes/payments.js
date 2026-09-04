@@ -4,7 +4,7 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 router.use(requireAuth);
 
-router.get('/', requireRole('admin'), async (req, res) => {
+router.get('/', requireRole('admin', 'assessor'), async (req, res) => {
   const payments = await Payment.find({}).populate('studentId', 'name email').populate('planId', 'name').sort({ dueDate: -1 });
   res.json(payments.map((p) => p.toJSON()));
 });
