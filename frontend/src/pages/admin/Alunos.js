@@ -1,10 +1,12 @@
-﻿import React, { useEffect, useState } from 'react';
-import api from '../../lib/api';
+import React, { useEffect, useState } from 'react';
+import api, { fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
-import { Plus, Pencil, Trash2, FileText, Printer } from 'lucide-react';
+import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck } from 'lucide-react';
+import EvolutionCompare from '../../components/EvolutionCompare';
 
 const empty = { paymentDueDate: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
+const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
 
 export default function Alunos() {
   const [alunas, setAlunas] = useState([]);
@@ -18,6 +20,9 @@ export default function Alunos() {
   const [contractModal, setContractModal] = useState(false);
   const [contractStudent, setContractStudent] = useState(null);
   const [activeTab, setActiveTab] = useState('TODAS');
+  const [evalModal, setEvalModal] = useState(null);
+  const [evalForm, setEvalForm] = useState(emptyMeasure);
+  const [history, setHistory] = useState([]);
 
   const load = () => {
     api.get('/users?role=aluno').then((r) => setAlunas(r.data));
@@ -72,7 +77,34 @@ export default function Alunos() {
     load();
   };
 
+  const openEval = async (a) => {
+    setEvalModal(a);
+    setEvalForm(emptyMeasure);
+    setHistory([]);
+    try {
+      const { data } = await api.get(`/measurements/${a.id}`);
+      setHistory(data);
+    } catch (err) {}
+  };
+
+  const saveEval = async (e) => {
+    e.preventDefault();
+    const payload = {};
+    Object.entries(evalForm).forEach(([k, v]) => { if (v !== '') payload[k] = Number(v); });
+    if (Object.keys(payload).length === 0) { toast.error('Preencha ao menos uma medida'); return; }
+    try {
+      await api.post(`/measurements/${evalModal.id}`, payload);
+      toast.success('Avaliação física registrada');
+      const { data } = await api.get(`/measurements/${evalModal.id}`);
+      setHistory(data);
+      setEvalForm(emptyMeasure);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erro ao salvar avaliação');
+    }
+  };
+
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
+  const setEv = (k) => (e) => setEvalForm({ ...evalForm, [k]: e.target.value });
 
   const filteredAlunas = activeTab === 'TODAS' ? alunas : alunas.filter(a => a.timeSlot === activeTab);
 
@@ -126,7 +158,10 @@ export default function Alunos() {
                   <Td>{a.planId ? <Badge>{a.planId.name}</Badge> : <span className="text-muted text-xs">Sem plano</span>}</Td>
                     <Td>{a.paymentDueDate ? new Date(a.paymentDueDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.personalId ? <span className="text-sm text-white/90">{a.personalId.name}</span> : <span className="text-muted text-xs">Sem personal</span>}</Td>
-                  <Td className="text-right">
+                  <Td className="text-right flex items-center justify-end gap-1">
+                    <button onClick={() => openEval(a)} className="p-2 text-muted hover:text-ok transition-colors" data-testid={`avaliacao-aluno-${a.id}`} title="Avaliação Física">
+                      <ClipboardCheck size={16} />
+                    </button>
                     <button onClick={() => { 
                       setContractStudent({ ...a, planId: plans.find(p => p.id === (a.planId?.id || a.planId)) }); 
                       setContractModal(true); 
@@ -385,6 +420,45 @@ export default function Alunos() {
             </div>
           </>
         )}
+      </Modal>
+
+      <Modal open={!!evalModal} onClose={() => setEvalModal(null)} title={`Avaliação Física — ${evalModal?.name || ''}`} wide>
+        <form onSubmit={saveEval} className="space-y-4" data-testid="avaliacao-form">
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="Peso (kg)"><Input type="number" step="0.1" min="0" value={evalForm.weight} onChange={setEv('weight')} data-testid="avaliacao-peso-input" /></Field>
+            <Field label="Altura (cm)"><Input type="number" step="0.5" min="0" value={evalForm.height} onChange={setEv('height')} data-testid="avaliacao-altura-input" /></Field>
+            <Field label="Peito (cm)"><Input type="number" step="0.5" min="0" value={evalForm.chest} onChange={setEv('chest')} data-testid="avaliacao-peito-input" /></Field>
+            <Field label="Cintura (cm)"><Input type="number" step="0.5" min="0" value={evalForm.waist} onChange={setEv('waist')} data-testid="avaliacao-cintura-input" /></Field>
+            <Field label="Quadril (cm)"><Input type="number" step="0.5" min="0" value={evalForm.hip} onChange={setEv('hip')} data-testid="avaliacao-quadril-input" /></Field>
+            <Field label="Braço (cm)"><Input type="number" step="0.5" min="0" value={evalForm.arm} onChange={setEv('arm')} data-testid="avaliacao-braco-input" /></Field>
+            <Field label="Coxa (cm)"><Input type="number" step="0.5" min="0" value={evalForm.thigh} onChange={setEv('thigh')} data-testid="avaliacao-coxa-input" /></Field>
+          </div>
+          <Button type="submit" className="w-full" data-testid="avaliacao-save-button">Registrar Avaliação</Button>
+        </form>
+        <div className="mt-5">
+          {history.length > 1 && <div className="mb-4"><EvolutionCompare history={history} /></div>}
+          <p className="text-xs uppercase tracking-[0.2em] text-muted mb-3">Histórico de avaliações</p>
+          {history.length === 0 ? (
+            <Empty text="Nenhuma avaliação registrada ainda" />
+          ) : (
+            <div className="space-y-2 max-h-56 overflow-y-auto" data-testid="avaliacao-historico">
+              {[...history].reverse().map((m) => (
+                <div key={m.id} className="bg-surface border border-line rounded p-3">
+                  <p className="text-xs text-muted mb-1.5">{fmtDate(m.date)}</p>
+                  <div className="grid grid-cols-4 gap-2 text-sm">
+                    {m.weight != null && <div><span className="text-muted text-xs block">Peso</span>{m.weight}kg</div>}
+                    {m.height != null && <div><span className="text-muted text-xs block">Altura</span>{m.height}cm</div>}
+                    {m.chest != null && <div><span className="text-muted text-xs block">Peito</span>{m.chest}cm</div>}
+                    {m.waist != null && <div><span className="text-muted text-xs block">Cintura</span>{m.waist}cm</div>}
+                    {m.hip != null && <div><span className="text-muted text-xs block">Quadril</span>{m.hip}cm</div>}
+                    {m.arm != null && <div><span className="text-muted text-xs block">Braço</span>{m.arm}cm</div>}
+                    {m.thigh != null && <div><span className="text-muted text-xs block">Coxa</span>{m.thigh}cm</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   );

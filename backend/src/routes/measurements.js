@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Measurement, User } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
-router.use(requireAuth, requireRole('admin', 'personal'));
+router.use(requireAuth, requireRole('admin', 'assessor', 'personal'));
 
 async function canAccess(req, res, next) {
   if (!mongoose.isValidObjectId(req.params.studentId)) return res.status(400).json({ error: 'ID inválido' });
