@@ -144,28 +144,38 @@ export default function Hoje() {
       {/* Grid: TREINOS e P. ALIMENTAR */}
       <div className="grid grid-cols-2 gap-4 mb-10 fade-up" style={{ animationDelay: '0.2s' }}>
         {/* TREINOS */}
-        <div onClick={scrollToWorkouts} className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors h-40 cursor-pointer flex">
-          <div className="w-10 bg-[#e0e0e0] flex items-center justify-center shrink-0">
-            <span className="-rotate-90 whitespace-nowrap text-[#bd1e2d] text-[13px] font-medium tracking-wide">
-              Treinos da Semana
+        <div onClick={scrollToWorkouts} className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-black h-44 cursor-pointer flex group">
+          <div className="w-10 bg-[#e0e0e0] flex items-center justify-center shrink-0 z-10">
+            <span className="-rotate-90 whitespace-nowrap text-[#bd1e2d] text-[11px] font-black uppercase tracking-widest font-display">
+              TREINOS DA SEMANA
             </span>
           </div>
-          <div className="flex-1 p-4 flex flex-col justify-end items-end">
-            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg">
+          <div className="relative flex-1 p-4 flex flex-col justify-end items-end overflow-hidden">
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"
+              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop)' }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg relative z-10">
               <ArrowRight size={16} />
             </div>
           </div>
         </div>
 
         {/* P. ALIMENTAR */}
-        <Link to="/aluno/dieta" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors h-40 flex">
-          <div className="w-10 bg-[#bd1e2d] flex items-center justify-center shrink-0">
-            <span className="-rotate-90 whitespace-nowrap text-white text-[13px] font-medium tracking-wide">
-              Plano Alimentar
+        <Link to="/aluno/dieta" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-black h-44 flex group block">
+          <div className="w-10 bg-[#bd1e2d] flex items-center justify-center shrink-0 z-10">
+            <span className="-rotate-90 whitespace-nowrap text-white text-[11px] font-black uppercase tracking-widest font-display">
+              PLANO ALIMENTAR
             </span>
           </div>
-          <div className="flex-1 p-4 flex flex-col justify-end items-end">
-            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg">
+          <div className="relative flex-1 p-4 flex flex-col justify-end items-end overflow-hidden">
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:scale-110 transition-transform duration-700"
+              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=400&auto=format&fit=crop)' }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg relative z-10">
               <ArrowRight size={16} />
             </div>
           </div>
