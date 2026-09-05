@@ -13,6 +13,7 @@ export default function Hoje() {
   const [avisos, setAvisos] = useState([]);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState(null);
   const backendUrl = process.env.NODE_ENV === 'production' ? '' : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:8002');
 
   const getImageUrl = (url) => {
@@ -220,7 +221,12 @@ export default function Hoje() {
                     w.exercises.filter(ex => ex.day === undefined || ex.day === today.getDay()).map((ex, i) => (
                       <div key={i} className="flex items-center gap-3 border-b border-white/10 pb-3 last:border-0">
                         {ex.exerciseId?.imageUrl && (
-                          <img src={getImageUrl(ex.exerciseId.imageUrl)} alt="" className="w-12 h-12 rounded-lg object-cover border border-white/10 shadow-sm" />
+                          <img 
+                            src={getImageUrl(ex.exerciseId.imageUrl)} 
+                            alt="" 
+                            className="w-12 h-12 rounded-lg object-cover border border-white/10 shadow-sm cursor-pointer hover:opacity-80 transition-opacity" 
+                            onClick={() => setSelectedExercise(ex)}
+                          />
                         )}
                         <div className="flex-1">
                           <p className="text-sm font-medium text-white/90">{ex.name}</p>
@@ -297,6 +303,39 @@ export default function Hoje() {
           <div id="student-qr-reader" className="w-full overflow-hidden rounded-xl bg-black border-2 border-accent shadow-lg shadow-accent/20" style={{ minHeight: '300px' }}></div>
           {scanning && <p className="text-xs text-accent mt-4 animate-pulse">Câmera ativa. Procurando QR Code...</p>}
         </div>
+      </Modal>
+
+      <Modal open={!!selectedExercise} onClose={() => setSelectedExercise(null)} title={selectedExercise?.name || 'Detalhes'}>
+        {selectedExercise && (
+          <div className="mt-2 flex flex-col items-center">
+            {selectedExercise.exerciseId?.videoUrl ? (
+              <video 
+                src={getImageUrl(selectedExercise.exerciseId.videoUrl)} 
+                controls 
+                autoPlay 
+                playsInline
+                className="w-full max-h-[60vh] rounded-xl shadow-lg border border-white/10 mb-4 object-contain bg-black/50" 
+              />
+            ) : selectedExercise.exerciseId?.imageUrl ? (
+              <img 
+                src={getImageUrl(selectedExercise.exerciseId.imageUrl)} 
+                alt={selectedExercise.name} 
+                className="w-full max-h-[60vh] rounded-xl shadow-lg border border-white/10 mb-4 object-contain" 
+              />
+            ) : null}
+            <div className="w-full flex justify-between items-center text-sm">
+              <div className="font-medium text-white/90 uppercase tracking-widest">{selectedExercise.muscleGroup}</div>
+              <div className="font-display text-xl text-accent">
+                {selectedExercise.sets}<span className="text-white/50 text-base mx-1">x</span>{selectedExercise.reps}
+              </div>
+            </div>
+            {selectedExercise.notes && (
+              <div className="w-full mt-3 p-3 bg-white/5 rounded-lg border border-white/10 text-white/70 text-sm">
+                <strong className="text-white/90">Dica:</strong> {selectedExercise.notes}
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );
