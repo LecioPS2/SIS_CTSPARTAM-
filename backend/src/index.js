@@ -36,6 +36,26 @@ app.use('/api/files', express.static(uploadsBasePath));
 app.use('/uploads', express.static(uploadsBasePath));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express', v: 2 }));
+
+// Debug: verificar se a pasta de uploads existe e listar arquivos
+app.get('/api/debug/uploads', (req, res) => {
+  const fs = require('fs');
+  const uploadsDir = path.join(__dirname, '..', 'uploads');
+  const exercisesDir = path.join(uploadsDir, 'exercises');
+  const result = {
+    uploadsDir,
+    uploadsDirExists: fs.existsSync(uploadsDir),
+    exercisesDir,
+    exercisesDirExists: fs.existsSync(exercisesDir),
+    files: [],
+    cwd: process.cwd(),
+    dirname: __dirname
+  };
+  if (result.exercisesDirExists) {
+    try { result.files = fs.readdirSync(exercisesDir); } catch(e) { result.filesError = e.message; }
+  }
+  res.json(result);
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
