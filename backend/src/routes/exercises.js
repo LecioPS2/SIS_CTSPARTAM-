@@ -6,7 +6,13 @@ router.use(requireAuth);
 
 router.get('/', async (req, res) => {
   const exercises = await Exercise.find({}).sort({ muscleGroup: 1, name: 1 });
-  res.json(exercises.map((e) => e.toJSON()));
+  const fixUrl = (url) => url ? url.replace(/^\/uploads\//, '/api/files/') : url;
+  res.json(exercises.map((e) => {
+    const obj = e.toJSON();
+    if (obj.imageUrl) obj.imageUrl = fixUrl(obj.imageUrl);
+    if (obj.videoUrl) obj.videoUrl = fixUrl(obj.videoUrl);
+    return obj;
+  }));
 });
 
 router.post('/seed', requireRole('admin', 'personal'), async (req, res) => {

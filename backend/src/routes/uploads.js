@@ -58,7 +58,7 @@ router.use(requireAuth);
 // POST /api/uploads/avatar — upload de foto de perfil
 router.post('/avatar', (req, res, next) => { req.uploadType = 'avatar'; next(); }, uploadImage.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado' });
-  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+  const avatarUrl = `/api/files/avatars/${req.file.filename}`;
   await User.findByIdAndUpdate(req.user._id, { avatarUrl });
   res.json({ avatarUrl });
 });
@@ -66,7 +66,7 @@ router.post('/avatar', (req, res, next) => { req.uploadType = 'avatar'; next(); 
 // POST /api/uploads/exercise/:id — upload de foto de exercício
 router.post('/exercise/:id', requireRole('admin', 'personal'), (req, res, next) => { req.uploadType = 'exercise'; next(); }, uploadImage.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado' });
-  const imageUrl = `/uploads/exercises/${req.file.filename}`;
+  const imageUrl = `/api/files/exercises/${req.file.filename}`;
   const exercise = await Exercise.findByIdAndUpdate(req.params.id, { imageUrl }, { new: true });
   if (!exercise) return res.status(404).json({ error: 'Exercício não encontrado' });
   res.json({ imageUrl });
@@ -75,7 +75,7 @@ router.post('/exercise/:id', requireRole('admin', 'personal'), (req, res, next) 
 // POST /api/uploads/exercise/:id/video — upload de vídeo do exercício
 router.post('/exercise/:id/video', requireRole('admin', 'personal'), (req, res, next) => { req.uploadType = 'video'; next(); }, uploadVideo.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado' });
-  const videoUrl = `/uploads/videos/${req.file.filename}`;
+  const videoUrl = `/api/files/videos/${req.file.filename}`;
   const exercise = await Exercise.findByIdAndUpdate(req.params.id, { videoUrl }, { new: true });
   if (!exercise) return res.status(404).json({ error: 'Exercício não encontrado' });
   res.json({ videoUrl });

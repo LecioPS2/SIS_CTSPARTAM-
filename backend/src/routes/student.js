@@ -14,9 +14,21 @@ router.get('/today', requireRole('aluno'), async (req, res) => {
   const todayWorkouts = workouts.filter((w) => w.days.includes(dow));
   const logs = await WorkoutLog.find({ studentId: req.user._id, date: dateStr });
   const doneIds = new Set(logs.map((l) => l.workoutId.toString()));
+  const fixUrl = (url) => url ? url.replace(/^\/uploads\//, '/api/files/') : url;
+  const fixWorkout = (w) => {
+    const obj = w.toJSON ? w.toJSON() : { ...w };
+    if (obj.exercises) {
+      obj.exercises = obj.exercises.map(ex => {
+        if (ex.exerciseId && ex.exerciseId.imageUrl) ex.exerciseId.imageUrl = fixUrl(ex.exerciseId.imageUrl);
+        if (ex.exerciseId && ex.exerciseId.videoUrl) ex.exerciseId.videoUrl = fixUrl(ex.exerciseId.videoUrl);
+        return ex;
+      });
+    }
+    return obj;
+  };
   res.json({
-    todayWorkouts: todayWorkouts.map((w) => ({ ...w.toJSON(), completedToday: doneIds.has(w._id.toString()) })),
-    allWorkouts: workouts.map((w) => w.toJSON()),
+    todayWorkouts: todayWorkouts.map((w) => ({ ...fixWorkout(w), completedToday: doneIds.has(w._id.toString()) })),
+    allWorkouts: workouts.map((w) => fixWorkout(w)),
   });
 });
 
