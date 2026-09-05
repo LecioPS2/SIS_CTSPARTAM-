@@ -22,7 +22,7 @@ export default function Dieta() {
     return (
       <div className="fade-up" data-testid="student-dieta-page">
         <h1 className="font-display text-3xl uppercase tracking-tight mb-6 text-white">Plano <span className="text-accent">Alimentar</span></h1>
-        <div className="bg-black/40 backdrop-blur-md shadow-md shadow-black/50 rounded-lg p-8">
+        <div className="bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-3xl p-8">
           <Empty 
             title="Nenhum plano" 
             text="Seu plano alimentar será disponibilizado aqui pelo seu Personal ou Administrador." 
@@ -47,7 +47,7 @@ export default function Dieta() {
       </div>
 
       {diet.notes && (
-        <div className="bg-black/40 backdrop-blur-md shadow-md shadow-black/50 border-l-4 border-accent rounded-r-lg p-4 mb-6 text-sm text-white/90">
+        <div className="bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.2)] border-l-4 border-accent rounded-r-3xl p-5 mb-6 text-sm text-white/90">
           <div className="flex gap-2 items-center mb-1 text-accent font-bold uppercase text-xs tracking-wider">
             <Info size={16} /> Recomendações Gerais
           </div>
@@ -57,10 +57,10 @@ export default function Dieta() {
 
       <div className="space-y-4">
         {diet.meals?.map((meal, idx) => (
-          <div key={idx} className="bg-black/40 backdrop-blur-md shadow-md shadow-black/50 rounded-2xl p-5 border border-white/5 relative overflow-hidden" style={{ animationDelay: `0.${idx + 2}s` }}>
-            <div className="absolute top-0 left-0 w-1 h-full bg-accent/80"></div>
+          <div key={idx} className="bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-3xl p-6 relative overflow-hidden" style={{ animationDelay: `0.${idx + 2}s` }}>
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent"></div>
             
-            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+            <div className="flex justify-between items-center mb-5 border-b border-white/10 pb-4">
               <h3 className="font-display text-xl text-white uppercase tracking-tight">{meal.name}</h3>
               {meal.time && (
                 <span className="bg-white/10 text-white px-3 py-1 rounded-full text-xs font-bold font-mono">
@@ -69,11 +69,11 @@ export default function Dieta() {
               )}
             </div>
 
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {meal.items?.map((item, iIdx) => (
-                <li key={iIdx} className="flex justify-between items-center bg-black/20 rounded-lg p-3">
-                  <span className="text-sm font-medium text-white/90">{item.food}</span>
-                  <span className="text-xs text-accent font-bold bg-accent/10 px-2 py-1 rounded">{item.quantity}</span>
+                <li key={iIdx} className="flex justify-between items-center py-2">
+                  <span className="text-[13px] font-medium text-white/90 uppercase tracking-wide">{item.food}</span>
+                  <span className="text-xs text-accent font-bold uppercase">{item.quantity}</span>
                 </li>
               ))}
               {(!meal.items || meal.items.length === 0) && (
