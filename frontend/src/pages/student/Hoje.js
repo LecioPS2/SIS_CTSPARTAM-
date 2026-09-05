@@ -144,20 +144,28 @@ export default function Hoje() {
       {/* Grid: TREINOS e P. ALIMENTAR */}
       <div className="grid grid-cols-2 gap-4 mb-10 fade-up" style={{ animationDelay: '0.2s' }}>
         {/* TREINOS */}
-        <div onClick={scrollToWorkouts} className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors h-40 cursor-pointer">
-          <div className="relative z-10 p-4 h-full flex flex-col justify-between">
-            <h2 className="text-lg font-bold uppercase tracking-wide text-white">TREINOS</h2>
-            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg self-end">
+        <div onClick={scrollToWorkouts} className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors h-40 cursor-pointer flex">
+          <div className="w-10 bg-[#e0e0e0] flex items-center justify-center shrink-0">
+            <span className="-rotate-90 whitespace-nowrap text-[#bd1e2d] text-[13px] font-medium tracking-wide">
+              Treinos da Semana
+            </span>
+          </div>
+          <div className="flex-1 p-4 flex flex-col justify-end items-end">
+            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg">
               <ArrowRight size={16} />
             </div>
           </div>
         </div>
 
         {/* P. ALIMENTAR */}
-        <Link to="/aluno/dieta" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors h-40 block">
-          <div className="relative z-10 p-4 h-full flex flex-col justify-between">
-            <h2 className="text-lg font-bold uppercase tracking-wide text-white">P. ALIMENTAR</h2>
-            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg self-end">
+        <Link to="/aluno/dieta" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors h-40 flex">
+          <div className="w-10 bg-[#bd1e2d] flex items-center justify-center shrink-0">
+            <span className="-rotate-90 whitespace-nowrap text-white text-[13px] font-medium tracking-wide">
+              Plano Alimentar
+            </span>
+          </div>
+          <div className="flex-1 p-4 flex flex-col justify-end items-end">
+            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg">
               <ArrowRight size={16} />
             </div>
           </div>
