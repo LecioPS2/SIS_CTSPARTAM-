@@ -27,7 +27,7 @@ export default function Exercicios() {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
   const getImageUrl = (url) => {
     if (!url) return null;
-    return url.startsWith('/uploads') ? `${backendUrl}/api/static${url}` : `${backendUrl}${url}`;
+    return url.startsWith('/uploads') ? `${backendUrl}/api/files${url.replace('/uploads', '')}` : `${backendUrl}${url}`;
   };
 
   const load = () => api.get('/exercises').then((r) => setList(r.data));
@@ -39,7 +39,7 @@ export default function Exercicios() {
     setImageFile(null);
     setImagePreview(ex?.imageUrl ? getImageUrl(ex.imageUrl) : null);
     setVideoFile(null);
-    setVideoPreview(ex?.videoUrl ? `${backendUrl}${ex.videoUrl}` : null);
+    setVideoPreview(ex?.videoUrl ? getImageUrl(ex.videoUrl) : null);
     setModal(true);
   };
 

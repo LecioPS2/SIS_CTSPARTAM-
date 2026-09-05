@@ -30,9 +30,10 @@ app.use(cookieParser());
 const corsOrigins = (process.env.CORS_ORIGINS || '*').split(',').map((o) => o.trim());
 app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentials: !corsOrigins.includes('*') }));
 
-// Servir arquivos de upload como estÃ¡ticos
-app.use('/api/static/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Servir arquivos de upload — rota /api/files garante passagem pelo Node no Hostinger
+const uploadsBasePath = path.join(__dirname, '..', 'uploads');
+app.use('/api/files', express.static(uploadsBasePath));
+app.use('/uploads', express.static(uploadsBasePath));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express', v: 2 }));
 app.use('/api/auth', authRoutes);
@@ -53,16 +54,16 @@ app.use('/api/checkin', checkinRoutes);
 app.use('/api/notices', noticeRoutes);
 
 app.param('id', (req, res, next, id) => {
-  if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'ID invÃ¡lido' });
+  if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'ID inválido' });
   next();
 });
 
-// === INTEGRAÃ‡ÃƒO COM O FRONTEND (PRODUÃ‡ÃƒO / HOSTINGER) ===
-// Serve os arquivos estÃ¡ticos compilados do React (agora dentro da pasta do backend)
+// === INTEGRAÇÃO COM O FRONTEND (PRODUÇÃO / HOSTINGER) ===
+// Serve os arquivos estáticos compilados do React (agora dentro da pasta do backend)
 const frontendPath = path.join(__dirname, '../public');
 app.use(express.static(frontendPath));
 
-// Redireciona qualquer rota nÃ£o reconhecida para o index.html do React
+// Redireciona qualquer rota não reconhecida para o index.html do React
 app.get('*', (req, res) => {
   const indexPath = path.join(frontendPath, 'index.html');
   const fs = require('fs');
@@ -72,16 +73,16 @@ app.get('*', (req, res) => {
     res.status(200).send(`
       <div style="font-family: sans-serif; padding: 40px; text-align: center;">
         <h2 style="color: #C10514;">API CT Spartan Online</h2>
-        <p>A API do backend estÃ¡ rodando perfeitamente!</p>
-        <p style="color: #666; font-size: 14px;">(Nota: O painel visual do React nÃ£o foi encontrado no servidor no caminho esperado. Verifique se a pasta 'build' foi copiada corretamente para a Hostinger).</p>
+        <p>A API do backend está rodando perfeitamente!</p>
+        <p style="color: #666; font-size: 14px;">(Nota: O painel visual do React não foi encontrado no servidor no caminho esperado. Verifique se a pasta 'build' foi copiada corretamente para a Hostinger).</p>
       </div>
     `);
   }
 });
 
 app.use((err, req, res, next) => {
-  if (err.name === 'CastError') return res.status(400).json({ error: 'ID ou valor invÃ¡lido' });
-  if (err.name === 'ValidationError') return res.status(400).json({ error: 'Dados invÃ¡lidos' });
+  if (err.name === 'CastError') return res.status(400).json({ error: 'ID ou valor inválido' });
+  if (err.name === 'ValidationError') return res.status(400).json({ error: 'Dados inválidos' });
   console.error(err);
   res.status(500).json({ error: 'Erro interno do servidor: ' + err.message });
 });
@@ -91,7 +92,6 @@ process.on('unhandledRejection', (err) => console.error('unhandledRejection:', e
 const PORT = process.env.PORT || 8002;
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`Node backend rodando na porta ${PORT}`);
-  // Inicia a conexÃ£o com o banco em background para nÃ£o travar o boot da Hostinger
-  connectDb().catch(err => console.error('Falha crÃ­tica no DB:', err));
+  // Inicia a conexão com o banco em background para não travar o boot da Hostinger
+  connectDb().catch(err => console.error('Falha crítica no DB:', err));
 });
-

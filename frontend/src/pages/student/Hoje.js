@@ -17,7 +17,7 @@ export default function Hoje() {
 
   const getImageUrl = (url) => {
     if (!url) return null;
-    return url.startsWith('/uploads') ? `${backendUrl}/api/static${url}` : `${backendUrl}${url}`;
+    return url.startsWith('/uploads') ? `${backendUrl}/api/files${url.replace('/uploads', '')}` : `${backendUrl}${url}`;
   };
   const html5QrRef = React.useRef(null);
 
