@@ -16,6 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/seed', requireRole('admin', 'personal'), async (req, res) => {
+  await Exercise.deleteMany({});
   const superioress = [
     { name: 'Supino reto', muscleGroup: 'Peito' },
     { name: 'Supino inclinado', muscleGroup: 'Peito' },

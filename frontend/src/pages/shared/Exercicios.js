@@ -160,7 +160,7 @@ export default function Exercicios() {
                 <tr key={ex.id} className="hover:bg-surface transition-colors">
                   <Td>
                     {ex.imageUrl ? (
-                      <img src={getImageUrl(ex.imageUrl)} alt="" className="w-10 h-10 rounded object-cover border border-line" />
+                      <img src={getImageUrl(ex.imageUrl) + `?t=${Date.now()}`} alt="" className="w-10 h-10 rounded object-cover border border-line" />
                     ) : (
                       <div className="w-10 h-10 rounded bg-surface border border-line flex items-center justify-center text-muted">
                         <ImagePlus size={14} />

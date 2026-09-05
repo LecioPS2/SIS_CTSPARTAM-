@@ -64,6 +64,13 @@ app.get('/api/debug/exercise', async (req, res) => {
   res.json({ exercise: ex });
 });
 
+// Debug: deletar todos os exercícios
+app.delete('/api/debug/exercises', async (req, res) => {
+  const { Exercise } = require('./models');
+  await Exercise.deleteMany({});
+  res.json({ message: 'Todos os exercícios foram apagados.' });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
