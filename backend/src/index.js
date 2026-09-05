@@ -71,6 +71,24 @@ app.delete('/api/debug/exercises', async (req, res) => {
   res.json({ message: 'Todos os exercícios foram apagados.' });
 });
 
+// Debug: check persistent storage
+app.get('/api/debug/storage', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const rootDir = '/home/u925652802/domains/sistema.ctspartan.com/uploads_persistent';
+  let success = false;
+  let msg = '';
+  try {
+    if (!fs.existsSync(rootDir)) fs.mkdirSync(rootDir, { recursive: true });
+    fs.writeFileSync(path.join(rootDir, 'test.txt'), 'hello');
+    success = true;
+    msg = 'Write successful to ' + rootDir;
+  } catch (e) {
+    msg = e.message;
+  }
+  res.json({ success, msg, rootDir });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
