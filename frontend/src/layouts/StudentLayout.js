@@ -59,12 +59,8 @@ export default function StudentLayout({ children }) {
           </div>
 
           {/* Botão Central Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 rounded-full bg-black border-[3px] border-[#1c1c1e] shadow-xl flex items-center justify-center overflow-hidden z-50">
-            <div className="w-full h-full relative flex">
-              <div className="w-1/2 h-full bg-white"></div>
-              <div className="w-1/2 h-full bg-accent"></div>
-              <img src="/logo.png" alt="CT Spartan" className="absolute inset-0 w-10 h-10 m-auto filter drop-shadow-md z-10 mix-blend-difference" style={{ filter: 'invert(1)' }} />
-            </div>
+          <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 rounded-full bg-[#1c1c1e] border-4 border-[#0a0a0a] shadow-xl flex items-center justify-center z-50">
+            <img src="/logo.png" alt="CT Spartan" className="w-10 h-10 object-contain" />
           </div>
 
           <div className="flex items-center justify-around w-[40%]">
