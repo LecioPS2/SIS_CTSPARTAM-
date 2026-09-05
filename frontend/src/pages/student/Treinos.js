@@ -9,7 +9,7 @@ export default function Treinos() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/student/dashboard')
+    api.get('/student/today')
       .then(r => setWorkouts(r.data.allWorkouts || []))
       .catch(e => console.error(e))
       .finally(() => setLoading(false));
