@@ -90,7 +90,7 @@ export default function Hoje() {
     <div data-testid="student-hoje-page" className="pb-8">
       
       {/* Saudação */}
-      <div className="mb-6 fade-up flex items-center justify-between">
+      <div className="mb-4 fade-up flex items-center justify-between">
         <div>
           <h1 className="font-display text-4xl font-light">Olá, <strong className="font-bold">{firstName}</strong></h1>
           <p className="text-sm font-medium">Bem-vindo a Dashboard da Aluna.</p>
@@ -104,6 +104,9 @@ export default function Hoje() {
           <QrCode size={22} />
         </button>
       </div>
+
+      {/* Linha Divisória */}
+      <div className="h-[2px] w-full bg-gradient-to-r from-accent via-accent/50 to-transparent mb-6 rounded-full opacity-80 fade-up" />
 
       {/* Card 1: TREINO DO DIA */}
       <div 
