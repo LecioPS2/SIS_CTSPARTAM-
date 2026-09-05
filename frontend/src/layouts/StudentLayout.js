@@ -61,8 +61,8 @@ export default function StudentLayout({ children }) {
           </div>
 
           {/* Botão Central Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 rounded-full bg-[#1c1c1e] border-4 border-[#0a0a0a] shadow-xl flex items-center justify-center z-50">
-            <img src="/logo.png" alt="CT Spartan" className="w-10 h-10 object-contain" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-16 h-16 rounded-full bg-[#1c1c1e] border-4 border-[#0a0a0a] shadow-xl flex items-center justify-center z-50 overflow-hidden">
+            <img src="/logo-menu.png" alt="CT Spartan" className="w-full h-full object-cover" />
           </div>
 
           <div className="flex items-center justify-around w-[40%]">
