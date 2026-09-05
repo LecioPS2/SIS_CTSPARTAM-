@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import api, { brl, fmtDate } from '../lib/api';
 import { Bell, AlertTriangle, Clock, X, Megaphone } from 'lucide-react';
 
-export default function NotificationsPanel() {
+export default function NotificationsPanel({ iconClass = "text-muted hover:text-white" }) {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const panelRef = useRef(null);
@@ -33,7 +33,7 @@ export default function NotificationsPanel() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative text-muted hover:text-white transition-colors"
+        className={`relative transition-colors ${iconClass}`}
         data-testid="header-notifications-button"
         aria-label="Notificações"
         aria-expanded={open}

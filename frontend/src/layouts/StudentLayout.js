@@ -43,8 +43,8 @@ export default function StudentLayout({ children }) {
               <p className="text-[14px] text-white uppercase tracking-wide">AO <strong className="font-black">CT SPARTAN</strong> MOBILE</p>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-[#4a4a4a]/40 border border-white/10 flex items-center justify-center shadow-lg relative">
-            <NotificationsPanel />
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg relative">
+            <NotificationsPanel iconClass="text-[#bd1e2d] hover:text-[#a01925]" />
           </div>
         </header>
 
