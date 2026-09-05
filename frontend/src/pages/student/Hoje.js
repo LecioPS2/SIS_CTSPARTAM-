@@ -13,6 +13,12 @@ export default function Hoje() {
   const [avisos, setAvisos] = useState([]);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+
+  const getImageUrl = (url) => {
+    if (!url) return null;
+    return url.startsWith('/uploads') ? `${backendUrl}/api/static${url}` : `${backendUrl}${url}`;
+  };
   const html5QrRef = React.useRef(null);
 
   const load = () => {
@@ -212,8 +218,11 @@ export default function Hoje() {
                 <div className="space-y-3 mb-5">
                   {w.exercises.filter(ex => ex.day === undefined || ex.day === today.getDay()).length > 0 ? (
                     w.exercises.filter(ex => ex.day === undefined || ex.day === today.getDay()).map((ex, i) => (
-                      <div key={i} className="flex items-center justify-between border-b border-white/10 pb-3 last:border-0">
-                        <div>
+                      <div key={i} className="flex items-center gap-3 border-b border-white/10 pb-3 last:border-0">
+                        {ex.exerciseId?.imageUrl && (
+                          <img src={getImageUrl(ex.exerciseId.imageUrl)} alt="" className="w-12 h-12 rounded-lg object-cover border border-white/10 shadow-sm" />
+                        )}
+                        <div className="flex-1">
                           <p className="text-sm font-medium text-white/90">{ex.name}</p>
                           <p className="text-xs text-white/50">{ex.muscleGroup}{ex.notes ? ` • ${ex.notes}` : ''}</p>
                         </div>

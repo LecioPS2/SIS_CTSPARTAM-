@@ -1,4 +1,4 @@
-﻿const router = require('express').Router();
+const router = require('express').Router();
 const { Workout, WorkoutLog, Measurement, Payment, User } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
@@ -8,7 +8,9 @@ router.get('/today', requireRole('aluno'), async (req, res) => {
   const today = new Date();
   const dow = today.getDay();
   const dateStr = today.toISOString().slice(0, 10);
-  const workouts = await Workout.find({ studentId: req.user._id, active: true }).populate('personalId', 'name');
+  const workouts = await Workout.find({ studentId: req.user._id, active: true })
+    .populate('personalId', 'name')
+    .populate('exercises.exerciseId', 'imageUrl videoUrl');
   const todayWorkouts = workouts.filter((w) => w.days.includes(dow));
   const logs = await WorkoutLog.find({ studentId: req.user._id, date: dateStr });
   const doneIds = new Set(logs.map((l) => l.workoutId.toString()));
