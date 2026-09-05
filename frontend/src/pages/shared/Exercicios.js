@@ -25,6 +25,10 @@ export default function Exercicios() {
   const [uploading, setUploading] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  const getImageUrl = (url) => {
+    if (!url) return null;
+    return url.startsWith('/uploads') ? `${backendUrl}/api/files${url.replace('/uploads', '')}` : `${backendUrl}${url}`;
+  };
 
   const load = () => api.get('/exercises').then((r) => setList(r.data));
   useEffect(() => { load(); }, []);
@@ -33,9 +37,9 @@ export default function Exercicios() {
     setEditing(ex || null);
     setForm(ex ? { name: ex.name, muscleGroup: ex.muscleGroup, sets: ex.sets, reps: ex.reps, load: ex.load, timeSeconds: ex.timeSeconds, notes: ex.notes || '' } : empty);
     setImageFile(null);
-    setImagePreview(ex?.imageUrl ? `${backendUrl}${ex.imageUrl}` : null);
+    setImagePreview(ex?.imageUrl ? getImageUrl(ex.imageUrl) : null);
     setVideoFile(null);
-    setVideoPreview(ex?.videoUrl ? `${backendUrl}${ex.videoUrl}` : null);
+    setVideoPreview(ex?.videoUrl ? getImageUrl(ex.videoUrl) : null);
     setModal(true);
   };
 
@@ -156,7 +160,7 @@ export default function Exercicios() {
                 <tr key={ex.id} className="hover:bg-surface transition-colors">
                   <Td>
                     {ex.imageUrl ? (
-                      <img src={`${backendUrl}${ex.imageUrl}`} alt="" className="w-10 h-10 rounded object-cover border border-line" />
+                      <img src={getImageUrl(ex.imageUrl)} alt="" className="w-10 h-10 rounded object-cover border border-line" />
                     ) : (
                       <div className="w-10 h-10 rounded bg-surface border border-line flex items-center justify-center text-muted">
                         <ImagePlus size={14} />

@@ -56,6 +56,14 @@ app.get('/api/debug/uploads', (req, res) => {
   }
   res.json(result);
 });
+
+// Debug: verificar imageUrl no banco
+app.get('/api/debug/exercise', async (req, res) => {
+  const { Exercise } = require('./models');
+  const ex = await Exercise.findOne({ imageUrl: { $exists: true, $ne: null } });
+  res.json({ exercise: ex });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/plans', planRoutes);
