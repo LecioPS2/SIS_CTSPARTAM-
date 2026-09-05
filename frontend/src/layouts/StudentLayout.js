@@ -22,7 +22,7 @@ export default function StudentLayout({ children }) {
       {/* Imagem de fundo Full Screen */}
       <div 
         className="fixed inset-0 z-[0] bg-cover bg-top bg-no-repeat"
-        style={{ backgroundImage: 'url(/student-bg.png)' }}
+        style={{ backgroundImage: 'url(/student-bg.png)', opacity: 0.65 }}
       />
       {/* Overlay Escuro com Gradiente */}
       <div className="fixed inset-0 z-[1] bg-gradient-to-b from-black/40 via-black/80 to-[#0a0a0a]" />
