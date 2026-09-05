@@ -66,6 +66,20 @@ router.get('/membership', requireRole('aluno'), async (req, res) => {
   res.json({ plan: user.planId ? user.planId.toJSON() : null, personal: user.personalId ? { id: user.personalId._id, name: user.personalId.name } : null, payments: payments.map((p) => p.toJSON()) });
 });
 
+router.put('/profile', requireRole('aluno'), async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const { name, phone, birthDate, password } = req.body;
+  if (name) user.name = name;
+  if (phone !== undefined) user.phone = phone;
+  if (birthDate !== undefined) user.birthDate = birthDate;
+  if (password) {
+    const bcrypt = require('bcryptjs');
+    user.passwordHash = await bcrypt.hash(password, 10);
+  }
+  await user.save();
+  res.json(user.toJSON());
+});
+
 module.exports = router;
 
 
