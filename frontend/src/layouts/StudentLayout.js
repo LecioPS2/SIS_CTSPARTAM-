@@ -22,10 +22,10 @@ export default function StudentLayout({ children }) {
       {/* Imagem de fundo Full Screen */}
       <div 
         className="fixed inset-0 z-[0] bg-cover bg-top bg-no-repeat"
-        style={{ backgroundImage: 'url(/student-bg.png)', opacity: 0.30 }}
+        style={{ backgroundImage: 'url(/student-bg.png)' }}
       />
       {/* Overlay Escuro com Gradiente */}
-      <div className="fixed inset-0 z-[1] bg-gradient-to-b from-black/40 via-black/80 to-[#0a0a0a]" />
+      <div className="fixed inset-0 z-[1] bg-gradient-to-b from-transparent via-black/50 to-black/90 pointer-events-none" />
 
       <div className="relative z-10 max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header Transparente */}

@@ -108,7 +108,7 @@ export default function Hoje() {
       {/* Card 1: TREINO DO DIA */}
       <div 
         onClick={scrollToWorkouts}
-        className="w-full bg-[#202022]/80 backdrop-blur-md rounded-2xl p-5 mb-5 flex items-center justify-between shadow-xl cursor-pointer hover:bg-[#2a2a2c]/80 transition-colors fade-up border border-white/5"
+        className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 mb-5 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.2)] cursor-pointer hover:bg-white/15 transition-colors fade-up"
       >
         <div className="flex items-center gap-4">
           <div className="w-11 h-11 rounded-full bg-white text-black shadow-lg shrink-0 flex items-center justify-center">
@@ -125,17 +125,14 @@ export default function Hoje() {
       </div>
 
       {/* Card 2: EVOLUÇÃO */}
-      <Link to="/aluno/evolucao" className="block relative w-full rounded-2xl overflow-hidden mb-5 shadow-xl fade-up" style={{ animationDelay: '0.1s' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1c212a] via-[#1c212a]/90 to-[#2c151a]/60 z-0"></div>
-        {/* Placeholder image layer for the kicking woman */}
-        <div className="absolute inset-y-0 right-0 w-2/3 bg-cover bg-center opacity-30 mix-blend-overlay z-0" style={{ transform: 'scaleX(-1)', backgroundImage: 'url(/student-bg.png)' }}></div>
+      <Link to="/aluno/evolucao" className="block relative w-full rounded-3xl overflow-hidden mb-5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-colors fade-up" style={{ animationDelay: '0.1s' }}>
         <div className="relative z-10 p-5 pr-16 h-32 flex flex-col justify-between">
           <div>
             <h2 className="text-xl font-bold uppercase tracking-wide text-white">EVOLUÇÃO:</h2>
-            <p className="text-sm text-white/90">Acompanhe aqui seu <strong className="font-bold">evolução</strong></p>
+            <p className="text-sm text-white/90">Acompanhe aqui sua <strong className="font-bold">evolução</strong></p>
           </div>
           <p className="text-xs text-white/70">Veja todas as avaliações.</p>
-          <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg">
+          <div className="absolute bottom-5 right-5 w-8 h-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white shadow-lg backdrop-blur-md">
             <ArrowRight size={16} />
           </div>
         </div>
@@ -144,24 +141,20 @@ export default function Hoje() {
       {/* Grid: TREINOS e P. ALIMENTAR */}
       <div className="grid grid-cols-2 gap-4 mb-10 fade-up" style={{ animationDelay: '0.2s' }}>
         {/* TREINOS */}
-        <div onClick={scrollToWorkouts} className="relative rounded-2xl overflow-hidden shadow-xl h-40 cursor-pointer">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#12428c] to-[#0a234f] z-0"></div>
-          <div className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-overlay z-0" style={{ backgroundImage: 'url(/student-bg.png)' }}></div>
+        <div onClick={scrollToWorkouts} className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-colors h-40 cursor-pointer">
           <div className="relative z-10 p-4 h-full flex flex-col justify-between">
             <h2 className="text-lg font-bold uppercase tracking-wide text-white">TREINOS</h2>
-            <div className="w-8 h-8 rounded-full bg-[#0a234f]/80 flex items-center justify-center text-white shadow-lg self-end border border-white/10">
+            <div className="w-8 h-8 rounded-full bg-white/20 border border-white/30 backdrop-blur-md flex items-center justify-center text-white shadow-lg self-end">
               <ArrowRight size={16} />
             </div>
           </div>
         </div>
 
         {/* P. ALIMENTAR */}
-        <Link to="/aluno/dieta" className="relative rounded-2xl overflow-hidden shadow-xl h-40 block">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#8c353f] to-[#4a1c22] z-0"></div>
-          <div className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-overlay z-0" style={{ backgroundImage: 'url(/student-bg.png)' }}></div>
+        <Link to="/aluno/dieta" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/15 transition-colors h-40 block">
           <div className="relative z-10 p-4 h-full flex flex-col justify-between">
             <h2 className="text-lg font-bold uppercase tracking-wide text-white">P. ALIMENTAR</h2>
-            <div className="w-8 h-8 rounded-full bg-[#bd1e2d] flex items-center justify-center text-white shadow-lg self-end">
+            <div className="w-8 h-8 rounded-full bg-white/20 border border-white/30 backdrop-blur-md flex items-center justify-center text-white shadow-lg self-end">
               <ArrowRight size={16} />
             </div>
           </div>
