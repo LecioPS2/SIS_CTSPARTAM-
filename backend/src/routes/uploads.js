@@ -6,7 +6,8 @@ const { User, Exercise } = require('../models');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
 // Garantir que as pastas existam
-const uploadsDir = path.join(__dirname, '..', '..', 'uploads');
+const { getUploadsDir } = require('../utils/storage');
+const uploadsDir = getUploadsDir();
 ['avatars', 'exercises', 'videos'].forEach((dir) => {
   const full = path.join(uploadsDir, dir);
   if (!fs.existsSync(full)) fs.mkdirSync(full, { recursive: true });

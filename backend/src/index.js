@@ -31,9 +31,9 @@ const corsOrigins = (process.env.CORS_ORIGINS || '*').split(',').map((o) => o.tr
 app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentials: !corsOrigins.includes('*') }));
 
 // Servir arquivos de upload — rota /api/files garante passagem pelo Node no Hostinger
-const uploadsBasePath = path.join(__dirname, '..', 'uploads');
-app.use('/api/files', express.static(uploadsBasePath));
-app.use('/uploads', express.static(uploadsBasePath));
+const { getUploadsDir } = require('./utils/storage');
+app.use('/api/files', express.static(getUploadsDir()));
+app.use('/uploads', express.static(getUploadsDir()));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express', v: 2 }));
 
