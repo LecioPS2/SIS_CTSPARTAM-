@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 require('express-async-errors');
 const mongoose = require('mongoose');
@@ -31,7 +31,7 @@ const corsOrigins = (process.env.CORS_ORIGINS || '*').split(',').map((o) => o.tr
 app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentials: !corsOrigins.includes('*') }));
 
 // Servir arquivos de upload como estÃ¡ticos
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', engine: 'node-express', v: 2 }));
 app.use('/api/auth', authRoutes);
