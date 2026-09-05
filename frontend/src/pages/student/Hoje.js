@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api, { DAYS } from '../../lib/api';
 import { toast } from 'sonner';
 import { Card, Badge, Empty, Modal } from '../../components/ui';
-import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard, Utensils, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard, Utensils, ArrowRight, Dumbbell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Hoje() {
@@ -53,7 +53,9 @@ export default function Hoje() {
         className="w-full bg-[#202022]/80 backdrop-blur-md rounded-2xl p-5 mb-5 flex items-center justify-between shadow-xl cursor-pointer hover:bg-[#2a2a2c]/80 transition-colors fade-up border border-white/5"
       >
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-white shadow-lg shrink-0"></div>
+          <div className="w-11 h-11 rounded-full bg-white text-black shadow-lg shrink-0 flex items-center justify-center">
+            <Dumbbell size={22} />
+          </div>
           <div>
             <p className="text-[10px] uppercase font-bold tracking-widest text-white/70">Dia, {todayStr}</p>
             <h2 className="text-xl font-bold uppercase tracking-wide text-white leading-tight">TREINO DO DIA</h2>
