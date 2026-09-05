@@ -108,29 +108,12 @@ export default function Exercicios() {
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   
   const seedExercises = async () => {
-    const defaultExercises = [
-      { name: 'Supino reto', muscleGroup: 'Peito' }, { name: 'Supino inclinado', muscleGroup: 'Peito' }, { name: 'Crucifixo', muscleGroup: 'Peito' }, { name: 'Crossover', muscleGroup: 'Peito' },
-      { name: 'Puxada alta', muscleGroup: 'Costas' }, { name: 'Remada curvada', muscleGroup: 'Costas' }, { name: 'Remada baixa', muscleGroup: 'Costas' }, { name: 'Barra fixa', muscleGroup: 'Costas' },
-      { name: 'Rosca direta', muscleGroup: 'Bíceps' }, { name: 'Rosca alternada', muscleGroup: 'Bíceps' }, { name: 'Rosca martelo', muscleGroup: 'Bíceps' }, { name: 'Rosca na polia', muscleGroup: 'Bíceps' },
-      { name: 'Tríceps testa', muscleGroup: 'Tríceps' }, { name: 'Tríceps pulley', muscleGroup: 'Tríceps' }, { name: 'Tríceps corda', muscleGroup: 'Tríceps' }, { name: 'Mergulho', muscleGroup: 'Tríceps' },
-      { name: 'Desenvolvimento', muscleGroup: 'Ombros' }, { name: 'Elevação lateral', muscleGroup: 'Ombros' }, { name: 'Elevação frontal', muscleGroup: 'Ombros' }, { name: 'Crucifixo invertido', muscleGroup: 'Ombros' },
-      { name: 'Abdominal supra', muscleGroup: 'Abdômen' }, { name: 'Abdominal infra', muscleGroup: 'Abdômen' }, { name: 'Abdominal oblíquo', muscleGroup: 'Abdômen' }, { name: 'Abdominal na polia', muscleGroup: 'Abdômen' }, { name: 'Prancha abdominal', muscleGroup: 'Abdômen' },
-      { name: 'Agachamento', muscleGroup: 'Pernas' }, { name: 'Búlgaro', muscleGroup: 'Pernas' }, { name: 'Sumô', muscleGroup: 'Pernas' }, { name: 'Afundo', muscleGroup: 'Pernas' }, { name: 'Passada', muscleGroup: 'Pernas' },
-      { name: 'Agachamento livre', muscleGroup: 'Pernas' }, { name: 'Agachamento no Smith', muscleGroup: 'Pernas' }, { name: 'Polia', muscleGroup: 'Pernas' }, { name: 'Panturrilha', muscleGroup: 'Pernas' },
-      { name: 'Elevação', muscleGroup: 'Pernas' }, { name: 'Mesa flexora', muscleGroup: 'Pernas' }, { name: 'Flexora em pé', muscleGroup: 'Pernas' }, { name: 'Abdução', muscleGroup: 'Pernas' }, { name: 'Adução', muscleGroup: 'Pernas' }, { name: 'Cadeira extensora', muscleGroup: 'Pernas' }
-    ];
     setUploading(true);
     toast.info('Cadastrando exercícios...', { id: 'seed' });
     try {
-      let count = 0;
-      for (const ex of defaultExercises) {
-        if (!list.find(l => l.name.toLowerCase() === ex.name.toLowerCase())) {
-          await api.post('/exercises', { ...empty, ...ex });
-          count++;
-        }
-      }
-      if (count > 0) { toast.success(count + ' exercícios padrão cadastrados!', { id: 'seed' }); load(); }
-      else { toast.success('Todos os exercícios padrão já estavam cadastrados!', { id: 'seed' }); }
+      const res = await api.post('/exercises/seed');
+      toast.success(res.data.message, { id: 'seed' });
+      load();
     } catch (err) {
       toast.error('Erro ao cadastrar', { id: 'seed' });
     } finally {
