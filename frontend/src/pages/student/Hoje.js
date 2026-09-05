@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api, { DAYS } from '../../lib/api';
 import { toast } from 'sonner';
 import { Card, Badge, Empty, Modal } from '../../components/ui';
-import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard, Utensils, ArrowRight, Dumbbell } from 'lucide-react';
+import { CheckCircle2, Flame, Bell, TrendingUp, CreditCard, Utensils, ArrowRight, Dumbbell, QrCode } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Hoje() {
@@ -11,6 +11,9 @@ export default function Hoje() {
   const [data, setData] = useState(null);
   const [avisosModal, setAvisosModal] = useState(false);
   const [avisos, setAvisos] = useState([]);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const html5QrRef = React.useRef(null);
 
   const load = () => {
     api.get('/student/today').then((r) => setData(r.data)).catch(() => setData({ todayWorkouts: [], allWorkouts: [] }));
@@ -28,6 +31,51 @@ export default function Hoje() {
     }
   };
 
+  const startScanner = async () => {
+    try {
+      setScanning(true);
+      const { Html5Qrcode } = await import('html5-qrcode');
+      const scanner = new Html5Qrcode('student-qr-reader');
+      html5QrRef.current = scanner;
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        { fps: 5, qrbox: { width: 250, height: 250 } },
+        async (decodedText) => {
+          stopScanner();
+          try {
+            const res = await api.post('/checkin/scan', { qrCode: decodedText });
+            toast.success(res.data.message || 'Check-in realizado!');
+          } catch (err) {
+            toast.error(err.response?.data?.error || 'Erro ao registrar check-in');
+          }
+          setScannerOpen(false);
+        },
+        () => {}
+      );
+    } catch (err) {
+      toast.error('Erro ao acessar a câmera. Verifique as permissões.');
+      setScanning(false);
+    }
+  };
+
+  const stopScanner = async () => {
+    if (html5QrRef.current && html5QrRef.current.isScanning) {
+      try { await html5QrRef.current.stop(); } catch (e) {}
+    }
+    setScanning(false);
+  };
+
+  useEffect(() => {
+    if (scannerOpen) {
+      // Start slightly after modal open
+      setTimeout(startScanner, 200);
+    } else {
+      stopScanner();
+    }
+    return () => { stopScanner(); };
+  }, [scannerOpen]);
+
   if (!data) return <p className="text-muted">Carregando...</p>;
 
   const today = new Date();
@@ -42,9 +90,19 @@ export default function Hoje() {
     <div data-testid="student-hoje-page" className="pb-8">
       
       {/* Saudação */}
-      <div className="mb-6 fade-up">
-        <h1 className="font-display text-4xl font-light">Olá, <strong className="font-bold">{firstName}</strong></h1>
-        <p className="text-sm font-medium">Bem-vindo a Dashboard da Aluna.</p>
+      <div className="mb-6 fade-up flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-4xl font-light">Olá, <strong className="font-bold">{firstName}</strong></h1>
+          <p className="text-sm font-medium">Bem-vindo a Dashboard da Aluna.</p>
+        </div>
+        <button 
+          onClick={() => setScannerOpen(true)}
+          className="w-12 h-12 rounded-full bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20 border border-white/10 shrink-0" 
+          aria-label="Fazer Check-in (Ler QR)"
+          title="Fazer Check-in"
+        >
+          <QrCode size={22} />
+        </button>
       </div>
 
       {/* Card 1: TREINO DO DIA */}
@@ -207,6 +265,14 @@ export default function Hoje() {
               </div>
             ))
           )}
+        </div>
+      </Modal>
+
+      <Modal open={scannerOpen} onClose={() => setScannerOpen(false)} title="Check-in na Portaria">
+        <div className="mt-4 text-center">
+          <p className="text-sm text-muted mb-4">Aponte a câmera para o QR Code localizado na recepção da CT Spartan.</p>
+          <div id="student-qr-reader" className="w-full overflow-hidden rounded-xl bg-black border-2 border-accent shadow-lg shadow-accent/20" style={{ minHeight: '300px' }}></div>
+          {scanning && <p className="text-xs text-accent mt-4 animate-pulse">Câmera ativa. Procurando QR Code...</p>}
         </div>
       </Modal>
     </div>

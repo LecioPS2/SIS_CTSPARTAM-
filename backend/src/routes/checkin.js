@@ -88,6 +88,37 @@ router.post('/manual', requireRole('admin', 'assessor'), async (req, res) => {
   });
 });
 
+// POST /api/checkin/scan — Aluna scaneia o QR da portaria
+router.post('/scan', requireRole('aluno'), async (req, res) => {
+  const { qrCode } = req.body;
+  if (!qrCode || qrCode !== 'CHECKIN_CTSPARTAN') {
+    return res.status(400).json({ error: 'QR Code inválido da portaria' });
+  }
+
+  const studentId = req.user._id;
+  const today = new Date().toISOString().slice(0, 10);
+  const existing = await CheckIn.findOne({ studentId, date: today });
+  
+  if (existing) {
+    return res.status(400).json({ error: 'Check-in já realizado hoje!' });
+  }
+
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  
+  const checkin = await CheckIn.create({
+    studentId,
+    date: today,
+    time,
+    method: 'qrcode_student',
+  });
+
+  res.status(201).json({
+    message: 'Check-in realizado com sucesso!',
+    checkin: checkin.toJSON()
+  });
+});
+
 // GET /api/checkin/today — lista check-ins do dia (Admin)
 router.get('/today', requireRole('admin', 'assessor'), async (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
