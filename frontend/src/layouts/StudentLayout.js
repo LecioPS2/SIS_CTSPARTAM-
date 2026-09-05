@@ -29,7 +29,7 @@ export default function StudentLayout({ children }) {
 
       <div className="relative z-10 max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header Transparente */}
-        <header className="px-5 pt-12 pb-4 flex items-center justify-between">
+        <header className="px-5 pt-20 pb-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-[#4a4a4a] flex items-center justify-center shrink-0 shadow-xl overflow-hidden border border-white/10" onClick={logout} title="Sair (Logout)">
               {user?.avatarUrl ? (
