@@ -43,7 +43,9 @@ export default function StudentLayout({ children }) {
               <p className="text-[14px] text-white uppercase tracking-wide">AO <strong className="font-black">CT SPARTAN</strong> MOBILE</p>
             </div>
           </div>
-          <div className="w-7 h-7 rounded-full bg-[#d9d9d9] shadow-lg relative"></div>
+          <div className="w-10 h-10 rounded-full bg-[#4a4a4a]/40 border border-white/10 flex items-center justify-center shadow-lg relative">
+            <NotificationsPanel />
+          </div>
         </header>
 
         <main className="px-5 py-2 flex-1">{children}</main>
