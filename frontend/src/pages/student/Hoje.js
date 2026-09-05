@@ -144,7 +144,7 @@ export default function Hoje() {
       {/* Grid: TREINOS e P. ALIMENTAR */}
       <div className="grid grid-cols-2 gap-4 mb-10 fade-up" style={{ animationDelay: '0.2s' }}>
         {/* TREINOS */}
-        <div onClick={scrollToWorkouts} className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-black h-44 cursor-pointer flex group">
+        <Link to="/aluno/treinos" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-black h-44 cursor-pointer flex group block">
           <div className="w-10 bg-[#e0e0e0] flex items-center justify-center shrink-0 z-10">
             <span className="-rotate-90 whitespace-nowrap text-[#bd1e2d] text-[11px] font-black uppercase tracking-widest font-display">
               TREINOS DA SEMANA
@@ -160,7 +160,7 @@ export default function Hoje() {
               <ArrowRight size={16} />
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* P. ALIMENTAR */}
         <Link to="/aluno/dieta" className="relative rounded-3xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-black h-44 flex group block">

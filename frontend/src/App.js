@@ -18,6 +18,7 @@ import MeusAlunos from './pages/personal/MeusAlunos';
 import Treinos from './pages/personal/Treinos';
 import Agenda from './pages/personal/Agenda';
 import Hoje from './pages/student/Hoje';
+import TreinosAluno from './pages/student/Treinos';
 import Evolucao from './pages/student/Evolucao';
 import Mensalidade from './pages/student/Mensalidade';
 import Perfil from './pages/student/Perfil';
@@ -113,6 +114,7 @@ export default function App() {
           <Route path="/personal/exercicios" element={<Protected role="personal"><DashboardLayout nav={personalNav}><Exercicios /></DashboardLayout></Protected>} />
           <Route path="/personal/dieta" element={<Protected role="personal"><DashboardLayout nav={personalNav}><PlanosAlimentares /></DashboardLayout></Protected>} />
           <Route path="/aluno" element={<Protected role="aluno"><StudentLayout><Hoje /></StudentLayout></Protected>} />
+          <Route path="/aluno/treinos" element={<Protected role="aluno"><StudentLayout><TreinosAluno /></StudentLayout></Protected>} />
           <Route path="/aluno/evolucao" element={<Protected role="aluno"><StudentLayout><Evolucao /></StudentLayout></Protected>} />
           <Route path="/aluno/mensalidade" element={<Protected role="aluno"><StudentLayout><Mensalidade /></StudentLayout></Protected>} />
           <Route path="/aluno/perfil" element={<Protected role="aluno"><StudentLayout><Perfil /></StudentLayout></Protected>} />
