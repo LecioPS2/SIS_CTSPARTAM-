@@ -29,7 +29,7 @@ export default function StudentLayout({ children }) {
 
       <div className="relative z-10 max-w-lg mx-auto min-h-screen flex flex-col">
         {/* Header Fixo */}
-        <header className="sticky top-0 z-50 px-5 pt-12 pb-4 flex items-center justify-between bg-black/80 backdrop-blur-md border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
+        <header className="sticky top-0 z-50 px-5 pt-16 pb-4 flex items-center justify-between bg-black/80 backdrop-blur-md border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-[#4a4a4a] flex items-center justify-center shrink-0 shadow-xl overflow-hidden border border-white/10" onClick={logout} title="Sair (Logout)">
               {user?.avatarUrl ? (
@@ -51,23 +51,21 @@ export default function StudentLayout({ children }) {
         <main className="px-5 py-6 flex-1">{children}</main>
 
         {/* Bottom Nav Fixo Vermelho */}
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg z-40 bg-[#bd1e2d] rounded-t-3xl h-[84px] flex items-center justify-between px-6 pb-2 shadow-[0_-4px_25px_rgba(0,0,0,0.5)]" data-testid="student-bottom-nav">
-          <div className="flex items-center justify-between w-[42%] gap-1">
+        <nav className="fixed bottom-0 left-0 w-full z-40 bg-[#bd1e2d] rounded-t-[30px] h-24 flex items-center justify-center shadow-[0_-4px_25px_rgba(0,0,0,0.5)]" data-testid="student-bottom-nav">
+          <div className="flex items-center justify-between w-full max-w-md px-6">
             {navLeft.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-[#151515] text-[#bd1e2d] shadow-lg scale-105' : 'bg-[#222222] text-white/60 hover:bg-[#151515] hover:text-white'}`}>
+              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `w-[48px] h-[48px] rounded-[14px] flex items-center justify-center transition-all ${isActive ? 'bg-[#151515] text-[#bd1e2d] shadow-lg scale-105' : 'bg-[#222222] text-white/60 hover:bg-[#151515] hover:text-white'}`}>
                 {({ isActive }) => <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />}
               </NavLink>
             ))}
-          </div>
 
-          {/* Botão Central Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 -top-6 w-20 h-20 rounded-full bg-[#0a0a0a] shadow-2xl flex items-center justify-center z-50 overflow-hidden">
-            <img src="/logo-menu.png" alt="CT Spartan" className="w-[85%] h-[85%] object-contain" />
-          </div>
+            {/* Botão Central Logo */}
+            <div className="relative -top-6 w-[76px] h-[76px] rounded-full bg-[#0a0a0a] shadow-2xl flex items-center justify-center z-50 overflow-hidden shrink-0 border-[3px] border-[#0a0a0a]">
+              <img src="/logo-menu.png" alt="CT Spartan" className="w-[80%] h-[80%] object-contain" />
+            </div>
 
-          <div className="flex items-center justify-between w-[42%] gap-1">
             {navRight.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-[#151515] text-[#bd1e2d] shadow-lg scale-105' : 'bg-[#222222] text-white/60 hover:bg-[#151515] hover:text-white'}`}>
+              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `w-[48px] h-[48px] rounded-[14px] flex items-center justify-center transition-all ${isActive ? 'bg-[#151515] text-[#bd1e2d] shadow-lg scale-105' : 'bg-[#222222] text-white/60 hover:bg-[#151515] hover:text-white'}`}>
                 {({ isActive }) => <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />}
               </NavLink>
             ))}
