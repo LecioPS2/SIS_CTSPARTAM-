@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 
 export function Button({ children, variant = 'primary', className = '', ...props }) {
@@ -100,9 +101,11 @@ export function Modal({ open, onClose, title, children, wide = false }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
+
   if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose} data-testid="modal-overlay">
+
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose} data-testid="modal-overlay">
       <div
         className={`bg-card border border-line rounded-lg w-full max-h-[90vh] flex flex-col shadow-2xl shadow-black/80 ${wide ? 'max-w-2xl' : 'max-w-md'} fade-up`}
         onClick={(e) => e.stopPropagation()}
@@ -115,7 +118,8 @@ export function Modal({ open, onClose, title, children, wide = false }) {
         </div>
         <div className="p-6 overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
