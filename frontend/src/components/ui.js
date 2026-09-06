@@ -107,10 +107,10 @@ export function Modal({ open, onClose, title, children, wide = false }) {
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose} data-testid="modal-overlay">
       <div
-        className={`bg-card border border-line rounded-lg w-full max-h-[90vh] flex flex-col shadow-2xl shadow-black/80 ${wide ? 'max-w-2xl' : 'max-w-md'} fade-up`}
+        className={`bg-[#1c1c1e]/80 backdrop-blur-2xl border border-white/10 rounded-2xl w-full max-h-[90vh] flex flex-col shadow-2xl shadow-black/80 ${wide ? 'max-w-2xl' : 'max-w-md'} fade-up`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-line shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
           <h3 className="font-display text-2xl tracking-tight uppercase">{title}</h3>
           <button onClick={onClose} className="text-muted hover:text-white transition-colors" data-testid="modal-close-button" aria-label="Fechar">
             <X size={18} />
