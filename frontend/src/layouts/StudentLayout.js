@@ -55,7 +55,7 @@ export default function StudentLayout({ children }) {
           <div className="flex items-center justify-between w-[42%] gap-1">
             {navLeft.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-[#151515] text-[#bd1e2d] shadow-lg scale-105' : 'bg-[#222222] text-white/60 hover:bg-[#151515] hover:text-white'}`}>
-                <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                {({ isActive }) => <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />}
               </NavLink>
             ))}
           </div>
@@ -68,7 +68,7 @@ export default function StudentLayout({ children }) {
           <div className="flex items-center justify-between w-[42%] gap-1">
             {navRight.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isActive ? 'bg-[#151515] text-[#bd1e2d] shadow-lg scale-105' : 'bg-[#222222] text-white/60 hover:bg-[#151515] hover:text-white'}`}>
-                <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                {({ isActive }) => <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />}
               </NavLink>
             ))}
           </div>
