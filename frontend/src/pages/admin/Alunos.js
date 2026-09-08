@@ -121,21 +121,30 @@ export default function Alunos() {
         action={<Button onClick={() => open()} data-testid="new-aluno-button"><Plus size={16} className="inline mr-2" /> Nova Aluna</Button>}
       />
 
-      <div className="mb-4">
-        <div className="w-full max-w-xs">
-          <Select 
-            value={activeTab} 
-            onChange={(e) => setActiveTab(e.target.value)}
-            className="w-full bg-surface border-line"
+      <div className="mb-6 flex flex-wrap gap-2">
+        <button
+          onClick={() => setActiveTab('TODAS')}
+          className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${
+            activeTab === 'TODAS'
+              ? 'bg-accent text-white shadow-lg shadow-accent/30'
+              : 'bg-surface text-muted hover:text-white border border-line'
+          }`}
+        >
+          TODAS AS TURMAS
+        </button>
+        {classes.map(c => (
+          <button
+            key={c.time}
+            onClick={() => setActiveTab(c.time)}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${
+              activeTab === c.time
+                ? 'bg-accent text-white shadow-lg shadow-accent/30'
+                : 'bg-surface text-muted hover:text-white border border-line'
+            }`}
           >
-            <option value="TODAS">TODAS AS TURMAS</option>
-            {classes.map(c => (
-              <option key={c.time} value={c.time}>
-                TURMA {c.time.replace(':00', ' H').replace(':', 'H')}
-              </option>
-            ))}
-          </Select>
-        </div>
+            {c.time.replace(':00', 'H')}
+          </button>
+        ))}
       </div>
 
       <Card>
