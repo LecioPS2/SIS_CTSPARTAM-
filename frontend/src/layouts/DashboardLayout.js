@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Search, Globe, Instagram, Phone, Smartphone, MessageCircle } from 'lucide-react';
+import { LogOut, Search, Globe, Instagram, Phone, Smartphone, MessageCircle, Menu, X } from 'lucide-react';
 import NotificationsPanel from '../components/NotificationsPanel';
 import WhatsAppModal from '../components/WhatsAppModal';
 import { useSearch } from '../context/SearchContext';
@@ -27,6 +27,8 @@ export default function DashboardLayout({ nav, children }) {
 
   const [social, setSocial] = useState({ site: '', instagram: '', whatsapp: '', tiktok: '' });
   const [waModal, setWaModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   useEffect(() => {
     const saved = localStorage.getItem('gym_social_settings');
     if (saved) setSocial(JSON.parse(saved));
@@ -70,18 +72,32 @@ export default function DashboardLayout({ nav, children }) {
         </div>
       </aside>
 
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Main Sidebar */}
-      <aside className="w-56 shrink-0 bg-card shadow-lg shadow-black/40 rounded-xl flex flex-col fixed lg:left-[80px] left-4 top-4 bottom-4 z-30 overflow-hidden print:hidden" data-testid="sidebar">
-        <div className="flex items-center gap-2 px-5 h-16 border-b border-line">
-          <img src="/logo.png" alt="CT Spartan" className="w-8 h-8" />
-          <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>
+      <aside className={`w-64 shrink-0 bg-card shadow-lg shadow-black/40 rounded-xl flex flex-col fixed lg:left-[80px] top-4 bottom-4 z-40 overflow-hidden print:hidden transition-transform duration-300 ${mobileMenuOpen ? 'left-4 translate-x-0' : '-translate-x-[150%] lg:translate-x-0'}`} data-testid="sidebar">
+        <div className="flex items-center justify-between px-5 h-16 border-b border-line">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="CT Spartan" className="w-8 h-8" />
+            <span className="font-display text-2xl uppercase tracking-tight">CT Spartan</span>
+          </div>
+          <button className="lg:hidden text-muted hover:text-white" onClick={() => setMobileMenuOpen(false)}>
+            <X size={20} />
+          </button>
         </div>
-        <nav className="flex-1 py-4 space-y-0.5">
+        <nav className="flex-1 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
           {filteredNav.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end}
+              onClick={() => setMobileMenuOpen(false)}
               data-testid={`nav-${item.testId}`}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-5 py-2.5 text-sm transition-colors duration-200 border-l-2 ${
@@ -108,14 +124,22 @@ export default function DashboardLayout({ nav, children }) {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-[320px] ml-64 flex flex-col px-6 pt-4">
-        <header className="sticky top-4 z-20 h-16 bg-card/90 backdrop-blur-xl shadow-lg shadow-black/40 rounded-xl flex items-center justify-between px-6 gap-4 print:hidden" data-testid="dashboard-header">
-          {/* Lado Esquerdo - Espaço reservado (Redes foram para a sidebar lateral) */}
+      <div className="flex-1 lg:ml-[350px] ml-0 flex flex-col px-4 lg:px-6 pt-4 w-full min-w-0 transition-all duration-300">
+        <header className="sticky top-4 z-20 h-16 bg-card/90 backdrop-blur-xl shadow-lg shadow-black/40 rounded-xl flex items-center justify-between px-4 lg:px-6 gap-3 print:hidden" data-testid="dashboard-header">
+          {/* Hamburger Menu (Mobile) */}
+          <button 
+            className="lg:hidden p-2 -ml-2 text-white/70 hover:text-white"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu size={24} />
+          </button>
+
+          {/* Lado Esquerdo - Espaço reservado */}
           <div className="hidden md:flex flex-1"></div>
 
           {/* Centro - Busca */}
           <div className="flex-1 flex justify-center">
-            <div className="relative w-full max-w-md">
+            <div className="relative w-full max-w-md hidden sm:block">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden="true" />
               <input
                 type="text"
@@ -126,10 +150,20 @@ export default function DashboardLayout({ nav, children }) {
                 className="w-full bg-surface border border-line rounded-full pl-9 pr-4 py-2 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
             </div>
+            {/* Search Icon for Mobile (opens search modal or just expands? We'll just leave it for now or make it simple) */}
+            <div className="relative w-full sm:hidden">
+              <input
+                type="text"
+                placeholder="Buscar..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-surface border border-line rounded-full px-4 py-2 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              />
+            </div>
           </div>
 
           {/* Lado Direito - Notificações e Perfil */}
-          <div className="flex items-center justify-end gap-16 flex-1">
+          <div className="flex items-center justify-end gap-3 lg:gap-16 flex-1">
             <NotificationsPanel />
             <div className="flex items-center gap-3" data-testid="header-user-info">
               <div className="text-right leading-tight hidden sm:block">
@@ -139,34 +173,34 @@ export default function DashboardLayout({ nav, children }) {
                 <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-accent">{cargo}</p>
               </div>
               {user?.avatarUrl ? (
-                <img src={`${backendUrl}${user.avatarUrl}`} alt="" className="w-10 h-10 rounded-full object-cover border border-line" data-testid="header-avatar" />
+                <img src={`${backendUrl}${user.avatarUrl}`} alt="" className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover border border-line" data-testid="header-avatar" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-display text-lg shrink-0" data-testid="header-avatar">
+                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-accent flex items-center justify-center font-display text-sm lg:text-lg shrink-0" data-testid="header-avatar">
                   {initials(user?.name)}
                 </div>
               )}
             </div>
           </div>
         </header>
-        <main className="flex-1 py-8 px-2">{children}</main>
+        <main className="flex-1 py-6 lg:py-8 px-1 lg:px-2 min-w-0">{children}</main>
       </div>
 
       {/* Botões Flutuantes */}
-      <div className="fixed bottom-6 right-6 flex items-center gap-4 z-50 print:hidden">
+      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 flex items-center gap-2 md:gap-4 z-50 print:hidden">
         {(user?.role === 'admin' || user?.role === 'personal') && (
           <button
             onClick={() => navigate(user?.role === 'admin' ? '/admin/montar-treino' : '/personal/treinos')}
-            className="h-14 px-6 bg-ok text-white font-bold rounded-xl flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-105 hover:bg-ok/90 transition-all uppercase tracking-wider text-sm"
+            className="h-12 px-4 md:h-14 md:px-6 bg-ok text-white font-bold rounded-xl flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-105 hover:bg-ok/90 transition-all uppercase tracking-wider text-xs md:text-sm"
           >
             Montar Treino
           </button>
         )}
         <button
           onClick={() => setWaModal(true)}
-          className="w-14 h-14 bg-ok text-white rounded-full flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-110 hover:bg-ok/90 transition-all group"
+          className="w-12 h-12 md:w-14 md:h-14 bg-ok text-white rounded-full flex items-center justify-center shadow-2xl shadow-ok/30 hover:scale-110 hover:bg-ok/90 transition-all group"
           title="Disparar Notificações via WhatsApp"
         >
-          <MessageCircle size={28} className="group-hover:animate-bounce" />
+          <MessageCircle size={24} className="group-hover:animate-bounce" />
         </button>
       </div>
 
