@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { LogOut, Search, Globe, Instagram, Phone, Smartphone, MessageCircle } from 'lucide-react';
 import NotificationsPanel from '../components/NotificationsPanel';
 import WhatsAppModal from '../components/WhatsAppModal';
+import { useSearch } from '../context/SearchContext';
 
 function greeting() {
   const h = new Date().getHours();
@@ -21,6 +22,8 @@ export default function DashboardLayout({ nav, children }) {
   const navigate = useNavigate();
   const cargo = user?.role === 'admin' ? 'Administrador' : user?.role === 'assessor' ? 'Assessor' : 'Personal Trainer';
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+
+  const { searchTerm, setSearchTerm } = useSearch();
 
   const [social, setSocial] = useState({ site: '', instagram: '', whatsapp: '', tiktok: '' });
   const [waModal, setWaModal] = useState(false);
@@ -117,6 +120,8 @@ export default function DashboardLayout({ nav, children }) {
               <input
                 type="text"
                 placeholder="Buscar..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 data-testid="header-search-input"
                 className="w-full bg-surface border border-line rounded-full pl-9 pr-4 py-2 text-sm placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />

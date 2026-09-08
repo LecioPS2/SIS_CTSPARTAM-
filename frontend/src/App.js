@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SearchProvider } from './context/SearchContext';
 import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
 import StudentLayout from './layouts/StudentLayout';
@@ -92,6 +93,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <ErrorBoundary>
+        <SearchProvider>
         <Toaster theme="dark" position="bottom-right" toastOptions={{ style: { background: '#0a1428', border: '1px solid #1c2a45', color: '#fff' } }} />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -121,6 +123,7 @@ export default function App() {
           <Route path="/aluno/dieta" element={<Protected role="aluno"><StudentLayout><Dieta /></StudentLayout></Protected>} />
           <Route path="*" element={<Home />} />
         </Routes>
+        </SearchProvider>
         </ErrorBoundary>
       </BrowserRouter>
     </AuthProvider>

@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
 import { Plus, Pencil, ClipboardCheck } from 'lucide-react';
 import EvolutionCompare from '../../components/EvolutionCompare';
+import { useSearch } from '../../context/SearchContext';
 
 const empty = { name: '', email: '', password: '', phone: '', birthDate: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
@@ -17,6 +18,7 @@ export default function MeusAlunos() {
   const [evalModal, setEvalModal] = useState(null);
   const [evalForm, setEvalForm] = useState(emptyMeasure);
   const [history, setHistory] = useState([]);
+  const { searchTerm } = useSearch();
 
   const load = () => api.get('/users').then((r) => setAlunas(r.data));
   useEffect(() => { load(); }, []);
@@ -76,21 +78,25 @@ export default function MeusAlunos() {
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const setEv = (k) => (e) => setEvalForm({ ...evalForm, [k]: e.target.value });
 
+  const filteredAlunas = alunas
+    .filter(a => !searchTerm || a.name?.toLowerCase().includes(searchTerm.toLowerCase()) || a.email?.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.name?.localeCompare(b.name));
+
   return (
     <div data-testid="personal-alunos-page">
       <PageHeader
         title="Minhas Alunas"
-        subtitle={`${alunas.length} aluna(s) sob sua orientação`}
+        subtitle={`${filteredAlunas.length} aluna(s) sob sua orientação`}
         action={<Button onClick={() => open(null)} data-testid="add-meu-aluno-button"><Plus size={14} className="inline mr-1" />Nova Aluna</Button>}
       />
       <Card className="overflow-x-auto fade-up">
-        {alunas.length === 0 ? (
-          <div className="p-6"><Empty text="Você ainda não tem alunas vinculadas" /></div>
+        {filteredAlunas.length === 0 ? (
+          <div className="p-6"><Empty text="Nenhuma aluna encontrada" /></div>
         ) : (
           <table className="w-full" data-testid="meus-alunos-table">
             <thead><tr><Th>Nome</Th><Th>Email</Th><Th>Objetivo</Th><Th>Nível</Th><Th>Plano</Th><Th></Th></tr></thead>
             <tbody>
-              {alunas.map((a) => (
+              {filteredAlunas.map((a) => (
                 <tr key={a.id} className="hover:bg-surface transition-colors">
                   <Td className="font-medium">{a.name}</Td>
                   <Td className="text-muted">{a.email}</Td>

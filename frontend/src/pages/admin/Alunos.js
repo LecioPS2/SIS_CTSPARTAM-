@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
 import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck } from 'lucide-react';
 import EvolutionCompare from '../../components/EvolutionCompare';
+import { useSearch } from '../../context/SearchContext';
 
 const empty = { paymentDueDate: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
@@ -23,6 +24,7 @@ export default function Alunos() {
   const [evalModal, setEvalModal] = useState(null);
   const [evalForm, setEvalForm] = useState(emptyMeasure);
   const [history, setHistory] = useState([]);
+  const { searchTerm } = useSearch();
 
   const load = () => {
     api.get('/users?role=aluno').then((r) => setAlunas(r.data));
@@ -106,7 +108,10 @@ export default function Alunos() {
   const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
   const setEv = (k) => (e) => setEvalForm({ ...evalForm, [k]: e.target.value });
 
-  const filteredAlunas = activeTab === 'TODAS' ? alunas : alunas.filter(a => a.timeSlot === activeTab);
+  const filteredAlunas = alunas
+    .filter(a => activeTab === 'TODAS' || a.timeSlot === activeTab)
+    .filter(a => !searchTerm || a.name?.toLowerCase().includes(searchTerm.toLowerCase()) || a.email?.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.name?.localeCompare(b.name));
 
   return (
     <div data-testid="admin-alunos-page">

@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { Button, Input, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
+import { useSearch } from '../../context/SearchContext';
+
 const empty = { name: '', email: '', password: '', phone: '' };
 
 export default function Personais() {
@@ -11,6 +13,7 @@ export default function Personais() {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(empty);
+  const { searchTerm } = useSearch();
 
   const load = () => api.get('/users?role=personal').then((r) => setList(r.data));
   useEffect(() => { load(); }, []);
@@ -44,21 +47,25 @@ export default function Personais() {
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
+  const filteredList = list
+    .filter(p => !searchTerm || p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || p.email?.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.name?.localeCompare(b.name));
+
   return (
     <div data-testid="admin-personais-page">
       <PageHeader
         title="Personais"
-        subtitle={`${list.length} personal(is) cadastrado(s)`}
+        subtitle={`${filteredList.length} personal(is) cadastrado(s)`}
         action={<Button onClick={() => open(null)} data-testid="add-personal-button"><Plus size={14} className="inline mr-1" />Novo Personal</Button>}
       />
       <Card className="overflow-x-auto fade-up">
-        {list.length === 0 ? (
-          <div className="p-6"><Empty text="Nenhum personal cadastrado ainda" /></div>
+        {filteredList.length === 0 ? (
+          <div className="p-6"><Empty text="Nenhum personal encontrado" /></div>
         ) : (
           <table className="w-full" data-testid="personais-table">
             <thead><tr><Th>Nome</Th><Th>Email</Th><Th>Telefone</Th><Th>Status</Th><Th></Th></tr></thead>
             <tbody>
-              {list.map((p) => (
+              {filteredList.map((p) => (
                 <tr key={p.id} className="hover:bg-surface transition-colors">
                   <Td className="font-medium">{p.name}</Td>
                   <Td className="text-muted">{p.email}</Td>
