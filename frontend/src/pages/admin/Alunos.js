@@ -250,7 +250,14 @@ export default function Alunos() {
                     {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </Select>
                 </Field>
-                  <Field label="Vencimento"><Input type="date" value={form.paymentDueDate} onChange={set('paymentDueDate')} /></Field>
+                <Field label="Dia do Venc.">
+                  <Select value={form.paymentDueDate} onChange={set('paymentDueDate')}>
+                    <option value="">Nenhum</option>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                      <option key={d} value={d.toString().padStart(2, '0')}>{d.toString().padStart(2, '0')}</option>
+                    ))}
+                  </Select>
+                </Field>
               </div>
             </div>
           )}

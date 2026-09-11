@@ -58,7 +58,42 @@ export default function Financeiro() {
 
   const set = (k) => (e) => {
     const v = e.target.value;
-    if (k === 'planId') {
+    if (k === 'studentId') {
+      const student = alunos.find(a => a.id === v);
+      if (student) {
+        let newForm = { ...form, studentId: v };
+        
+        if (student.planId) {
+          const planIdStr = typeof student.planId === 'object' ? student.planId.id : student.planId;
+          newForm.planId = planIdStr;
+          const plan = plans.find(p => p.id === planIdStr);
+          if (plan) newForm.amount = plan.price;
+        }
+
+        if (student.paymentDueDate) {
+          const dueDay = parseInt(student.paymentDueDate, 10);
+          const today = new Date();
+          let targetMonth = today.getMonth();
+          let targetYear = today.getFullYear();
+          if (today.getDate() > dueDay) {
+            targetMonth++;
+            if (targetMonth > 11) {
+              targetMonth = 0;
+              targetYear++;
+            }
+          }
+          const nextDue = new Date(targetYear, targetMonth, dueDay);
+          // format local date to YYYY-MM-DD correctly avoiding timezone shifts
+          const yyyy = nextDue.getFullYear();
+          const mm = String(nextDue.getMonth() + 1).padStart(2, '0');
+          const dd = String(nextDue.getDate()).padStart(2, '0');
+          newForm.dueDate = `${yyyy}-${mm}-${dd}`;
+        }
+        setForm(newForm);
+      } else {
+        setForm({ ...form, [k]: v });
+      }
+    } else if (k === 'planId') {
       const plan = plans.find((p) => p.id === v);
       setForm({ ...form, planId: v, amount: plan ? plan.price : form.amount });
     } else {
