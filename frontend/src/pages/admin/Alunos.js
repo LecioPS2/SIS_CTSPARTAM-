@@ -170,7 +170,7 @@ export default function Alunos() {
                   <Td className="text-muted">{a.email}</Td>
                   <Td>{a.timeSlot ? <Badge>{a.timeSlot}</Badge> : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.planId ? <Badge>{a.planId.name}</Badge> : <span className="text-muted text-xs">Sem plano</span>}</Td>
-                    <Td>{a.paymentDueDate ? new Date(a.paymentDueDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : <span className="text-muted text-xs">-</span>}</Td>
+                  <Td>{a.paymentDueDate ? (a.paymentDueDate.length <= 2 ? `Dia ${a.paymentDueDate.padStart(2, '0')}` : new Date(a.paymentDueDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })) : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.personalId ? <span className="text-sm text-white/90">{a.personalId.name}</span> : <span className="text-muted text-xs">Sem personal</span>}</Td>
                   <Td className="text-right flex items-center justify-end gap-1">
                     <button onClick={() => openEval(a)} className="p-2 text-muted hover:text-ok transition-colors" data-testid={`avaliacao-aluno-${a.id}`} title="Avaliação Física">

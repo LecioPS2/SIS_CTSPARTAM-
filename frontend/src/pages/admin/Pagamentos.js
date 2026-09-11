@@ -26,15 +26,38 @@ export default function Financeiro() {
   const save = async (e) => {
     e.preventDefault();
     try {
-      const payload = { 
-        ...form, 
-        amount: Number(form.amount), 
-        planId: form.type === 'entrada' && form.planId ? form.planId : null,
-        studentId: form.type === 'entrada' && form.studentId ? form.studentId : null,
-        description: form.type === 'saida' ? form.description : null
-      };
-      await api.post('/payments', payload);
-      toast.success('Lançamento registrado');
+      if (form.type === 'entrada' && form.installments > 1) {
+        const promises = [];
+        const [year, month, day] = form.dueDate.split('-');
+        for (let i = 0; i < form.installments; i++) {
+          const mDate = new Date(year, parseInt(month) - 1 + i, day);
+          const yyyy = mDate.getFullYear();
+          const mm = String(mDate.getMonth() + 1).padStart(2, '0');
+          const dd = String(mDate.getDate()).padStart(2, '0');
+          const fDate = `${yyyy}-${mm}-${dd}`;
+          const description = form.description || `Mensalidade (${i+1}/${form.installments})`;
+          const p = { 
+            ...form, 
+            amount: Number(form.amount), 
+            planId: form.type === 'entrada' && form.planId ? form.planId : null,
+            studentId: form.type === 'entrada' && form.studentId ? form.studentId : null,
+            dueDate: fDate, 
+            description 
+          };
+          promises.push(api.post('/payments', p));
+        }
+        await Promise.all(promises);
+      } else {
+        const payload = { 
+          ...form, 
+          amount: Number(form.amount), 
+          planId: form.type === 'entrada' && form.planId ? form.planId : null,
+          studentId: form.type === 'entrada' && form.studentId ? form.studentId : null,
+          description: form.type === 'saida' ? form.description : null
+        };
+        await api.post('/payments', payload);
+      }
+      toast.success('Lançamento salvo');
       setModal(false);
       setForm(empty);
       load();
@@ -290,10 +313,21 @@ export default function Financeiro() {
             <Field label="Valor">
               <Input type="number" step="0.01" min="0" value={form.amount} onChange={set('amount')} required />
             </Field>
-            <Field label={form.type === 'entrada' ? 'Vencimento' : 'Data da Despesa'}>
+            <Field label={form.type === 'entrada' ? 'Vencimento Inicial' : 'Data da Despesa'}>
               <Input type="date" value={form.dueDate} onChange={set('dueDate')} required />
             </Field>
           </div>
+          {form.type === 'entrada' && (
+            <Field label="Gerar Parcelas / Meses (Recorrência)">
+              <Select value={form.installments} onChange={set('installments')}>
+                <option value="1">1 (Cobrança Única)</option>
+                <option value="2">2 meses</option>
+                <option value="3">3 meses</option>
+                <option value="6">6 meses</option>
+                <option value="12">12 meses (Anual)</option>
+              </Select>
+            </Field>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <Field label="Status">
               <Select value={form.status} onChange={set('status')}>
