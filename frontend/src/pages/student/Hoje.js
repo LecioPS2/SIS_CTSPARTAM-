@@ -22,9 +22,11 @@ export default function Hoje() {
   };
   const html5QrRef = React.useRef(null);
 
+  const [membership, setMembership] = useState(null);
   const load = () => {
     api.get('/student/today').then((r) => setData(r.data)).catch(() => setData({ todayWorkouts: [], allWorkouts: [] }));
     api.get('/notifications').then((r) => setAvisos(r.data)).catch(() => setAvisos([]));
+    api.get('/student/membership').then((r) => setMembership(r.data)).catch(() => setMembership(null));
   };
   useEffect(() => { load(); }, []);
 
@@ -87,16 +89,37 @@ export default function Hoje() {
 
   const today = new Date();
   const todayStr = `${today.getDate().toString().padStart(2, '0')} ${(today.toLocaleString('pt-BR', { month: 'short' })).toUpperCase().replace('.', '')} ${today.getFullYear()}.`;
-  const firstName = user?.name ? user.name.split(' ')[0] : 'Aluna';
+  const firstName = user?.name?.split(' ')[0] || 'Aluno';
+  
+  let paymentAlert = null;
+  if (membership && membership.payments && membership.payments.length > 0) {
+    const nextPayment = membership.payments.find(p => p.status !== 'pago');
+    if (nextPayment) {
+      const due = new Date(nextPayment.dueDate);
+      const todayDate = new Date();
+      // zerar horas
+      due.setHours(0, 0, 0, 0);
+      todayDate.setHours(0, 0, 0, 0);
+      const diffTime = due - todayDate;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) {
+        paymentAlert = { type: 'danger', message: `Sua mensalidade está atrasada há ${Math.abs(diffDays)} dias.` };
+      } else if (diffDays <= 5) {
+        paymentAlert = { type: 'warn', message: diffDays === 0 ? 'Sua mensalidade vence HOJE!' : `Sua mensalidade vence em ${diffDays} dias.` };
+      }
+    }
+  }
+
+  if (!data) return <p className="text-white/50 p-6 text-center text-sm">Carregando...</p>;
 
   const scrollToWorkouts = () => {
     document.getElementById('workouts-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <div data-testid="student-hoje-page" className="pb-8">
-      
-      {/* Saudação */}
+    <div className="pb-8" data-testid="student-hoje-page">
+      {/* Header Fixo / Avatar */}
       <div className="mb-4 fade-up flex items-center justify-between">
         <div>
           <h1 className="font-display text-4xl font-light">Olá, <strong className="font-bold">{firstName}</strong></h1>
@@ -114,6 +137,20 @@ export default function Hoje() {
 
       {/* Linha Divisória */}
       <div className="h-[2px] w-full bg-gradient-to-r from-accent via-accent/50 to-transparent mb-6 rounded-full opacity-80 fade-up" />
+
+      {/* Alerta de Pagamento */}
+      {paymentAlert && (
+        <Link to="/aluno/mensalidade" className={`block w-full p-4 rounded-xl mb-5 border border-white/10 flex items-center justify-between shadow-lg fade-up transition-transform hover:scale-[1.02] ${paymentAlert.type === 'danger' ? 'bg-[#bd1e2d]' : 'bg-orange-500'}`}>
+          <div className="flex items-center gap-3">
+            <CreditCard size={24} className="text-white" />
+            <div>
+              <p className="font-bold text-white uppercase text-sm leading-tight">{paymentAlert.type === 'danger' ? 'Pagamento Atrasado!' : 'Aviso de Vencimento'}</p>
+              <p className="text-xs text-white/90">{paymentAlert.message}</p>
+            </div>
+          </div>
+          <ArrowRight size={18} className="text-white opacity-80" />
+        </Link>
+      )}
 
       {/* Card 1: TREINO DO DIA */}
       <div 
