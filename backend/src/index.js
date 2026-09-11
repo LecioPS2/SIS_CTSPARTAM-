@@ -23,6 +23,7 @@ const reportRoutes = require('./routes/reports');
 const uploadRoutes = require('./routes/uploads');
 const checkinRoutes = require('./routes/checkin');
 const noticeRoutes = require('./routes/notices');
+const mercadopagoRoutes = require('./routes/mercadopago');
 
 const app = express();
 app.use(express.json());
@@ -105,6 +106,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/notices', noticeRoutes);
+app.use('/api/mercadopago', mercadopagoRoutes);
 
 app.param('id', (req, res, next, id) => {
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'ID inválido' });

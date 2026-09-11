@@ -21,7 +21,7 @@ export default function DashboardLayout({ nav, children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const cargo = user?.role === 'admin' ? 'Administrador' : user?.role === 'assessor' ? 'Assessor' : 'Personal Trainer';
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  const backendUrl = process.env.NODE_ENV === 'production' ? '' : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:8002');
 
   const { searchTerm, setSearchTerm } = useSearch();
 

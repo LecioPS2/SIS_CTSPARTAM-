@@ -8,6 +8,10 @@ export default function Mensalidade() {
   const [data, setData] = useState(null);
   const [pixModal, setPixModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  
+  const [pixData, setPixData] = useState(null);
+  const [loadingPix, setLoadingPix] = useState(false);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   useEffect(() => {
     api.get('/student/membership').then((r) => setData(r.data)).catch(() => setData({ plan: null, payments: [] }));
@@ -19,10 +23,41 @@ export default function Mensalidade() {
   const current = data.payments[0];
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('00020101021126580014br.gov.bcb.pix0136pix-em-breve-integra-mercado-pago5204000053039865802BR5909CT SPARTAN6009SAO PAULO62070503***63041A2B');
+    if (!pixData?.qr_code) return;
+    navigator.clipboard.writeText(pixData.qr_code);
     setCopied(true);
     toast.success('Chave Pix copiada!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const generatePix = async () => {
+    if (!current) return;
+    setLoadingPix(true);
+    setPixModal(true);
+    try {
+      const res = await api.post(`/mercadopago/pix/${current.id}`);
+      setPixData(res.data);
+    } catch (err) {
+      toast.error('Erro ao gerar PIX');
+      setPixModal(false);
+    } finally {
+      setLoadingPix(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!current) return;
+    setLoadingCheckout(true);
+    try {
+      const res = await api.post(`/mercadopago/checkout/${current.id}`);
+      if (res.data.init_point) {
+        window.location.href = res.data.init_point;
+      }
+    } catch (err) {
+      toast.error('Erro ao gerar link de pagamento');
+    } finally {
+      setLoadingCheckout(false);
+    }
   };
 
   return (
@@ -59,10 +94,15 @@ export default function Mensalidade() {
             </div>
             
             {current.status !== 'pago' && (
-              <Button onClick={() => setPixModal(true)} variant="accent" className="w-full md:w-auto">
-                <QrCode size={16} className="inline mr-2" />
-                Pagar com Pix
-              </Button>
+              <div className="flex flex-col gap-2 w-full md:w-auto">
+                <Button onClick={generatePix} variant="accent" disabled={loadingPix}>
+                  <QrCode size={16} className="inline mr-2" />
+                  {loadingPix ? 'Gerando...' : 'Pagar com Pix'}
+                </Button>
+                <Button onClick={handleCheckout} variant="outline" disabled={loadingCheckout}>
+                  {loadingCheckout ? 'Gerando...' : 'Cartão / Boleto'}
+                </Button>
+              </div>
             )}
           </div>
         </Card>
@@ -85,14 +125,21 @@ export default function Mensalidade() {
         </div>
       )}
 
-      <Modal open={pixModal} onClose={() => setPixModal(false)} title="Pagamento via Pix">
+      <Modal open={pixModal} onClose={() => { setPixModal(false); setPixData(null); }} title="Pagamento via Pix">
         <div className="flex flex-col items-center py-4">
           <div className="bg-white p-4 rounded-xl mb-6">
-            {/* Placeholder for QR Code */}
-            <div className="w-48 h-48 bg-gray-200 border-4 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500">
-              <QrCode size={48} className="mb-2 opacity-50" />
-              <span className="text-xs text-center px-4 font-bold uppercase">QR Code será gerado aqui</span>
-            </div>
+            {loadingPix ? (
+              <div className="w-48 h-48 bg-gray-100 flex flex-col items-center justify-center text-gray-400 rounded-lg">
+                <span className="animate-pulse font-medium">Gerando...</span>
+              </div>
+            ) : pixData?.qr_code_base64 ? (
+              <img src={`data:image/jpeg;base64,${pixData.qr_code_base64}`} alt="QR Code PIX" className="w-48 h-48 object-contain" />
+            ) : (
+              <div className="w-48 h-48 bg-gray-200 border-4 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-500">
+                <QrCode size={48} className="mb-2 opacity-50" />
+                <span className="text-xs text-center px-4 font-bold uppercase">Erro ao gerar</span>
+              </div>
+            )}
           </div>
           
           <h3 className="text-lg font-bold mb-1">{brl(current?.amount)}</h3>
@@ -104,11 +151,11 @@ export default function Mensalidade() {
             <p className="text-xs uppercase tracking-wider text-muted mb-2">Pix Copia e Cola</p>
             <div className="flex gap-2">
               <Input 
-                value="00020101021126580014br.gov.bcb.pix..."
+                value={pixData?.qr_code || "Carregando..."}
                 readOnly
                 className="font-mono text-xs opacity-70"
               />
-              <Button onClick={handleCopy} variant={copied ? 'primary' : 'outline'} className="shrink-0 px-3">
+              <Button onClick={handleCopy} disabled={!pixData?.qr_code} variant={copied ? 'primary' : 'outline'} className="shrink-0 px-3">
                 {copied ? <Check size={16} /> : <Copy size={16} />}
               </Button>
             </div>
@@ -117,7 +164,7 @@ export default function Mensalidade() {
           <div className="mt-6 w-full p-3 bg-surface border border-line rounded flex items-start gap-3">
             <div className="w-2 h-2 rounded-full bg-accent mt-1.5 shrink-0 animate-pulse"></div>
             <p className="text-xs text-muted leading-relaxed">
-              Em breve! A integração automática com o Mercado Pago está sendo preparada.
+              Pagamento via Mercado Pago. O status será atualizado automaticamente em alguns instantes após o pagamento.
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ export default function Configuracoes() {
   const [tab, setTab] = useState('perfil');
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  const backendUrl = process.env.NODE_ENV === 'production' ? '' : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:8002');
 
   const [social, setSocial] = useState({
     site: 'https://ctspartan.com',

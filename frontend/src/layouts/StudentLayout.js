@@ -15,7 +15,7 @@ const navRight = [
 
 export default function StudentLayout({ children }) {
   const { user, logout } = useAuth();
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+  const backendUrl = process.env.NODE_ENV === 'production' ? '' : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:8002');
 
   return (
     <div className="min-h-screen pb-24 relative bg-black font-sans">
