@@ -13,7 +13,7 @@ export default function Financeiro() {
   const [modal, setModal] = useState(false);
   const [reportModal, setReportModal] = useState(false);
   const [form, setForm] = useState(empty);
-  const [filter, setFilter] = useState('todos');
+  const [filter, setFilter] = useState('mes_atual');
 
   const load = () => {
     api.get('/payments').then((r) => setPayments(r.data)).catch(console.error);
@@ -157,6 +157,11 @@ export default function Financeiro() {
 
   const filteredPayments = payments.filter((p) => {
     if (filter === 'todos') return true;
+    if (filter === 'mes_atual') {
+      const today = new Date();
+      const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      return p.dueDate && p.dueDate.startsWith(currentMonthStr);
+    }
     if (filter === 'pagos') return p.status === 'pago';
     if (filter === 'pendentes') return p.status === 'pendente';
     if (filter === 'inadimplentes') return p.status === 'atrasado';
@@ -195,18 +200,29 @@ export default function Financeiro() {
 
       <Card>
         <div className="flex gap-4 p-4 border-b border-line overflow-x-auto">
-          {['todos', 'pagos', 'pendentes', 'inadimplentes'].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg uppercase tracking-wider transition-colors whitespace-nowrap ${filter === f ? 'bg-accent text-white' : 'text-muted hover:bg-surface'}`}
-            >
-              {f === 'todos' ? 'Todos os Lançamentos' : f.charAt(0).toUpperCase() + f.slice(1)}
-              <span className="ml-2 text-xs bg-black/20 px-2 py-0.5 rounded-full">
-                {f === 'todos' ? payments.length : payments.filter(p => p.status === (f === 'inadimplentes' ? 'atrasado' : f.slice(0,-1))).length}
-              </span>
-            </button>
-          ))}
+          {['todos', 'mes_atual', 'pagos', 'pendentes', 'inadimplentes'].map((f) => {
+            let count = 0;
+            if (f === 'todos') count = payments.length;
+            else if (f === 'mes_atual') {
+              const today = new Date();
+              const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+              count = payments.filter(p => p.dueDate && p.dueDate.startsWith(currentMonthStr)).length;
+            } else {
+              count = payments.filter(p => p.status === (f === 'inadimplentes' ? 'atrasado' : f.slice(0,-1))).length;
+            }
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 text-sm font-semibold rounded-lg uppercase tracking-wider transition-colors whitespace-nowrap ${filter === f ? 'bg-accent text-white' : 'text-muted hover:bg-surface'}`}
+              >
+                {f === 'todos' ? 'Todos os Lançamentos' : f === 'mes_atual' ? 'Mês Atual' : f.charAt(0).toUpperCase() + f.slice(1)}
+                <span className="ml-2 text-xs bg-black/20 px-2 py-0.5 rounded-full">
+                  {count}
+                </span>
+              </button>
+            )
+          })}
         </div>
         
         <div className="overflow-x-auto min-h-[300px]">
