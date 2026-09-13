@@ -36,17 +36,17 @@ class WhatsAppService {
         }
 
         if (connection === 'close') {
-          const shouldReconnect = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
+          const statusCode = lastDisconnect.error?.output?.statusCode;
+          const shouldReconnect = statusCode !== DisconnectReason.loggedOut && statusCode !== DisconnectReason.connectionClosed;
           console.log('WhatsApp connection closed due to', lastDisconnect.error, ', reconnecting:', shouldReconnect);
           
           if (shouldReconnect) {
             this.status = 'INITIALIZING';
-            this.initialize();
+            setTimeout(() => this.initialize(), 2000); // add small delay
           } else {
             this.status = 'DISCONNECTED';
             this.sock = null;
             this.qrCodeDataUrl = null;
-            // Removed auth files on explicit logout
             const fs = require('fs');
             if (fs.existsSync('baileys_auth_info')) {
               fs.rmSync('baileys_auth_info', { recursive: true, force: true });
@@ -74,11 +74,15 @@ class WhatsAppService {
 
   async logout() {
     if (this.sock) {
-      this.sock.logout();
+      this.sock.logout().catch(() => {});
     }
     this.status = 'DISCONNECTED';
     this.sock = null;
     this.qrCodeDataUrl = null;
+    const fs = require('fs');
+    if (fs.existsSync('baileys_auth_info')) {
+      fs.rmSync('baileys_auth_info', { recursive: true, force: true });
+    }
   }
 
   async sendMessage(number, message) {
