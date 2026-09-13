@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, PageHeader, Button, Badge } from '../../components/ui';
 import { Settings, Save, Smartphone, QrCode, PowerOff } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../lib/api';
 import { toast } from 'sonner';
 
 export default function Automacoes() {
