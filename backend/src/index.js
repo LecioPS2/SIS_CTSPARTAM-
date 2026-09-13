@@ -108,6 +108,12 @@ app.use('/api/checkin', checkinRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/mercadopago', mercadopagoRoutes);
 
+app.use('/api/automations', require('./routes/automations'));
+app.use('/api/whatsapp', require('./routes/whatsapp'));
+
+// Iniciar tarefas agendadas (Cron Jobs)
+require('./cron');
+
 app.param('id', (req, res, next, id) => {
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'ID inválido' });
   next();

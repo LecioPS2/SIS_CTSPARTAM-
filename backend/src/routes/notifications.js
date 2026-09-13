@@ -93,7 +93,10 @@ router.get('/', async (req, res) => {
   // 2. Busca Avisos Globais (Mural)
   let noticeFilter = { active: true };
   if (req.user.role !== 'admin') {
-    noticeFilter.targetRole = { $in: ['todos', req.user.role] };
+    noticeFilter.$and = [
+      { targetRole: { $in: ['todos', req.user.role] } },
+      { $or: [{ targetUser: null }, { targetUser: req.user._id }] }
+    ];
   }
   const notices = await Notice.find(noticeFilter).sort({ createdAt: -1 });
   

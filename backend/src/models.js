@@ -51,7 +51,8 @@ const noticeSchema = new Schema({
   title: { type: String, required: true },
   message: { type: String, required: true },
   targetRole: { type: String, enum: ['todos', 'aluno', 'personal'], default: 'todos' },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  targetUser: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User' }, // not required if created by system
   active: { type: Boolean, default: true }
 }, opts);
 
@@ -140,6 +141,15 @@ const dietPlanSchema = new Schema({
     }]
   }]
 }, opts);
+const automationSchema = new Schema({
+  type: { type: String, required: true, unique: true }, // e.g. 'birthday', 'payment_due'
+  active: { type: Boolean, default: false },
+  sendApp: { type: Boolean, default: true },
+  sendWhatsapp: { type: Boolean, default: false },
+  appMessage: { type: String, default: '' },
+  whatsappMessage: { type: String, default: '' },
+}, opts);
+
 module.exports = {
   User: mongoose.model('User', userSchema),
   Plan: mongoose.model('Plan', planSchema),
@@ -152,6 +162,7 @@ module.exports = {
   CheckIn: mongoose.model('CheckIn', checkInSchema),
   Notice: mongoose.model('Notice', noticeSchema),
   DietPlan: mongoose.model('DietPlan', dietPlanSchema),
+  Automation: mongoose.model('Automation', automationSchema),
 };
 
 
