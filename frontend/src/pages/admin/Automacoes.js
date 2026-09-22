@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card, PageHeader, Button, Badge } from '../../components/ui';
-import { Settings, Save, Smartphone, QrCode, PowerOff } from 'lucide-react';
+import { Settings, Save, Smartphone, AlertTriangle, Bell, PartyPopper } from 'lucide-react';
 import api from '../../lib/api';
 import { toast } from 'sonner';
 
 export default function Automacoes() {
-  const [automations, setAutomations] = useState([]);
-  const [waStatus, setWaStatus] = useState({ status: 'DISCONNECTED', qr: null });
-  const [loadingWa, setLoadingWa] = useState(false);
-
   const [bdayActive, setBdayActive] = useState(false);
   const [bdayApp, setBdayApp] = useState(true);
   const [bdayWa, setBdayWa] = useState(false);
@@ -18,7 +14,6 @@ export default function Automacoes() {
   const loadAutomations = async () => {
     try {
       const res = await api.get('/automations');
-      setAutomations(res.data);
       const bday = res.data.find(a => a.type === 'birthday');
       if (bday) {
         setBdayActive(bday.active);
@@ -32,21 +27,7 @@ export default function Automacoes() {
     }
   };
 
-  const loadWaStatus = async () => {
-    try {
-      const res = await api.get('/whatsapp/status');
-      setWaStatus(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    loadAutomations();
-    loadWaStatus();
-    const interval = setInterval(loadWaStatus, 5000); 
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => { loadAutomations(); }, []);
 
   const saveBday = async () => {
     try {
@@ -63,90 +44,22 @@ export default function Automacoes() {
     }
   };
 
-  const startWa = async () => {
-    setLoadingWa(true);
-    try {
-      await api.post('/whatsapp/start');
-      toast.success('Iniciando WhatsApp...');
-      loadWaStatus();
-    } catch (err) {
-      toast.error('Erro ao iniciar.');
-    }
-    setLoadingWa(false);
-  };
-
-  const stopWa = async () => {
-    setLoadingWa(true);
-    try {
-      await api.post('/whatsapp/logout');
-      toast.success('WhatsApp desconectado.');
-      loadWaStatus();
-    } catch (err) {
-      toast.error('Erro ao desconectar.');
-    }
-    setLoadingWa(false);
-  };
-
   return (
     <div className="fade-up">
       <PageHeader 
-        title="Automações & WhatsApp" 
-        subtitle="Configure mensagens automáticas de aniversário, alertas e conecte seu WhatsApp." 
+        title="Automações" 
+        subtitle="Configure mensagens automáticas de aniversário e alertas para suas alunas." 
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
+        {/* Painel Aniversários */}
         <Card>
           <div className="flex items-center gap-3 mb-4 border-b border-line pb-4">
-            <Smartphone className="text-accent" />
-            <h2 className="text-lg font-bold text-white">Conexão WhatsApp</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between bg-surface p-4 rounded-lg">
-              <span className="text-muted">Status do Sistema:</span>
-              {waStatus.status === 'CONNECTED' ? (
-                <Badge className="bg-ok text-white">Conectado</Badge>
-              ) : waStatus.status === 'QR_READY' ? (
-                <Badge className="bg-warn text-white">Aguardando Leitura</Badge>
-              ) : waStatus.status === 'INITIALIZING' ? (
-                <Badge className="bg-blue-500 text-white">Iniciando...</Badge>
-              ) : (
-                <Badge className="bg-danger text-white">Desconectado</Badge>
-              )}
-            </div>
-
-            {waStatus.status === 'DISCONNECTED' && (
-              <Button onClick={startWa} disabled={loadingWa} className="w-full bg-ok hover:bg-ok/90">
-                <QrCode size={18} className="mr-2 inline" />
-                Gerar QR Code de Conexão
-              </Button>
-            )}
-
-            {waStatus.status === 'QR_READY' && waStatus.qr && (
-              <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg">
-                <img src={waStatus.qr} alt="WhatsApp QR Code" className="w-64 h-64" />
-                <p className="text-black font-semibold mt-2">Abra o WhatsApp e escaneie o código</p>
-              </div>
-            )}
-
-            {waStatus.status === 'CONNECTED' && (
-              <Button onClick={stopWa} disabled={loadingWa} className="w-full bg-danger hover:bg-danger/90">
-                <PowerOff size={18} className="mr-2 inline" />
-                Desconectar WhatsApp
-              </Button>
-            )}
-            
-            <p className="text-xs text-muted mt-2">
-              Nota: Para que o robô envie mensagens no WhatsApp das alunas, seu celular precisa estar conectado aqui.
-            </p>
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-center gap-3 mb-4 border-b border-line pb-4">
-            <Settings className="text-ok" />
+            <PartyPopper className="text-ok" />
             <div className="flex-1">
               <h2 className="text-lg font-bold text-white">Mensagem de Aniversário</h2>
+              <p className="text-xs text-muted">Envia um aviso personalizado no dia do aniversário da aluna</p>
             </div>
             <label className="flex items-center cursor-pointer">
               <div className="relative">
@@ -161,8 +74,10 @@ export default function Automacoes() {
             <div className="bg-surface p-4 rounded-lg space-y-3">
               <label className="flex items-center cursor-pointer gap-2 mb-2">
                 <input type="checkbox" checked={bdayApp} onChange={(e) => setBdayApp(e.target.checked)} className="rounded border-line bg-card text-accent focus:ring-accent" />
+                <Bell size={16} className="text-ok" />
                 <span className="font-semibold text-white">Notificar pelo App (Avisos Privados)</span>
               </label>
+              <p className="text-xs text-muted ml-6">A aluna verá o aviso de aniversário quando abrir o app.</p>
               {bdayApp && (
                 <div>
                   <label className="text-xs text-muted block mb-1">Mensagem (Use {'{nome}'} para o nome da aluna)</label>
@@ -179,6 +94,7 @@ export default function Automacoes() {
             <div className="bg-surface p-4 rounded-lg space-y-3">
               <label className="flex items-center cursor-pointer gap-2 mb-2">
                 <input type="checkbox" checked={bdayWa} onChange={(e) => setBdayWa(e.target.checked)} className="rounded border-line bg-card text-accent focus:ring-accent" />
+                <Smartphone size={16} className="text-green-400" />
                 <span className="font-semibold text-white">Enviar mensagem no WhatsApp</span>
               </label>
               {bdayWa && (
@@ -198,6 +114,52 @@ export default function Automacoes() {
               <Save size={16} className="inline mr-2" />
               Salvar Configurações
             </Button>
+          </div>
+        </Card>
+
+        {/* Painel Info WhatsApp */}
+        <Card>
+          <div className="flex items-center gap-3 mb-4 border-b border-line pb-4">
+            <Smartphone className="text-green-400" />
+            <h2 className="text-lg font-bold text-white">Status do WhatsApp</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between bg-surface p-4 rounded-lg">
+              <span className="text-muted">Conexão:</span>
+              <Badge className="bg-yellow-600 text-white">Requer VPS</Badge>
+            </div>
+
+            <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={20} className="text-yellow-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-yellow-200 font-semibold text-sm mb-2">Por que o WhatsApp não conecta?</p>
+                  <p className="text-yellow-100/70 text-xs leading-relaxed">
+                    A hospedagem compartilhada da Hostinger <strong>não suporta</strong> conexões permanentes que o WhatsApp precisa. 
+                    Para ativar o envio automático via WhatsApp, é necessário migrar o backend para um <strong>VPS</strong> (servidor dedicado), 
+                    ou contratar uma API externa de WhatsApp (como Z-API ou Evolution API).
+                  </p>
+                  <p className="text-yellow-100/70 text-xs leading-relaxed mt-2">
+                    <strong>Enquanto isso, os avisos pelo App funcionam normalmente!</strong> Basta ativar a automação ao lado e a aluna receberá 
+                    a mensagem de aniversário no app dela.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-surface p-4 rounded-lg">
+              <p className="text-sm font-semibold text-white mb-2">📋 Resumo do que funciona:</p>
+              <ul className="text-xs text-muted space-y-2">
+                <li className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-ok rounded-full"></span>
+                  <span><strong className="text-ok">Aviso no App:</strong> Funcionando! A aluna recebe a mensagem de aniversário ao abrir o sistema.</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                  <span><strong className="text-yellow-400">WhatsApp:</strong> Preparado, mas requer VPS para funcionar.</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </Card>
 
