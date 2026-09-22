@@ -26,9 +26,13 @@ router.get('/today', requireRole('aluno'), async (req, res) => {
     }
     return obj;
   };
+  const { CheckIn } = require('../models');
+  const checkin = await CheckIn.findOne({ studentId: req.user._id, date: dateStr });
+
   res.json({
     todayWorkouts: todayWorkouts.map((w) => ({ ...fixWorkout(w), completedToday: doneIds.has(w._id.toString()) })),
     allWorkouts: workouts.map((w) => fixWorkout(w)),
+    hasCheckedInToday: !!checkin
   });
 });
 

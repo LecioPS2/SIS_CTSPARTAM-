@@ -153,23 +153,43 @@ export default function Hoje() {
       )}
 
       {/* Card 1: TREINO DO DIA */}
-      <div 
-        onClick={scrollToWorkouts}
-        className="w-full bg-white/10 backdrop-blur-xl rounded-3xl p-5 mb-5 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.2)] cursor-pointer hover:bg-white/15 transition-colors fade-up"
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-11 h-11 rounded-full bg-white text-black shadow-lg shrink-0 flex items-center justify-center">
-            <Dumbbell size={22} />
+      {data.hasCheckedInToday ? (
+        <div 
+          onClick={scrollToWorkouts}
+          className="w-full bg-white/10 backdrop-blur-xl rounded-3xl p-5 mb-5 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.2)] cursor-pointer hover:bg-white/15 transition-colors fade-up"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-full bg-white text-black shadow-lg shrink-0 flex items-center justify-center">
+              <Dumbbell size={22} />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-white/70">Dia, {todayStr}</p>
+              <h2 className="text-xl font-bold uppercase tracking-wide text-white leading-tight">TREINO DO DIA</h2>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] uppercase font-bold tracking-widest text-white/70">Dia, {todayStr}</p>
-            <h2 className="text-xl font-bold uppercase tracking-wide text-white leading-tight">TREINO DO DIA</h2>
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white">
+            COMEÇAR <ArrowRight size={14} />
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white">
-          COMEÇAR <ArrowRight size={14} />
+      ) : (
+        <div 
+          onClick={() => setScannerOpen(true)}
+          className="w-full bg-[#bd1e2d] bg-opacity-80 backdrop-blur-xl rounded-3xl p-5 mb-5 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)] cursor-pointer hover:bg-[#a01925] transition-colors fade-up relative overflow-hidden"
+        >
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-11 h-11 rounded-full bg-black/30 text-white shadow-lg shrink-0 flex items-center justify-center border border-white/20">
+              <QrCode size={22} />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-white/70">Acesso Bloqueado</p>
+              <h2 className="text-xl font-bold uppercase tracking-wide text-white leading-tight">FAZER CHECK-IN</h2>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white relative z-10">
+            LER QR CODE <ArrowRight size={14} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Card 2: EVOLUÇÃO */}
       <Link to="/aluno/evolucao" className="block relative w-full rounded-3xl overflow-hidden mb-5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white/10 backdrop-blur-xl hover:bg-white/15 transition-colors fade-up" style={{ animationDelay: '0.1s' }}>
@@ -237,6 +257,18 @@ export default function Hoje() {
         {data.todayWorkouts.length === 0 ? (
           <div className="bg-white/5 backdrop-blur-md rounded-2xl text-center py-8 text-white/50 text-sm fade-up border border-white/5">
             Nenhum treino programado para hoje. Dia de descanso! ✌️
+          </div>
+        ) : !data.hasCheckedInToday ? (
+          <div className="bg-red-900/20 backdrop-blur-md rounded-2xl text-center py-8 px-4 border border-red-500/20 fade-up flex flex-col items-center">
+            <QrCode size={40} className="text-red-400 mb-3" />
+            <p className="text-red-200 text-sm font-medium mb-1">Liberação Necessária</p>
+            <p className="text-red-200/70 text-xs">Leia o QR Code da recepção para visualizar os exercícios de hoje.</p>
+            <button 
+              onClick={() => setScannerOpen(true)}
+              className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full text-xs font-bold uppercase tracking-wider transition-colors"
+            >
+              Fazer Check-in Agora
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
