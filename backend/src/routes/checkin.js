@@ -161,4 +161,27 @@ router.get('/report', requireRole('admin', 'assessor'), async (req, res) => {
   res.json(checkins.map((c) => c.toJSON()));
 });
 
+// PUT /api/checkin/:id — Edita um check-in (Admin)
+router.put('/:id', requireRole('admin', 'assessor'), async (req, res) => {
+  const { date, time } = req.body;
+  if (!date || !time) return res.status(400).json({ error: 'Data e hora são obrigatórios' });
+
+  const checkin = await CheckIn.findById(req.params.id);
+  if (!checkin) return res.status(404).json({ error: 'Check-in não encontrado' });
+
+  checkin.date = date;
+  checkin.time = time;
+  await checkin.save();
+
+  const populated = await CheckIn.findById(checkin._id).populate('studentId', 'name email avatarUrl');
+  res.json(populated.toJSON());
+});
+
+// DELETE /api/checkin/:id — Exclui um check-in (Admin)
+router.delete('/:id', requireRole('admin', 'assessor'), async (req, res) => {
+  const checkin = await CheckIn.findByIdAndDelete(req.params.id);
+  if (!checkin) return res.status(404).json({ error: 'Check-in não encontrado' });
+  res.json({ success: true });
+});
+
 module.exports = router;

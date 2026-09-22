@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import api from '../../lib/api';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
-import { Card, PageHeader, Badge, Empty, Button, Field, Select, Th, Td } from '../../components/ui';
-import { QrCode, Camera, CameraOff, UserCheck, Filter, CalendarDays, Activity, BarChart3, Clock } from 'lucide-react';
+import { Card, PageHeader, Badge, Empty, Button, Field, Select, Th, Td, Modal, Input } from '../../components/ui';
+import { QrCode, Camera, CameraOff, UserCheck, Filter, CalendarDays, Activity, BarChart3, Clock, Pencil, Trash2 } from 'lucide-react';
 
 export default function CheckinAdmin() {
   const [alunos, setAlunos] = useState([]);
@@ -87,6 +87,37 @@ export default function CheckinAdmin() {
       loadReports();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Erro ao registrar check-in');
+    }
+  };
+
+  const [editModal, setEditModal] = useState(null);
+  const [editForm, setEditForm] = useState({ date: '', time: '' });
+
+  const openEdit = (c) => {
+    setEditModal(c);
+    setEditForm({ date: c.date, time: c.time });
+  };
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put(`/checkin/${editModal.id || editModal._id}`, editForm);
+      toast.success('Check-in atualizado!');
+      setEditModal(null);
+      loadReports();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erro ao atualizar');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir este check-in?')) return;
+    try {
+      await api.delete(`/checkin/${id}`);
+      toast.success('Check-in excluído');
+      loadReports();
+    } catch (err) {
+      toast.error('Erro ao excluir');
     }
   };
 
@@ -205,11 +236,12 @@ export default function CheckinAdmin() {
                       <Th>Data e Hora</Th>
                       <Th>Aluna</Th>
                       <Th>Método</Th>
+                      <Th className="text-right">Ações</Th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line/30">
                     {reports.map((c) => (
-                      <tr key={c.id} className="hover:bg-surface/30 transition-colors">
+                      <tr key={c.id || c._id} className="hover:bg-surface/30 transition-colors">
                         <Td>
                           <div className="flex items-center gap-2">
                             <Clock size={13} className="text-muted" />
@@ -230,6 +262,14 @@ export default function CheckinAdmin() {
                             {c.method === 'qrcode' ? 'QR Scanner' : 'Manual'}
                           </Badge>
                         </Td>
+                        <Td className="text-right flex justify-end gap-2">
+                          <button onClick={() => openEdit(c)} className="p-1.5 text-muted hover:text-white transition-colors" title="Editar Data/Hora">
+                            <Pencil size={16} />
+                          </button>
+                          <button onClick={() => handleDelete(c.id || c._id)} className="p-1.5 text-muted hover:text-accent transition-colors" title="Excluir">
+                            <Trash2 size={16} />
+                          </button>
+                        </Td>
                       </tr>
                     ))}
                   </tbody>
@@ -240,6 +280,19 @@ export default function CheckinAdmin() {
         </div>
 
       </div>
+
+      <Modal open={!!editModal} onClose={() => setEditModal(null)} title="Editar Check-in">
+        <form onSubmit={handleEdit} className="space-y-4">
+          <Field label="Data">
+            <Input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} required />
+          </Field>
+          <Field label="Hora">
+            <Input type="time" value={editForm.time} onChange={(e) => setEditForm({ ...editForm, time: e.target.value })} required />
+          </Field>
+          <Button type="submit" className="w-full">Salvar Alterações</Button>
+        </form>
+      </Modal>
+
     </div>
   );
 }
