@@ -35,8 +35,27 @@ router.post('/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-router.get('/me', requireAuth, (req, res) => {
-  res.json(req.user.toJSON());
+router.get('/me', requireAuth, async (req, res) => {
+  const userData = req.user.toJSON();
+  
+  // Check if student has overdue payments (1 day past due)
+  if (req.user.role === 'aluno') {
+    const { Payment } = require('../models');
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    
+    const overduePayment = await Payment.findOne({
+      studentId: req.user._id,
+      type: 'entrada',
+      status: { $in: ['pendente', 'atrasado'] },
+      dueDate: { $lte: yesterdayStr }
+    });
+    
+    userData.isBlocked = !!overduePayment;
+  }
+  
+  res.json(userData);
 });
 
 module.exports = router;

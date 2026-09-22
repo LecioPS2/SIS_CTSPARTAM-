@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Flame, TrendingUp, CreditCard, User, LogOut, Bell } from 'lucide-react';
+import { Flame, TrendingUp, CreditCard, User, LogOut, Bell, Lock } from 'lucide-react';
 import NotificationsPanel from '../components/NotificationsPanel';
 
 const navLeft = [
@@ -16,6 +16,42 @@ const navRight = [
 export default function StudentLayout({ children }) {
   const { user, logout } = useAuth();
   const backendUrl = process.env.NODE_ENV === 'production' ? '' : (process.env.REACT_APP_BACKEND_URL || 'http://localhost:8002');
+
+  if (user?.isBlocked) {
+    return (
+      <div className="min-h-screen relative bg-black font-sans">
+        <div 
+          className="fixed inset-0 z-[0] bg-cover bg-center bg-no-repeat blur-[10px] scale-110 opacity-90"
+          style={{ backgroundImage: 'url(/student-bg-v2.png)' }}
+        />
+        <div className="fixed inset-0 z-[1] bg-gradient-to-b from-transparent via-black/50 to-black/90 pointer-events-none" />
+        <div className="relative z-10 max-w-lg mx-auto min-h-screen flex flex-col items-center justify-center px-6">
+          <div className="bg-black/80 backdrop-blur-xl border border-red-500/30 rounded-2xl p-8 text-center shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6">
+              <Lock size={40} className="text-red-500" />
+            </div>
+            <h1 className="text-2xl font-black text-white uppercase tracking-wider mb-3">Acesso Bloqueado</h1>
+            <p className="text-white/70 text-sm leading-relaxed mb-6">
+              Sua mensalidade está <strong className="text-red-400">vencida</strong>. 
+              Para voltar a usar o app, por favor regularize seu pagamento na recepção do CT Spartan.
+            </p>
+            <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-4 mb-6">
+              <p className="text-red-300 text-xs">
+                Se você já pagou, aguarde a confirmação da academia ou entre em contato com a administração.
+              </p>
+            </div>
+            <button 
+              onClick={logout} 
+              className="w-full bg-[#bd1e2d] hover:bg-[#a01925] text-white py-3 rounded-xl font-bold uppercase tracking-wider transition-colors"
+            >
+              <LogOut size={16} className="inline mr-2" />
+              Sair do Sistema
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24 relative bg-black font-sans">
