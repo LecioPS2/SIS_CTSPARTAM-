@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import api from '../../lib/api';
 import { toast } from 'sonner';
+import { QRCodeSVG } from 'qrcode.react';
 import { Card, PageHeader, Badge, Empty, Button, Field, Select, Th, Td } from '../../components/ui';
 import { QrCode, Camera, CameraOff, UserCheck, Filter, CalendarDays, Activity, BarChart3, Clock } from 'lucide-react';
 
@@ -77,49 +78,6 @@ export default function CheckinAdmin() {
     // eslint-disable-next-line
   }, [period, studentFilter]);
 
-  useEffect(() => {
-    return () => stopScanner();
-  }, []);
-
-  const startScanner = async () => {
-    try {
-      const { Html5Qrcode } = await import('html5-qrcode');
-      const scanner = new Html5Qrcode('qr-reader');
-      html5QrRef.current = scanner;
-
-      await scanner.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        async (decodedText) => {
-          try {
-            const res = await api.post('/checkin/validate', { token: decodedText });
-            setLastResult({ success: true, name: res.data.student.name, time: res.data.checkin.time });
-            toast.success(`Check-in: ${res.data.student.name}`);
-            loadReports();
-          } catch (err) {
-            const msg = err.response?.data?.error || 'Erro ao validar';
-            const name = err.response?.data?.student?.name;
-            setLastResult({ success: false, name: name || '—', message: msg });
-            toast.error(msg);
-          }
-          stopScanner();
-          setScanning(false);
-        },
-        () => {}
-      );
-      setScanning(true);
-      setLastResult(null);
-    } catch (err) {
-      toast.error('Erro ao acessar a câmera. Verifique as permissões.');
-    }
-  };
-
-  const stopScanner = async () => {
-    if (html5QrRef.current && html5QrRef.current.isScanning) {
-      try { await html5QrRef.current.stop(); } catch (e) {}
-    }
-    setScanning(false);
-  };
 
   const handleManualCheckin = async () => {
     try {
@@ -175,49 +133,21 @@ export default function CheckinAdmin() {
         {/* Coluna Esquerda: Ações de Check-in */}
         <div className="space-y-6 lg:col-span-1 fade-up">
           {/* Scanner Card */}
-          <Card className="overflow-hidden shadow-xl" data-testid="scanner-card">
+          {/* QR Code Fixo Card */}
+          <Card className="overflow-hidden shadow-xl" data-testid="qr-fixed-card">
             <div className="flex items-center justify-between px-5 py-4 bg-surface/50 border-b border-line">
               <p className="text-xs uppercase tracking-[0.2em] text-muted font-bold flex items-center gap-2">
-                <QrCode size={14} className="text-accent" /> Leitor QR
+                <QrCode size={14} className="text-accent" /> QR Code da Recepção
               </p>
-              {!scanning ? (
-                <Button onClick={startScanner} size="sm" data-testid="start-scanner-button">
-                  <Camera size={14} className="mr-2 inline" /> Iniciar
-                </Button>
-              ) : (
-                <Button onClick={stopScanner} variant="ghost" size="sm" className="text-accent hover:text-accent/80 hover:bg-accent/10">
-                  <CameraOff size={14} className="mr-2 inline" /> Parar
-                </Button>
-              )}
             </div>
-            <div className="p-5">
-              <div
-                id="qr-reader"
-                className={`w-full overflow-hidden rounded-xl border-2 transition-all ${scanning ? 'border-accent shadow-lg shadow-accent/20 bg-black' : 'border-dashed border-line bg-surface/30'}`}
-                style={{ minHeight: scanning ? '250px' : '200px' }}
-                ref={scannerRef}
-              >
-                {!scanning && (
-                  <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-muted gap-3">
-                    <QrCode size={48} className="opacity-20" />
-                    <p className="text-sm">Clique em "Iniciar" para escanear</p>
-                  </div>
-                )}
+            <div className="p-5 flex flex-col items-center text-center">
+              <p className="text-sm text-white/70 mb-6">
+                Mostre este código para as alunas escanearem com o aplicativo e liberarem o treino do dia.
+              </p>
+              <div className="bg-white p-4 rounded-xl shadow-lg border border-white/10 mb-4 inline-block">
+                <QRCodeSVG value="CHECKIN_CTSPARTAN" size={200} level="M" />
               </div>
-
-              {lastResult && (
-                <div className={`mt-4 p-4 rounded-lg border ${lastResult.success ? 'border-ok/40 bg-ok/10' : 'border-accent/40 bg-accent/10'}`}>
-                  <div className="flex items-center gap-3">
-                    <UserCheck size={20} className={lastResult.success ? 'text-ok' : 'text-accent'} />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm truncate text-white">{lastResult.name}</p>
-                      <p className="text-xs text-muted truncate">
-                        {lastResult.success ? `Registrado às ${lastResult.time}` : lastResult.message}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <p className="text-xs font-mono text-muted mt-2 tracking-widest bg-black/50 px-3 py-1 rounded">CHECKIN_CTSPARTAN</p>
             </div>
           </Card>
 
