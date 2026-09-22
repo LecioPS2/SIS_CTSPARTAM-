@@ -14,6 +14,8 @@ export default function Financeiro() {
   const [reportModal, setReportModal] = useState(false);
   const [form, setForm] = useState(empty);
   const [filter, setFilter] = useState('mes_atual');
+  const [studentSearch, setStudentSearch] = useState('');
+  const [showStudentList, setShowStudentList] = useState(false);
 
   const load = () => {
     api.get('/payments').then((r) => setPayments(r.data)).catch(console.error);
@@ -183,7 +185,7 @@ export default function Financeiro() {
               <FileText size={15} className="inline mr-2" />
               Gerar Relatório
             </Button>
-            <Button onClick={() => { setForm(empty); setModal(true); }}>
+            <Button onClick={() => { setForm(empty); setStudentSearch(''); setShowStudentList(false); setModal(true); }}>
               <Plus size={15} className="inline mr-2" />
               Novo Lançamento
             </Button>
@@ -307,10 +309,40 @@ export default function Financeiro() {
           {form.type === 'entrada' ? (
             <>
               <Field label="Aluna">
-                <Select value={form.studentId} onChange={set('studentId')} required>
-                  <option value="">Selecione...</option>
-                  {alunos.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </Select>
+                <div className="relative">
+                  <Input 
+                    value={studentSearch} 
+                    onChange={(e) => { setStudentSearch(e.target.value); setShowStudentList(true); }}
+                    onFocus={() => setShowStudentList(true)}
+                    placeholder="Digite o nome da aluna..."
+                    autoComplete="off"
+                  />
+                  {form.studentId && !showStudentList && (
+                    <button type="button" onClick={() => { set('studentId')({ target: { value: '' } }); setStudentSearch(''); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-white text-xs">✕</button>
+                  )}
+                  {showStudentList && (
+                    <div className="absolute z-50 w-full mt-1 bg-card border border-line rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                      {alunos.filter(a => a.name.toLowerCase().includes(studentSearch.toLowerCase())).length === 0 ? (
+                        <div className="p-3 text-muted text-sm">Nenhuma aluna encontrada</div>
+                      ) : (
+                        alunos.filter(a => a.name.toLowerCase().includes(studentSearch.toLowerCase())).map((a) => (
+                          <button
+                            key={a.id}
+                            type="button"
+                            onClick={() => { 
+                              set('studentId')({ target: { value: a.id } }); 
+                              setStudentSearch(a.name); 
+                              setShowStudentList(false); 
+                            }}
+                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-accent/20 transition-colors border-b border-line/30 last:border-0 ${form.studentId === a.id ? 'bg-accent/10 text-accent' : 'text-white'}`}
+                          >
+                            {a.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </Field>
               <Field label="Plano Vinculado (Opcional)">
                 <Select value={form.planId} onChange={set('planId')}>
