@@ -67,15 +67,27 @@ export function Card({ children, className = '', ...props }) {
 }
 
 export function StatCard({ label, value, icon: Icon, accent = false, testId }) {
+  let colorClass = 'border-l-blue-500 from-blue-500/10 to-transparent';
+  let iconClass = 'text-blue-500/50';
+
+  if (accent) { // Receita
+    colorClass = 'border-l-ok from-ok/10 to-transparent';
+    iconClass = 'text-ok/50';
+  } else if (label.includes('Pendências')) {
+    colorClass = 'border-l-accent from-accent/10 to-transparent';
+    iconClass = 'text-accent/50';
+  } else if (label.includes('Personais')) {
+    colorClass = 'border-l-purple-500 from-purple-500/10 to-transparent';
+    iconClass = 'text-purple-500/50';
+  }
+
   return (
-    <Card className="p-5 fade-up" data-testid={testId}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted mb-2">{label}</p>
-          <p className={`font-display text-4xl leading-none ${accent ? 'text-accent' : 'text-white'}`}>{value}</p>
-        </div>
-        {Icon && <Icon size={20} className="text-muted" aria-hidden="true" />}
+    <Card className={`p-5 fade-up flex items-center justify-between border-l-4 bg-gradient-to-r ${colorClass}`} data-testid={testId}>
+      <div>
+        <p className="text-xs uppercase tracking-widest text-muted font-semibold mb-1">{label}</p>
+        <p className="font-display text-4xl text-white">{value}</p>
       </div>
+      {Icon && <Icon size={32} className={iconClass} aria-hidden="true" />}
     </Card>
   );
 }
