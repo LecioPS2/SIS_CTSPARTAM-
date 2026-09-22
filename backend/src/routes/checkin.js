@@ -111,7 +111,7 @@ router.post('/scan', requireRole('aluno'), async (req, res) => {
     studentId,
     date: today,
     time,
-    method: 'qrcode_student',
+    method: 'qrcode',
   });
 
   res.status(201).json({
