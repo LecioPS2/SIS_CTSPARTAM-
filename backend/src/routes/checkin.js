@@ -91,7 +91,8 @@ router.post('/manual', requireRole('admin', 'assessor'), async (req, res) => {
 // POST /api/checkin/scan — Aluna scaneia o QR da portaria
 router.post('/scan', requireRole('aluno'), async (req, res) => {
   const { qrCode } = req.body;
-  if (!qrCode || qrCode !== 'CHECKIN_CTSPARTAN') {
+  const cleanCode = (qrCode || '').toString().trim().toUpperCase();
+  if (!cleanCode || !cleanCode.includes('CHECKIN_CTSPARTAN')) {
     return res.status(400).json({ error: 'QR Code inválido da portaria' });
   }
 
