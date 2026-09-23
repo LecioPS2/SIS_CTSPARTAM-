@@ -3,6 +3,7 @@ import api from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Field, Card, Modal, PageHeader, Badge, Empty, Th, Td } from '../../components/ui';
 import { Megaphone, Plus, Trash2, Users } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 
 export default function Avisos() {
   const [notices, setNotices] = useState([]);
@@ -48,6 +49,14 @@ export default function Avisos() {
     return r;
   };
 
+  const { searchTerm } = useSearch();
+
+  const filteredNotices = notices.filter((n) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return n.title?.toLowerCase().includes(term) || n.message?.toLowerCase().includes(term);
+  });
+
   return (
     <div className="space-y-6 fade-up">
       <PageHeader 
@@ -58,7 +67,7 @@ export default function Avisos() {
 
       <Card className="overflow-hidden">
         <div className="flex-1 overflow-x-auto min-h-[300px]">
-          {notices.length === 0 ? (
+          {filteredNotices.length === 0 ? (
             <div className="flex items-center justify-center h-full min-h-[300px]">
               <Empty title="Nenhum aviso" subtitle="Os comunicados criados aparecerão aqui." />
             </div>
@@ -73,7 +82,7 @@ export default function Avisos() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-line/30">
-                {notices.map(n => (
+                {filteredNotices.map(n => (
                   <tr key={n.id} className="hover:bg-surface/30 transition-colors">
                     <Td>
                       <div className="flex items-center gap-3">

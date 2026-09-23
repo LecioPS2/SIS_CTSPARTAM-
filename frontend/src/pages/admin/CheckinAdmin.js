@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import { Card, PageHeader, Badge, Empty, Button, Field, Select, Th, Td, Modal, Input } from '../../components/ui';
 import { QrCode, Camera, CameraOff, UserCheck, Filter, CalendarDays, Activity, BarChart3, Clock, Pencil, Trash2 } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 
 export default function CheckinAdmin() {
   const [alunos, setAlunos] = useState([]);
@@ -18,6 +19,13 @@ export default function CheckinAdmin() {
   
   // KPIs globais
   const [kpis, setKpis] = useState({ hoje: 0, semana: 0, mes: 0 });
+
+  const { searchTerm } = useSearch();
+
+  const filteredReports = reports.filter((c) => {
+    if (!searchTerm) return true;
+    return c.studentId?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const scannerRef = useRef(null);
   const html5QrRef = useRef(null);
@@ -225,7 +233,7 @@ export default function CheckinAdmin() {
             </div>
 
             <div className="flex-1 overflow-x-auto min-h-[400px]">
-              {reports.length === 0 ? (
+              {filteredReports.length === 0 ? (
                 <div className="flex items-center justify-center h-full min-h-[300px]">
                   <Empty title="Nenhum acesso" subtitle="Não há check-ins registrados para este filtro." />
                 </div>
@@ -240,7 +248,7 @@ export default function CheckinAdmin() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line/30">
-                    {reports.map((c) => (
+                    {filteredReports.map((c) => (
                       <tr key={c.id || c._id} className="hover:bg-surface/30 transition-colors">
                         <Td>
                           <div className="flex items-center gap-2">

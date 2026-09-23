@@ -3,6 +3,7 @@ import api, { brl, fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty, StatCard } from '../../components/ui';
 import { Plus, CheckCircle2, Trash2, Download, AlertCircle, CheckCircle, Clock, Printer, FileText, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 
 const empty = { type: 'entrada', description: '', studentId: '', planId: '', amount: '', dueDate: '', status: 'pendente', method: '' };
 
@@ -156,6 +157,7 @@ export default function Financeiro() {
   const totalSaidas = payments.filter(p => p.type === 'saida' && p.status === 'pago').reduce((a, p) => a + p.amount, 0);
   const saldoLiquido = totalEntradas - totalSaidas;
   const totalInadimplente = payments.filter(p => p.type === 'entrada' && p.status === 'atrasado').reduce((a, p) => a + p.amount, 0);
+  const { searchTerm } = useSearch();
 
   const filteredPayments = payments.filter((p) => {
     if (filter === 'todos') return true;
@@ -172,6 +174,12 @@ export default function Financeiro() {
     }
     if (filter === 'inadimplentes') return p.status === 'atrasado';
     return true;
+  }).filter((p) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    const nameMatch = p.studentId?.name?.toLowerCase().includes(term);
+    const descMatch = p.description?.toLowerCase().includes(term);
+    return nameMatch || descMatch;
   });
 
   return (

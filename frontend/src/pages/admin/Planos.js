@@ -3,6 +3,7 @@ import api, { brl } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Field, Card, Modal, PageHeader, Empty } from '../../components/ui';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useSearch } from '../../context/SearchContext';
 
 const empty = { name: '', price: '', durationDays: 30, daysPerWeek: 7, description: '' };
 
@@ -43,6 +44,13 @@ export default function Planos() {
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
+  const { searchTerm } = useSearch();
+
+  const filteredPlans = plans.filter((p) => {
+    if (!searchTerm) return true;
+    return p.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div data-testid="admin-planos-page">
       <PageHeader
@@ -50,11 +58,11 @@ export default function Planos() {
         subtitle="Planos e mensalidades da academia"
         action={<Button onClick={() => open(null)} data-testid="add-plano-button"><Plus size={14} className="inline mr-1" />Novo Plano</Button>}
       />
-      {plans.length === 0 ? (
+      {filteredPlans.length === 0 ? (
         <Empty text="Nenhum plano cadastrado ainda" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {plans.map((p) => (
+          {filteredPlans.map((p) => (
             <Card key={p.id} className="p-5 fade-up hover:-translate-y-1 transition-transform duration-200" data-testid={`plano-card-${p.id}`}>
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-display text-2xl uppercase tracking-tight">{p.name}</h3>
