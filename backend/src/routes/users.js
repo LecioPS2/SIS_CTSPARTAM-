@@ -95,7 +95,7 @@ router.get('/classes', requireRole('admin', 'personal', 'assessor'), async (req,
 });
 
 router.post('/', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
-  const { name, email, password, role, phone, personalId, planId, birthDate, timeSlot, paymentDueDate } = req.body;
+  const { name, email, password, role, phone, personalId, planId, birthDate, timeSlot, paymentDueDate, planDuration } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'Nome, email e senha são obrigatórios' });
   const newRole = (req.user.role === 'personal' || req.user.role === 'assessor') ? 'aluno' : role || 'aluno';
   if (await User.findOne({ email: email.toLowerCase().trim() })) return res.status(400).json({ error: 'Email já cadastrado' });
@@ -118,6 +118,7 @@ router.post('/', requireRole('admin', 'personal', 'assessor'), async (req, res) 
     birthDate,
     timeSlot: timeSlot || null,
     paymentDueDate,
+    planDuration,
     ...anamnesis,
   });
   res.status(201).json(user.toJSON());
@@ -132,7 +133,7 @@ router.put('/:id', requireRole('admin', 'personal', 'assessor'), async (req, res
   if (req.user.role === 'assessor' && user.role !== 'aluno') {
     return res.status(403).json({ error: 'Assessores só podem editar alunas' });
   }
-  const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot, paymentDueDate } = req.body;
+  const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot, paymentDueDate, planDuration } = req.body;
   
   if (timeSlot !== undefined && timeSlot !== user.timeSlot && user.role === 'aluno') {
     if (timeSlot) {
@@ -148,6 +149,7 @@ router.put('/:id', requireRole('admin', 'personal', 'assessor'), async (req, res
   if (birthDate !== undefined) user.birthDate = birthDate;
   ANAMNESIS_FIELDS.forEach((f) => { if (req.body[f] !== undefined) user[f] = req.body[f]; });
   if (paymentDueDate !== undefined) user.paymentDueDate = paymentDueDate;
+  if (planDuration !== undefined) user.planDuration = planDuration;
   if (req.user.role === 'admin' || req.user.role === 'assessor') {
     if (personalId !== undefined) user.personalId = personalId || null;
     if (planId !== undefined) user.planId = planId || null;

@@ -23,6 +23,7 @@ const userSchema = new Schema({
   anamnesisNotes: String,
   timeSlot: String, //
   paymentDueDate: String,
+  planDuration: String,
 }, opts);
 
 const planSchema = new Schema({

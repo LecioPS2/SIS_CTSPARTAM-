@@ -5,8 +5,7 @@ import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader
 import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck } from 'lucide-react';
 import EvolutionCompare from '../../components/EvolutionCompare';
 import { useSearch } from '../../context/SearchContext';
-
-const empty = { paymentDueDate: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
+const empty = { paymentDueDate: '', planDuration: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
 const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
 
 export default function Alunos() {
@@ -38,7 +37,8 @@ export default function Alunos() {
     setEditing(a || null);
     setForm(a ? {
       name: a.name, email: a.email, password: '', phone: a.phone || '', birthDate: a.birthDate || '',
-      personalId: a.personalId?.id || a.personalId || '', planId: a.planId?.id || a.planId || '', paymentDueDate: a.paymentDueDate || '',
+      personalId: a.personalId?.id || a.personalId || '', planId: a.planId?.id || a.planId || '', 
+      paymentDueDate: a.paymentDueDate || '', planDuration: a.planDuration || '',
       timeSlot: a.timeSlot || '',
       goal: a.goal || '', healthConditions: a.healthConditions || '', medications: a.medications || '',
       injuries: a.injuries || '', experienceLevel: a.experienceLevel || '', trainingFrequency: a.trainingFrequency || '',
@@ -227,7 +227,7 @@ export default function Alunos() {
                 <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} className="w-full" /></Field>
                 <Field label={editing ? 'Nova senha (opcional)' : 'Senha'}><Input type="password" value={form.password} onChange={set('password')} required={!editing} /></Field>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-line/30 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 pt-4 border-t border-line/30 mt-2">
                 <Field label="Turma / Horário">
                   <Select value={form.timeSlot} onChange={set('timeSlot')}>
                     <option value="">Sem horário fixo</option>
@@ -248,6 +248,15 @@ export default function Alunos() {
                   <Select value={form.planId} onChange={set('planId')}>
                     <option value="">Sem plano</option>
                     {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </Select>
+                </Field>
+                <Field label="Período do Plano">
+                  <Select value={form.planDuration} onChange={set('planDuration')}>
+                    <option value="">Nenhum</option>
+                    <option value="1 Mês">1 Mês</option>
+                    <option value="3 Meses (Trimestral)">3 Meses (Trimestral)</option>
+                    <option value="6 Meses (Semestral)">6 Meses (Semestral)</option>
+                    <option value="12 Meses (Anual)">12 Meses (Anual)</option>
                   </Select>
                 </Field>
                 <Field label="Dia do Venc.">
@@ -360,7 +369,8 @@ export default function Alunos() {
                 nas modalidades oferecidas no espaço físico da academia CT SPARTAN.</p>
 
                 <p><strong>2. DO PLANO E PAGAMENTO:</strong> A CONTRATANTE opta pelo plano 
-                <strong> {contractStudent.planId?.name || 'N/A'}</strong>, 
+                <strong> {contractStudent.planId?.name || 'N/A'}</strong> 
+                {contractStudent.planDuration ? <span> pelo período de <strong>{contractStudent.planDuration}</strong></span> : ''}, 
                 obrigando-se a realizar o pagamento das mensalidades nas datas de vencimento acordadas.</p>
 
                 <p><strong>3. DAS NORMAS DE USO:</strong> A CONTRATANTE compromete-se a respeitar as normas de convivência 
@@ -414,7 +424,7 @@ export default function Alunos() {
                   celebram o presente Contrato de Prestação de Serviços Esportivos.
                 </p>
                 <p><strong>1. DO OBJETO:</strong> A CONTRATADA prestará à CONTRATANTE serviços de condicionamento físico nas modalidades oferecidas no espaço físico da academia CT SPARTAN.</p>
-                <p><strong>2. DO PLANO E PAGAMENTO:</strong> A CONTRATANTE opta pelo plano <strong> {contractStudent.planId?.name || 'N/A'}</strong>, obrigando-se a realizar o pagamento das mensalidades nas datas de vencimento acordadas.</p>
+                <p><strong>2. DO PLANO E PAGAMENTO:</strong> A CONTRATANTE opta pelo plano <strong> {contractStudent.planId?.name || 'N/A'}</strong>{contractStudent.planDuration ? <span> pelo período de <strong>{contractStudent.planDuration}</strong></span> : ''}, obrigando-se a realizar o pagamento das mensalidades nas datas de vencimento acordadas.</p>
                 <p><strong>3. DAS NORMAS DE USO:</strong> A CONTRATANTE compromete-se a respeitar as normas de convivência e segurança da academia, zelando pelos equipamentos e pelo espaço comum, exclusivo para mulheres.</p>
                 <p><strong>4. DA SAÚDE:</strong> A CONTRATANTE declara-se em plenas condições de saúde para a prática de atividades físicas, isentando a CONTRATADA de responsabilidades decorrentes de problemas médicos não informados previamente.</p>
                 <p className="pt-12 text-center text-sm text-gray-500">Por estarem de acordo, firmam o presente contrato.</p>
