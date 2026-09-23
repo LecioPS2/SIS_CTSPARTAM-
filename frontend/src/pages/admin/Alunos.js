@@ -219,15 +219,15 @@ export default function Alunos() {
           
           {/* PASSO 1: DADOS BÁSICOS */}
           {step === 1 && (
-            <div className="space-y-4 fade-up">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6 fade-up">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Field label="Nome"><Input value={form.name} onChange={set('name')} required autoFocus /></Field>
                 <Field label="Email"><Input type="email" value={form.email} onChange={set('email')} required /></Field>
-                <Field label={editing ? 'Nova senha (opcional)' : 'Senha'}><Input type="password" value={form.password} onChange={set('password')} required={!editing} /></Field>
                 <Field label="Telefone"><Input value={form.phone} onChange={set('phone')} /></Field>
-                <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} /></Field>
+                <Field label="Data de nascimento"><Input type="date" value={form.birthDate} onChange={set('birthDate')} className="w-full" /></Field>
+                <Field label={editing ? 'Nova senha (opcional)' : 'Senha'}><Input type="password" value={form.password} onChange={set('password')} required={!editing} /></Field>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2 border-t border-line mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-line/30 mt-2">
                 <Field label="Turma / Horário">
                   <Select value={form.timeSlot} onChange={set('timeSlot')}>
                     <option value="">Sem horário fixo</option>
