@@ -14,8 +14,10 @@ router.get('/admin', requireRole('admin', 'assessor'), async (req, res) => {
   ]);
   const paid = payments.filter((p) => p.status === 'pago');
   const monthRevenue = paid.filter((p) => p.paidAt && p.paidAt >= monthStart).reduce((s, p) => s + p.amount, 0);
-  const pendingCount = payments.filter((p) => p.status !== 'pago').length;
-  const pendingAmount = payments.filter((p) => p.status !== 'pago').reduce((s, p) => s + p.amount, 0);
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentMonthPending = payments.filter((p) => p.status !== 'pago' && p.dueDate && p.dueDate.startsWith(currentMonthStr));
+  const pendingCount = currentMonthPending.length;
+  const pendingAmount = currentMonthPending.reduce((s, p) => s + p.amount, 0);
 
   const months = [];
   for (let i = 5; i >= 0; i--) {
@@ -25,7 +27,11 @@ router.get('/admin', requireRole('admin', 'assessor'), async (req, res) => {
     const total = paid.filter((p) => p.paidAt && p.paidAt.startsWith(key)).reduce((s, p) => s + p.amount, 0);
     months.push({ month: label, receita: total });
   }
-  const recent = await Payment.find({}).populate('studentId', 'name').sort({ createdAt: -1 }).limit(5);
+  const allRecent = await Payment.find({}).populate('studentId', 'name').sort({ createdAt: -1 }).limit(50);
+  const recent = allRecent.filter(p => {
+    if (p.status === 'pago') return true;
+    return p.dueDate && p.dueDate <= `${currentMonthStr}-31`;
+  }).slice(0, 5);
   res.json({ totalAlunos, totalPersonais, monthRevenue, pendingCount, pendingAmount, revenueChart: months, recentPayments: recent.map((p) => p.toJSON()) });
 });
 
