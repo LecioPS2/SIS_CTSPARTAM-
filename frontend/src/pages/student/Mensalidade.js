@@ -20,7 +20,26 @@ export default function Mensalidade() {
   if (!data) return <p className="text-muted">Carregando...</p>;
 
   const statusTone = { pago: 'ok', pendente: 'warn', atrasado: 'danger' };
-  const current = data.payments[0];
+  
+  const todayDate = new Date();
+  const currentYear = todayDate.getFullYear();
+  const currentMonth = todayDate.getMonth();
+
+  const filteredPayments = data.payments.filter(p => {
+    if (p.status === 'pago') return true;
+    if (!p.dueDate) return true;
+    const [y, m] = p.dueDate.split('-');
+    const dueYear = parseInt(y, 10);
+    const dueMonth = parseInt(m, 10) - 1;
+    if (dueYear < currentYear) return true;
+    if (dueYear === currentYear && dueMonth <= currentMonth) return true;
+    return false;
+  });
+
+  const pendingPayments = filteredPayments.filter(p => p.status !== 'pago');
+  const current = pendingPayments.length > 0 
+    ? pendingPayments[pendingPayments.length - 1] 
+    : filteredPayments[0];
 
   const handleCopy = () => {
     if (!pixData?.qr_code) return;
@@ -109,11 +128,11 @@ export default function Mensalidade() {
       )}
 
       <p className="text-xs uppercase tracking-[0.2em] text-muted mb-3">Histórico</p>
-      {data.payments.length === 0 ? (
+      {filteredPayments.length === 0 ? (
         <Empty text="Nenhum pagamento registrado" />
       ) : (
         <div className="space-y-2">
-          {data.payments.map((p) => (
+          {filteredPayments.map((p) => (
             <Card key={p.id} className="p-4 flex items-center justify-between" data-testid={`pagamento-item-${p.id}`}>
               <div>
                 <p className="text-sm font-medium">{brl(p.amount)}</p>
