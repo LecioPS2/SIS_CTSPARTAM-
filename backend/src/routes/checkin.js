@@ -124,7 +124,7 @@ router.post('/scan', requireRole('aluno'), async (req, res) => {
 router.get('/today', requireRole('admin', 'assessor'), async (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const checkins = await CheckIn.find({ date: today })
-    .populate('studentId', 'name avatarUrl')
+    .populate('studentId', 'name avatarUrl timeSlot')
     .sort({ time: -1 });
   res.json(checkins.map((c) => c.toJSON()));
 });
@@ -155,7 +155,7 @@ router.get('/report', requireRole('admin', 'assessor'), async (req, res) => {
   }
 
   const checkins = await CheckIn.find(filter)
-    .populate('studentId', 'name email avatarUrl')
+    .populate('studentId', 'name email avatarUrl timeSlot')
     .sort({ date: -1, time: -1 });
     
   res.json(checkins.map((c) => c.toJSON()));
@@ -173,7 +173,7 @@ router.put('/:id', requireRole('admin', 'assessor'), async (req, res) => {
   checkin.time = time;
   await checkin.save();
 
-  const populated = await CheckIn.findById(checkin._id).populate('studentId', 'name email avatarUrl');
+  const populated = await CheckIn.findById(checkin._id).populate('studentId', 'name email avatarUrl timeSlot');
   res.json(populated.toJSON());
 });
 

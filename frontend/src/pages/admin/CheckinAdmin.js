@@ -262,7 +262,10 @@ export default function CheckinAdmin() {
                             <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/20 flex items-center justify-center text-[10px] font-bold text-accent shrink-0">
                               {(c.studentId?.name || '?')[0]}
                             </div>
-                            <span className="text-sm font-medium text-white/90 truncate">{c.studentId?.name || '—'}</span>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-white/90 truncate">{c.studentId?.name || '—'}</span>
+                              {c.studentId?.timeSlot && <span className="text-[10px] uppercase tracking-wider text-muted">Turma {c.studentId.timeSlot}</span>}
+                            </div>
                           </div>
                         </Td>
                         <Td>
