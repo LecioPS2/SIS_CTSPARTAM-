@@ -159,13 +159,17 @@ export default function Financeiro() {
 
   const filteredPayments = payments.filter((p) => {
     if (filter === 'todos') return true;
+    
+    const today = new Date();
+    const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
     if (filter === 'mes_atual') {
-      const today = new Date();
-      const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
       return p.dueDate && p.dueDate.startsWith(currentMonthStr);
     }
     if (filter === 'pagos') return p.status === 'pago';
-    if (filter === 'pendentes') return p.status === 'pendente';
+    if (filter === 'pendentes') {
+      return p.status === 'pendente' && p.dueDate && p.dueDate.startsWith(currentMonthStr);
+    }
     if (filter === 'inadimplentes') return p.status === 'atrasado';
     return true;
   });
@@ -204,11 +208,14 @@ export default function Financeiro() {
         <div className="flex gap-4 p-4 border-b border-line overflow-x-auto">
           {['todos', 'mes_atual', 'pagos', 'pendentes', 'inadimplentes'].map((f) => {
             let count = 0;
+            const today = new Date();
+            const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            
             if (f === 'todos') count = payments.length;
             else if (f === 'mes_atual') {
-              const today = new Date();
-              const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
               count = payments.filter(p => p.dueDate && p.dueDate.startsWith(currentMonthStr)).length;
+            } else if (f === 'pendentes') {
+              count = payments.filter(p => p.status === 'pendente' && p.dueDate && p.dueDate.startsWith(currentMonthStr)).length;
             } else {
               count = payments.filter(p => p.status === (f === 'inadimplentes' ? 'atrasado' : f.slice(0,-1))).length;
             }
