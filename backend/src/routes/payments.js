@@ -31,9 +31,9 @@ router.post('/', requireRole('admin'), async (req, res) => {
 });
 
 router.put('/:id', requireRole('admin'), async (req, res) => {
-  const { planId, amount, dueDate, status, method, reference, paidAt, type, description } = req.body;
+  const { studentId, planId, amount, dueDate, status, method, reference, paidAt, type, description } = req.body;
   const update = {};
-  [['planId', planId], ['amount', amount], ['dueDate', dueDate], ['status', status], ['method', method], ['reference', reference], ['paidAt', paidAt], ['type', type], ['description', description]].forEach(([k, v]) => { if (v !== undefined) update[k] = v; });
+  [['studentId', studentId], ['planId', planId], ['amount', amount], ['dueDate', dueDate], ['status', status], ['method', method], ['reference', reference], ['paidAt', paidAt], ['type', type], ['description', description]].forEach(([k, v]) => { if (v !== undefined) update[k] = v; });
   if (update.status === 'pago' && !update.paidAt) update.paidAt = new Date().toISOString().slice(0, 10);
   if (update.status && update.status !== 'pago') update.paidAt = null;
   const payment = await Payment.findByIdAndUpdate(req.params.id, update, { new: true });

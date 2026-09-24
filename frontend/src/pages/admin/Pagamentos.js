@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api, { brl, fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty, StatCard } from '../../components/ui';
-import { Plus, CheckCircle2, Trash2, Download, AlertCircle, CheckCircle, Clock, Printer, FileText, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
+import { Plus, Pencil, CheckCircle2, Trash2, Download, AlertCircle, CheckCircle, Clock, Printer, FileText, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
 import { useSearch } from '../../context/SearchContext';
 
 const empty = { type: 'entrada', description: '', studentId: '', planId: '', amount: '', dueDate: '', status: 'pendente', method: '' };
@@ -12,6 +12,7 @@ export default function Financeiro() {
   const [alunos, setAlunos] = useState([]);
   const [plans, setPlans] = useState([]);
   const [modal, setModal] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [reportModal, setReportModal] = useState(false);
   const [form, setForm] = useState(empty);
   const [filter, setFilter] = useState('mes_atual');
@@ -58,9 +59,13 @@ export default function Financeiro() {
           studentId: form.type === 'entrada' && form.studentId ? form.studentId : null,
           description: form.type === 'saida' ? form.description : null
         };
-        await api.post('/payments', payload);
+        if (editing) {
+          await api.put(`/payments/${editing.id}`, payload);
+        } else {
+          await api.post('/payments', payload);
+        }
       }
-      toast.success('Lançamento salvo');
+      toast.success(editing ? 'Lançamento atualizado' : 'Lançamento salvo');
       setModal(false);
       setForm(empty);
       load();
@@ -80,6 +85,17 @@ export default function Financeiro() {
     await api.delete(`/payments/${id}`);
     toast.success('Lançamento excluído');
     load();
+  };
+
+  const openEdit = (p) => {
+    setEditing(p);
+    setForm({
+      ...p,
+      studentId: p.studentId?.id || p.studentId || '',
+      planId: p.planId?.id || p.planId || '',
+      installments: 1
+    });
+    setModal(true);
   };
 
   const set = (k) => (e) => {
@@ -197,7 +213,7 @@ export default function Financeiro() {
               <FileText size={15} className="inline mr-2" />
               Gerar Relatório
             </Button>
-            <Button onClick={() => { setForm(empty); setStudentSearch(''); setShowStudentList(false); setModal(true); }}>
+            <Button onClick={() => { setEditing(null); setForm(empty); setStudentSearch(''); setShowStudentList(false); setModal(true); }}>
               <Plus size={15} className="inline mr-2" />
               Novo Lançamento
             </Button>
@@ -297,6 +313,9 @@ export default function Financeiro() {
                             <CheckCircle2 size={16} />
                           </button>
                         )}
+                        <button onClick={() => openEdit(p)} className="p-2 text-muted hover:text-white hover:bg-surface rounded-lg transition-colors" title="Editar">
+                          <Pencil size={16} />
+                        </button>
                         <button onClick={() => remove(p.id)} className="p-2 text-muted hover:text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Excluir">
                           <Trash2 size={16} />
                         </button>
@@ -310,7 +329,7 @@ export default function Financeiro() {
         </div>
       </Card>
 
-      <Modal open={modal} onClose={() => setModal(false)} title="Novo Lançamento">
+      <Modal open={modal} onClose={() => { setModal(false); setEditing(null); }} title={editing ? "Editar Lançamento" : "Novo Lançamento"}>
         <form onSubmit={save} className="space-y-4">
           <div className="flex bg-surface p-1 rounded-lg gap-1 mb-4">
             <button type="button" onClick={() => setForm({ ...empty, type: 'entrada' })} className={`flex-1 py-2 text-sm font-bold uppercase tracking-wider rounded-md transition-colors ${form.type === 'entrada' ? 'bg-ok text-white shadow' : 'text-muted hover:text-white'}`}>
@@ -382,7 +401,7 @@ export default function Financeiro() {
           </div>
           {form.type === 'entrada' && (
             <Field label="Gerar Parcelas / Meses (Recorrência)">
-              <Select value={form.installments} onChange={set('installments')}>
+              <Select value={form.installments} onChange={set('installments')} disabled={!!editing}>
                 <option value="1">1 (Cobrança Única)</option>
                 <option value="2">2 meses</option>
                 <option value="3">3 meses</option>
