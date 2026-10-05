@@ -5,7 +5,7 @@ import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader
 import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck } from 'lucide-react';
 import EvolutionCompare from '../../components/EvolutionCompare';
 import { useSearch } from '../../context/SearchContext';
-const empty = { paymentDueDate: '', planDuration: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '' };
+const empty = { paymentDueDate: '', planDuration: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '', generatePayments: true };
 const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
 
 export default function Alunos() {
@@ -43,6 +43,7 @@ export default function Alunos() {
       goal: a.goal || '', healthConditions: a.healthConditions || '', medications: a.medications || '',
       injuries: a.injuries || '', experienceLevel: a.experienceLevel || '', trainingFrequency: a.trainingFrequency || '',
       anamnesisNotes: a.anamnesisNotes || '',
+      generatePayments: false
     } : empty);
     setStep(1);
     setModal(true);
@@ -53,17 +54,53 @@ export default function Alunos() {
     const payload = { ...form, role: 'aluno', personalId: form.personalId || null, planId: form.planId || null, timeSlot: form.timeSlot || null };
     if (!payload.password) delete payload.password;
     try {
+      let studentId = editing?.id;
       if (editing) {
         await api.put(`/users/${editing.id}`, payload);
         toast.success('Aluna atualizada');
       } else {
         const r = await api.post('/users', payload);
+        studentId = r.data.id;
         toast.success('Aluna cadastrada');
         setContractStudent({
           ...r.data,
           planId: plans.find(p => p.id === payload.planId) || null
         });
         setContractModal(true);
+      }
+
+      if (form.generatePayments && form.planId && form.planDuration && form.paymentDueDate) {
+        const match = form.planDuration.match(/(\d+)/);
+        const months = match ? parseInt(match[1]) : 0;
+        const plan = plans.find(p => p.id === form.planId);
+        if (months > 0 && plan) {
+          const promises = [];
+          const today = new Date();
+          const currentYear = today.getFullYear();
+          const currentMonth = today.getMonth();
+          const dueDay = parseInt(form.paymentDueDate);
+          
+          for (let i = 0; i < months; i++) {
+            const mDate = new Date(currentYear, currentMonth + i, dueDay);
+            // Se o dia de vencimento já passou neste mês, joga a primeira cobrança pro mês que vem?
+            // Vamos apenas gerar a partir do mês atual:
+            const yyyy = mDate.getFullYear();
+            const mm = String(mDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(mDate.getDate()).padStart(2, '0');
+            
+            promises.push(api.post('/payments', {
+              type: 'entrada',
+              studentId,
+              planId: plan.id,
+              amount: plan.price,
+              dueDate: `${yyyy}-${mm}-${dd}`,
+              status: 'pendente',
+              description: `Mensalidade ${plan.name} (${i+1}/${months})`
+            }));
+          }
+          await Promise.all(promises);
+          toast.success(`${months} cobrança(s) gerada(s) no financeiro`);
+        }
       }
       setModal(false);
       load();
@@ -267,6 +304,20 @@ export default function Alunos() {
                     ))}
                   </Select>
                 </Field>
+              </div>
+              <div className="pt-2">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input 
+                    type="checkbox" 
+                    checked={form.generatePayments} 
+                    onChange={(e) => setForm({ ...form, generatePayments: e.target.checked })} 
+                    className="accent-accent w-4 h-4"
+                  />
+                  <span>Gerar cobranças automaticamente no Financeiro</span>
+                </label>
+                <p className="text-xs text-muted ml-6 mt-1">
+                  Se marcado, as parcelas serão geradas automaticamente na aba Financeiro com base no plano, período e dia de vencimento escolhidos.
+                </p>
               </div>
             </div>
           )}
