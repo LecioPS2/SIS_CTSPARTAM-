@@ -192,7 +192,7 @@ export default function Alunos() {
         )}
       </Card>
 
-      <Modal open={modal} onClose={() => { setModal(false); setStep(1); }} title={editing ? 'Editar Aluna' : 'Nova Aluna'} wide>
+      <Modal open={modal} onClose={() => { setModal(false); setStep(1); }} title={editing ? 'Editar Aluna' : 'Nova Aluna'} wide disableOutsideClick>
         
         {/* Indicador de Passos */}
         <div className="flex justify-between items-center mb-8 relative px-4">

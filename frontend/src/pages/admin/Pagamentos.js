@@ -329,7 +329,7 @@ export default function Financeiro() {
         </div>
       </Card>
 
-      <Modal open={modal} onClose={() => { setModal(false); setEditing(null); }} title={editing ? "Editar Lançamento" : "Novo Lançamento"}>
+      <Modal open={modal} onClose={() => { setModal(false); setEditing(null); }} title={editing ? "Editar Lançamento" : "Novo Lançamento"} disableOutsideClick>
         <form onSubmit={save} className="space-y-4">
           <div className="flex bg-surface p-1 rounded-lg gap-1 mb-4">
             <button type="button" onClick={() => setForm({ ...empty, type: 'entrada' })} className={`flex-1 py-2 text-sm font-bold uppercase tracking-wider rounded-md transition-colors ${form.type === 'entrada' ? 'bg-ok text-white shadow' : 'text-muted hover:text-white'}`}>

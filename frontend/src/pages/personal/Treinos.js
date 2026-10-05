@@ -45,8 +45,8 @@ export default function Treinos() {
 
   const addExercise = () => {
     if (activeDay === null) { toast.error('Selecione um dia da semana primeiro'); return; }
-    const ex = catalog.find((e) => e.id === pickExercise);
-    if (!ex) return;
+    const ex = catalog.find((e) => `${e.name} (${e.muscleGroup})` === pickExercise);
+    if (!ex) { toast.error('Exercício não encontrado no catálogo'); return; }
     setForm((f) => ({
       ...f,
       exercises: [...f.exercises, { day: activeDay, exerciseId: ex.id, name: ex.name, muscleGroup: ex.muscleGroup, sets: ex.sets, reps: ex.reps, load: ex.load, timeSeconds: ex.timeSeconds, notes: '' }],
@@ -128,7 +128,7 @@ export default function Treinos() {
           ))}
         </div>
       )}
-      <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Editar Treino' : 'Novo Treino'} wide>
+      <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Editar Treino' : 'Novo Treino'} wide disableOutsideClick>
         <form onSubmit={save} className="space-y-4" data-testid="treino-form">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Nome do Treino"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required placeholder="Ex: Treino A — Peito e Tríceps" data-testid="treino-name-input" /></Field>
@@ -177,10 +177,16 @@ export default function Treinos() {
               <div className="p-4 space-y-4">
                 <Field label={`Adicionar exercício para ${DAYS[activeDay]}`}>
                   <div className="flex gap-2">
-                    <Select value={pickExercise} onChange={(e) => setPickExercise(e.target.value)} data-testid="treino-exercise-picker">
-                      <option value="">Selecione um exercício</option>
-                      {catalog.map((ex) => <option key={ex.id} value={ex.id}>{ex.name} ({ex.muscleGroup})</option>)}
-                    </Select>
+                    <Input 
+                      value={pickExercise} 
+                      onChange={(e) => setPickExercise(e.target.value)} 
+                      list="exercise-catalog" 
+                      placeholder="Digite o nome do exercício..." 
+                      data-testid="treino-exercise-picker" 
+                    />
+                    <datalist id="exercise-catalog">
+                      {catalog.map((ex) => <option key={ex.id} value={`${ex.name} (${ex.muscleGroup})`} />)}
+                    </datalist>
                     <Button type="button" variant="ghost" onClick={addExercise} data-testid="treino-add-exercise-button">Adicionar</Button>
                   </div>
                 </Field>

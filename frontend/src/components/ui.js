@@ -106,7 +106,7 @@ export function Badge({ children, tone = 'muted' }) {
   );
 }
 
-export function Modal({ open, onClose, title, children, wide = false }) {
+export function Modal({ open, onClose, title, children, wide = false, disableOutsideClick = false }) {
   React.useEffect(() => {
     if (!open) return;
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -117,7 +117,7 @@ export function Modal({ open, onClose, title, children, wide = false }) {
   if (!open) return null;
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={onClose} data-testid="modal-overlay">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={() => !disableOutsideClick && onClose()} data-testid="modal-overlay">
       <div
         className={`bg-[#1c1c1e]/80 backdrop-blur-2xl border border-white/10 rounded-2xl w-full max-h-[90vh] flex flex-col shadow-2xl shadow-black/80 ${wide ? 'max-w-2xl' : 'max-w-md'} fade-up`}
         onClick={(e) => e.stopPropagation()}
