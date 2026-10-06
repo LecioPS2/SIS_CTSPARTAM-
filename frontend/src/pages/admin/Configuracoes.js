@@ -4,6 +4,7 @@ import { Settings, Save, Bell, Share2, Instagram, Facebook, Youtube, Globe, Phon
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
+import ImageCropperModal from '../../components/ImageCropperModal';
 
 export default function Configuracoes() {
   const { user } = useAuth();
@@ -35,12 +36,24 @@ export default function Configuracoes() {
     toast.success('Links de acesso rápido atualizados!');
   };
 
-  const handleAvatarUpload = async (e) => {
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+
+  const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      setCropImageSrc(reader.result);
+      if (fileRef.current) fileRef.current.value = '';
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedUpload = async (croppedFile) => {
+    setCropImageSrc(null);
     setUploading(true);
+    const formData = new FormData();
+    formData.append('file', croppedFile);
     try {
       await api.post('/uploads/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -122,7 +135,7 @@ export default function Configuracoes() {
                 <Button variant="ghost" className="w-full text-xs" onClick={() => fileRef.current?.click()} disabled={uploading}>
                   {uploading ? 'Enviando...' : 'Trocar Foto'}
                 </Button>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
               </div>
 
               <div className="mt-8 text-left space-y-2">
@@ -355,6 +368,15 @@ function GestaoAcessos() {
           </table>
         </div>
       </Card>
+
+      {!!cropImageSrc && (
+        <ImageCropperModal
+          open={!!cropImageSrc}
+          imageSrc={cropImageSrc}
+          onClose={() => setCropImageSrc(null)}
+          onCropComplete={handleCroppedUpload}
+        />
+      )}
     </div>
   );
 }

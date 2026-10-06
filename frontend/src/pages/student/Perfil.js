@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Card, PageHeader, Empty, Button, Modal } from '../../components/ui';
 import { LogOut, Target, Phone, Mail, Camera, CalendarCheck } from 'lucide-react';
 import QRCodeAluna from '../../components/QRCodeAluna';
+import ImageCropperModal from '../../components/ImageCropperModal';
 
 export default function Perfil() {
   const { user, logout, login } = useAuth();
@@ -27,12 +28,26 @@ export default function Perfil() {
     api.get('/checkin/history').then((r) => setCheckinHistory(r.data)).catch(() => {});
   }, []);
 
-  const handleAvatarUpload = async (e) => {
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+
+  const handleAvatarSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
+    
+    // Ler como DataURL
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      setCropImageSrc(reader.result);
+      if (fileRef.current) fileRef.current.value = ''; // resetar
+    });
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedUpload = async (croppedFile) => {
+    setCropImageSrc(null);
     setUploading(true);
+    const formData = new FormData();
+    formData.append('file', croppedFile);
     try {
       const res = await api.post('/uploads/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -99,7 +114,7 @@ export default function Perfil() {
             >
               <Camera size={18} className="text-white" />
             </button>
-            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarUpload} />
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarSelect} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start mb-4">
@@ -206,6 +221,15 @@ export default function Perfil() {
           </div>
         </form>
       </Modal>
+
+      {!!cropImageSrc && (
+        <ImageCropperModal
+          open={!!cropImageSrc}
+          imageSrc={cropImageSrc}
+          onClose={() => setCropImageSrc(null)}
+          onCropComplete={handleCroppedUpload}
+        />
+      )}
     </div>
   );
 }
