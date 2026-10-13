@@ -8,6 +8,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import StudentLayout from './layouts/StudentLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Alunos from './pages/admin/Alunos';
+import AlunoPerfil from './pages/admin/AlunoPerfil';
 import Personais from './pages/admin/Personais';
 import Planos from './pages/admin/Planos';
 import Pagamentos from './pages/admin/Pagamentos';
@@ -102,6 +103,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/admin" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><AdminDashboard /></DashboardLayout></Protected>} />
           <Route path="/admin/alunos" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><Alunos /></DashboardLayout></Protected>} />
+          <Route path="/admin/alunos/:id" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><AlunoPerfil /></DashboardLayout></Protected>} />
           <Route path="/admin/personais" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Personais /></DashboardLayout></Protected>} />
           <Route path="/admin/planos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Planos /></DashboardLayout></Protected>} />
           <Route path="/admin/pagamentos" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><Pagamentos /></DashboardLayout></Protected>} />

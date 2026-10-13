@@ -94,6 +94,36 @@ router.get('/classes', requireRole('admin', 'personal', 'assessor'), async (req,
   res.json(result);
 });
 
+// GET /api/users/:id/overview — visão completa da aluna (perfil, treinos, evolução, financeiro, check-ins)
+router.get('/:id/overview', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
+  const mongoose = require('mongoose');
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: 'ID inválido' });
+  const { Workout, WorkoutLog, Measurement, Payment, CheckIn, DietPlan } = require('../models');
+  const student = await User.findById(req.params.id).populate('planId', 'name price durationDays').populate('personalId', 'name');
+  if (!student || student.role !== 'aluno') return res.status(404).json({ error: 'Aluna não encontrada' });
+  if (req.user.role === 'personal' && String(student.personalId?._id || student.personalId) !== String(req.user._id)) {
+    return res.status(403).json({ error: 'Acesso negado' });
+  }
+  const sid = student._id;
+  const [workouts, logs, measurements, payments, checkins, diets] = await Promise.all([
+    Workout.find({ studentId: sid }).populate('personalId', 'name').sort({ createdAt: -1 }),
+    WorkoutLog.find({ studentId: sid }).populate('workoutId', 'name').sort({ date: -1 }).limit(60),
+    Measurement.find({ studentId: sid }).sort({ date: 1 }),
+    req.user.role === 'personal' ? Promise.resolve([]) : Payment.find({ studentId: sid }).populate('planId', 'name').sort({ dueDate: 1 }),
+    CheckIn.find({ studentId: sid }).sort({ date: -1, time: -1 }).limit(60),
+    DietPlan.find({ studentId: sid }).sort({ createdAt: -1 }),
+  ]);
+  res.json({
+    student: student.toJSON(),
+    workouts: workouts.map((w) => w.toJSON()),
+    logs: logs.map((l) => l.toJSON()),
+    measurements: measurements.map((m) => m.toJSON()),
+    payments: payments.map((p) => p.toJSON()),
+    checkins: checkins.map((c) => c.toJSON()),
+    diets: diets.map((d) => d.toJSON()),
+  });
+});
+
 router.post('/', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
   const { name, email, password, role, phone, personalId, planId, birthDate, timeSlot, paymentDueDate, planDuration } = req.body;
   if (!name || !email || !password) return res.status(400).json({ error: 'Nome, email e senha são obrigatórios' });

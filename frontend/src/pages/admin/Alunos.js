@@ -5,6 +5,7 @@ import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader
 import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck } from 'lucide-react';
 import EvolutionCompare from '../../components/EvolutionCompare';
 import { useSearch } from '../../context/SearchContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 const empty = { paymentDueDate: '', planDuration: '', name: '', email: '', password: '', phone: '', birthDate: '', personalId: '', planId: '', timeSlot: '', goal: '', healthConditions: '', medications: '', injuries: '', experienceLevel: '', trainingFrequency: '', anamnesisNotes: '', generatePayments: true };
 const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', arm: '', thigh: '' };
 
@@ -24,6 +25,8 @@ export default function Alunos() {
   const [evalForm, setEvalForm] = useState(emptyMeasure);
   const [history, setHistory] = useState([]);
   const { searchTerm } = useSearch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const load = () => {
     api.get('/users?role=aluno').then((r) => setAlunas(r.data));
@@ -32,6 +35,15 @@ export default function Alunos() {
     api.get('/users/classes').then((r) => setClasses(r.data)).catch(() => {});
   };
   useEffect(() => { load(); }, []);
+
+  // Abrir modal de edição quando vier do perfil da aluna (botão "Editar")
+  useEffect(() => {
+    const editId = location.state?.editId;
+    if (!editId || alunas.length === 0) return;
+    const a = alunas.find((x) => x.id === editId);
+    if (a) open(a);
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [alunas, location.state]);
 
   const open = (a) => {
     setEditing(a || null);
@@ -202,14 +214,15 @@ export default function Alunos() {
             </thead>
             <tbody className="divide-y divide-line">
               {filteredAlunas.map((a) => (
-                <tr key={a.id} className="hover:bg-surface/50 transition-colors" data-testid={`aluno-row-${a.id}`}>
-                  <Td className="font-medium text-white">{a.name}</Td>
+                <tr key={a.id} onClick={() => navigate(`/admin/alunos/${a.id}`)} className="hover:bg-surface/50 transition-colors cursor-pointer" data-testid={`aluno-row-${a.id}`} title="Abrir perfil da aluna">
+                  <Td className="font-medium text-white hover:text-accent">{a.name}</Td>
                   <Td className="text-muted">{a.email}</Td>
                   <Td>{a.timeSlot ? <Badge>{a.timeSlot}</Badge> : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.planId ? <Badge>{a.planId.name}</Badge> : <span className="text-muted text-xs">Sem plano</span>}</Td>
                   <Td>{a.paymentDueDate ? (a.paymentDueDate.length <= 2 ? `Dia ${a.paymentDueDate.padStart(2, '0')}` : new Date(a.paymentDueDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })) : <span className="text-muted text-xs">-</span>}</Td>
                   <Td>{a.personalId ? <span className="text-sm text-white/90">{a.personalId.name}</span> : <span className="text-muted text-xs">Sem personal</span>}</Td>
-                  <Td className="text-right flex items-center justify-end gap-1">
+                  <Td className="text-right">
+                   <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                     <button onClick={() => openEval(a)} className="p-2 text-muted hover:text-ok transition-colors" data-testid={`avaliacao-aluno-${a.id}`} title="Avaliação Física">
                       <ClipboardCheck size={16} />
                     </button>
@@ -221,6 +234,7 @@ export default function Alunos() {
                     </button>
                     <button onClick={() => open(a)} className="p-2 text-muted hover:text-accent transition-colors" data-testid={`edit-aluno-${a.id}`} title="Editar"><Pencil size={16} /></button>
                     <button onClick={() => remove(a.id)} className="p-2 text-muted hover:text-accent transition-colors" title="Excluir"><Trash2 size={16} /></button>
+                   </div>
                   </Td>
                 </tr>
               ))}
