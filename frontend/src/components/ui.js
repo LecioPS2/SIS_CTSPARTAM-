@@ -66,17 +66,17 @@ export function Card({ children, className = '', ...props }) {
   );
 }
 
-export function StatCard({ label, value, icon: Icon, accent = false, testId }) {
+export function StatCard({ label, value, subtext, icon: Icon, accent = false, testId }) {
   let colorClass = 'border-l-blue-500 from-blue-500/10 to-transparent';
   let iconClass = 'text-blue-500/50';
 
   if (accent) { // Receita
     colorClass = 'border-l-ok from-ok/10 to-transparent';
     iconClass = 'text-ok/50';
-  } else if (label.includes('Pendências')) {
+  } else if (label.includes('Pendências') || label.includes('Inadimplentes')) {
     colorClass = 'border-l-accent from-accent/10 to-transparent';
     iconClass = 'text-accent/50';
-  } else if (label.includes('Personais')) {
+  } else if (label.includes('Personais') || label.includes('Alunas')) {
     colorClass = 'border-l-purple-500 from-purple-500/10 to-transparent';
     iconClass = 'text-purple-500/50';
   }
@@ -86,6 +86,7 @@ export function StatCard({ label, value, icon: Icon, accent = false, testId }) {
       <div>
         <p className="text-xs uppercase tracking-widest text-muted font-semibold mb-1">{label}</p>
         <p className="font-display text-4xl text-white">{value}</p>
+        {subtext && <p className="text-[11px] text-muted mt-1">{subtext}</p>}
       </div>
       {Icon && <Icon size={32} className={iconClass} aria-hidden="true" />}
     </Card>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api, { brl, fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty, StatCard } from '../../components/ui';
-import { Plus, Pencil, CheckCircle2, Trash2, Download, AlertCircle, CheckCircle, Clock, Printer, FileText, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
+import { Plus, Pencil, CheckCircle2, Trash2, Download, AlertCircle, CheckCircle, Clock, Printer, FileText, ArrowUpCircle, ArrowDownCircle, Wallet, Users } from 'lucide-react';
 import { useSearch } from '../../context/SearchContext';
 
 const empty = { type: 'entrada', description: '', studentId: '', planId: '', amount: '', dueDate: '', status: 'pendente', method: '' };
@@ -175,11 +175,27 @@ export default function Financeiro() {
   const totalInadimplente = payments.filter(p => p.type === 'entrada' && p.status === 'atrasado').reduce((a, p) => a + p.amount, 0);
   const { searchTerm } = useSearch();
 
+  const today = new Date();
+  const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+  const studentIdsWithPayments = new Set(
+    payments
+      .filter(p => p.type === 'entrada' && p.studentId)
+      .map(p => (typeof p.studentId === 'object' ? p.studentId._id || p.studentId.id : p.studentId))
+      .filter(Boolean)
+  );
+  const totalAlunasComCobranca = studentIdsWithPayments.size;
+
+  const studentIdsThisMonth = new Set(
+    payments
+      .filter(p => p.type === 'entrada' && p.studentId && p.dueDate && p.dueDate.startsWith(currentMonthStr))
+      .map(p => (typeof p.studentId === 'object' ? p.studentId._id || p.studentId.id : p.studentId))
+      .filter(Boolean)
+  );
+  const alunasMesAtualCount = studentIdsThisMonth.size;
+
   const filteredPayments = payments.filter((p) => {
     if (filter === 'todos') return true;
-    
-    const today = new Date();
-    const currentMonthStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
     if (filter === 'mes_atual') {
       return p.dueDate && p.dueDate.startsWith(currentMonthStr);
@@ -221,11 +237,17 @@ export default function Financeiro() {
         }
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
         <StatCard label="Entradas (Pagas)" value={brl(totalEntradas)} icon={ArrowUpCircle} />
         <StatCard label="Saídas (Pagas)" value={brl(totalSaidas)} icon={ArrowDownCircle} accent />
         <StatCard label="Saldo Líquido" value={brl(saldoLiquido)} icon={Wallet} />
         <StatCard label="Inadimplentes (Atrasados)" value={brl(totalInadimplente)} icon={AlertCircle} accent />
+        <StatCard
+          label="Alunas no Financeiro"
+          value={totalAlunasComCobranca}
+          subtext={`${alunasMesAtualCount} no mês atual · ${alunos.length} cadastradas`}
+          icon={Users}
+        />
       </div>
 
       <Card>
