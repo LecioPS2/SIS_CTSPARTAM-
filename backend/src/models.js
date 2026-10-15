@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const opts = { timestamps: true, toJSON: { virtuals: true, transform: (doc, ret) => { ret.id = ret._id.toString(); delete ret._id; delete ret.__v; delete ret.passwordHash; return ret; } } };
+const opts = { timestamps: true, toJSON: { virtuals: true, transform: (doc, ret) => { if (ret._id) { ret.id = ret._id.toString(); delete ret._id; } else if (doc && doc._id) { ret.id = doc._id.toString(); } else if (ret.id) { ret.id = ret.id.toString(); } delete ret.__v; delete ret.passwordHash; return ret; } } };
 
 const userSchema = new Schema({
   name: { type: String, required: true },
