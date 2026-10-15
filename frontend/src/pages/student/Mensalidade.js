@@ -38,7 +38,7 @@ export default function Mensalidade() {
 
   const pendingPayments = filteredPayments.filter(p => p.status !== 'pago');
   const current = pendingPayments.length > 0 
-    ? pendingPayments[pendingPayments.length - 1] 
+    ? [...pendingPayments].sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''))[0]
     : filteredPayments[0];
 
   const handleCopy = () => {

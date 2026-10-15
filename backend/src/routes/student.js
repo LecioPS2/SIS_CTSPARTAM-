@@ -66,7 +66,7 @@ router.post('/measurements', requireRole('aluno'), async (req, res) => {
 
 router.get('/membership', requireRole('aluno'), async (req, res) => {
   const user = await User.findById(req.user._id).populate('planId').populate('personalId', 'name');
-  const payments = await Payment.find({ studentId: req.user._id }).sort({ dueDate: -1 }).limit(12);
+  const payments = await Payment.find({ studentId: req.user._id }).sort({ dueDate: 1 });
   res.json({ plan: user.planId ? user.planId.toJSON() : null, personal: user.personalId ? { id: user.personalId._id, name: user.personalId.name } : null, payments: payments.map((p) => p.toJSON()) });
 });
 

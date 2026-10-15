@@ -75,16 +75,30 @@ router.get('/', async (req, res) => {
       const isOverdue = p.dueDate < today;
       const isDueSoon = !isOverdue && p.dueDate <= inSevenDays;
       if (isOverdue || isDueSoon) {
+        const [y, m, d] = (p.dueDate || '').split('-');
+        const dateFormatted = d && m && y ? `${d}/${m}/${y}` : p.dueDate;
+        const diffDays = Math.round((new Date(p.dueDate + 'T12:00:00') - new Date(today + 'T12:00:00')) / 86400000);
+
+        let msg = '';
+        if (isOverdue) {
+          msg = `Sua mensalidade de ${p.amount ? 'R$ ' + Number(p.amount).toFixed(2).replace('.', ',') : ''} venceu em ${dateFormatted} e está pendente. Procure a recepção para regularizar.`;
+        } else if (diffDays === 0) {
+          msg = `Sua mensalidade de ${p.amount ? 'R$ ' + Number(p.amount).toFixed(2).replace('.', ',') : ''} vence HOJE (${dateFormatted})!`;
+        } else {
+          msg = `Sua mensalidade de ${p.amount ? 'R$ ' + Number(p.amount).toFixed(2).replace('.', ',') : ''} vence em ${diffDays} dia(s) (${dateFormatted}).`;
+        }
+
         notifications.push({
           id: p._id.toString(),
           type: isOverdue ? 'atrasado' : 'vencimento',
-          message: isOverdue
-            ? 'Sua mensalidade está atrasada. Procure a recepção.'
-            : 'Sua mensalidade vence em breve.',
+          title: isOverdue ? 'Mensalidade Atrasada' : (diffDays === 0 ? 'Vencimento Hoje' : 'Vencimento Próximo'),
+          message: msg,
+          content: msg,
           studentName: req.user.name,
           dueDate: p.dueDate,
           amount: p.amount,
           paymentId: p._id.toString(),
+          createdAt: p.createdAt || p.dueDate,
         });
       }
     });

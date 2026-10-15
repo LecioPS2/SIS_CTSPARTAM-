@@ -93,20 +93,28 @@ export default function Hoje() {
   
   let paymentAlert = null;
   if (membership && membership.payments && membership.payments.length > 0) {
-    const nextPayment = membership.payments.find(p => p.status !== 'pago');
-    if (nextPayment) {
-      const due = new Date(nextPayment.dueDate);
-      const todayDate = new Date();
-      // zerar horas
-      due.setHours(0, 0, 0, 0);
-      todayDate.setHours(0, 0, 0, 0);
-      const diffTime = due - todayDate;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const pending = membership.payments
+      .filter(p => p.status !== 'pago')
+      .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
+    const nextPayment = pending[0];
+    if (nextPayment && nextPayment.dueDate) {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const [tY, tM, tD] = todayStr.split('-').map(Number);
+      const [dY, dM, dD] = nextPayment.dueDate.split('-').map(Number);
+      const todayZero = new Date(tY, tM - 1, tD);
+      const dueZero = new Date(dY, dM - 1, dD);
+      const diffDays = Math.round((dueZero - todayZero) / (1000 * 60 * 60 * 24));
       
       if (diffDays < 0) {
-        paymentAlert = { type: 'danger', message: `Sua mensalidade está atrasada há ${Math.abs(diffDays)} dias.` };
+        paymentAlert = { 
+          type: 'danger', 
+          message: `Sua mensalidade está atrasada há ${Math.abs(diffDays)} dia(s).` 
+        };
       } else if (diffDays <= 5) {
-        paymentAlert = { type: 'warn', message: diffDays === 0 ? 'Sua mensalidade vence HOJE!' : `Sua mensalidade vence em ${diffDays} dias.` };
+        paymentAlert = { 
+          type: 'warn', 
+          message: diffDays === 0 ? 'Sua mensalidade vence HOJE!' : `Sua mensalidade vence em ${diffDays} dia(s).` 
+        };
       }
     }
   }
@@ -352,16 +360,30 @@ export default function Hoje() {
           {avisos.length === 0 ? (
             <p className="text-sm text-muted text-center py-4 border border-dashed border-line rounded-lg">Nenhum aviso no momento.</p>
           ) : (
-            avisos.map(a => (
-              <div key={a.id} className="p-4 rounded-lg border border-accent/20 bg-accent/5">
-                <div className="flex items-center gap-2 mb-2">
-                  <Bell size={16} className="text-accent" />
-                  <h4 className="font-bold text-white text-sm">{a.title}</h4>
+            avisos.map(a => {
+              const isOverdue = a.type === 'atrasado';
+              const isDueSoon = a.type === 'vencimento';
+              const borderClass = isOverdue ? 'border-red-500/30 bg-red-500/10' : isDueSoon ? 'border-yellow-500/30 bg-yellow-500/10' : 'border-accent/20 bg-accent/5';
+              const iconClass = isOverdue ? 'text-red-400' : isDueSoon ? 'text-yellow-400' : 'text-accent';
+              const title = a.title || (isOverdue ? 'Mensalidade Atrasada' : isDueSoon ? 'Vencimento Próximo' : 'Aviso');
+              const text = a.content || a.message;
+              const date = a.createdAt ? new Date(a.createdAt).toLocaleDateString('pt-BR') : null;
+
+              return (
+                <div key={a.id} className={`p-4 rounded-lg border ${borderClass}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Bell size={16} className={iconClass} />
+                    <h4 className="font-bold text-white text-sm">{title}</h4>
+                  </div>
+                  <p className="text-sm text-white/90 whitespace-pre-wrap">{text}</p>
+                  {date && (
+                    <p className="text-[10px] text-muted mt-3 uppercase tracking-wider">
+                      {a.type === 'aviso' ? `Publicado em ${date}` : `Referência: ${date}`}
+                    </p>
+                  )}
                 </div>
-                <p className="text-sm text-muted whitespace-pre-wrap">{a.content}</p>
-                <p className="text-[10px] text-muted mt-3 uppercase tracking-wider">Publicado em {new Date(a.createdAt).toLocaleDateString('pt-BR')}</p>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </Modal>
