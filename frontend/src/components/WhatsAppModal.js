@@ -1,199 +1,189 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Input, Textarea, Field } from './ui';
+import { useNavigate } from 'react-router-dom';
+import { Modal, Button, Select, Textarea, Field, Badge } from './ui';
 import api from '../lib/api';
 import { toast } from 'sonner';
-import { Search, Send, CheckSquare, Square, Users, Paperclip, X, Image as ImageIcon, FileVideo, Music } from 'lucide-react';
+import { Search, Send, CheckSquare, Square, Users, Settings, ShieldAlert } from 'lucide-react';
 
 export default function WhatsAppModal({ open, onClose }) {
+  const navigate = useNavigate();
   const [alunas, setAlunas] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [sysStatus, setSysStatus] = useState(null);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(new Set());
+  const [templateName, setTemplateName] = useState('comunicado_individual_aluna');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
-  const [attachment, setAttachment] = useState(null);
 
   useEffect(() => {
     if (open) {
-      setAttachment(null);
-      api.get('/users?role=aluno').then((r) => setAlunas(r.data));
+      api.get('/users?role=aluno').then((r) => setAlunas(r.data || [])).catch(() => {});
+      api.get('/integrations/whatsapp/templates').then((r) => setTemplates(r.data || [])).catch(() => {});
+      api.get('/integrations/whatsapp/config').then((r) => setSysStatus(r.data)).catch(() => {});
       setSelected(new Set());
       setMessage('');
       setSearch('');
     }
   }, [open]);
 
-  const filtered = alunas.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
-
-  const toggleAll = () => {
-    if (selected.size === filtered.length && filtered.length > 0) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(filtered.map(a => a.id)));
-    }
-  };
+  const filtered = alunas.filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
 
   const toggle = (id) => {
     const next = new Set(selected);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      if (next.size >= 15) {
+        toast.warning('Por segurança contra disparos acidentais em massa, selecione no máximo 15 alunas por vez.');
+        return;
+      }
+      next.add(id);
+    }
     setSelected(next);
   };
 
   const handleSend = async () => {
     if (selected.size === 0) return toast.error('Selecione pelo menos uma aluna.');
-    if (!message.trim()) return toast.error('Digite a mensagem que deseja enviar.');
+    if (!message.trim()) return toast.error('Digite o comunicado para preencher o template.');
 
     setSending(true);
-    // Simula disparo de mensagens (na vida real isso chamaria uma API do WhatsApp tipo Baileys/W-API)
-    setTimeout(() => {
-      setSending(false);
-      toast.success(`Mensagem disparada com sucesso para ${selected.size} aluna(s)!`);
-      onClose();
-    }, 1500);
+    let successCount = 0;
+    let blockedCount = 0;
+
+    for (const studentId of Array.from(selected)) {
+      try {
+        const res = await api.post('/integrations/whatsapp/send-individual', {
+          studentId,
+          messageType: 'template',
+          templateName,
+          customMessage: message,
+        });
+        if (res.data.ok) successCount++;
+        else blockedCount++;
+      } catch {
+        blockedCount++;
+      }
+    }
+
+    setSending(false);
+    if (successCount > 0) {
+      toast.success(`${successCount} mensagem(ns) enviada(s) via Meta Cloud API!`);
+    } else if (blockedCount > 0) {
+      toast.warning(
+        'Solicitação registrada no histórico, mas o envio real está retido (Modo de Configuração Pendente / Chave Geral Desativada).'
+      );
+    }
+    onClose();
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Disparo de Mensagens (WhatsApp)" wide>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        {/* Esquerda: Lista de Alunas */}
-        <div className="flex flex-col h-[500px]">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2 mb-4">
-            <Users size={16} /> Selecione os Destinatários
-          </h3>
-          
-          <div className="relative mb-4">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-            <input
-              type="text"
-              placeholder="Buscar aluna..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:border-ok focus:ring-1 focus:ring-ok outline-none transition-all"
-            />
+    <Modal open={open} onClose={onClose} title="Comunicação Rápida (WhatsApp Cloud API Oficial)" wide>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 bg-surface p-3 rounded-lg border border-line">
+          <div className="flex items-center gap-2 text-xs">
+            <ShieldAlert size={16} className={sysStatus?.canDispatchLive ? 'text-ok' : 'text-warn'} />
+            <span className="text-muted">Status Cloud API:</span>
+            <Badge color={sysStatus?.canDispatchLive ? 'ok' : 'warn'}>
+              {sysStatus?.canDispatchLive ? 'Ativa e Validada' : 'Modo Pendente (Envios Reais Pausados)'}
+            </Badge>
           </div>
-
-          <div className="flex items-center justify-between mb-2 px-1">
-            <button onClick={toggleAll} className="text-xs text-ok hover:text-ok/80 flex items-center gap-2 transition-colors">
-              {selected.size > 0 && selected.size === filtered.length ? <CheckSquare size={14} /> : <Square size={14} />}
-              Selecionar Todas
-            </button>
-            <span className="text-xs text-muted">{selected.size} selecionada(s)</span>
-          </div>
-
-          <div className="flex-1 overflow-y-auto border border-line rounded-lg bg-surface/30 p-2 space-y-1">
-            {filtered.length === 0 && (
-              <p className="text-xs text-center text-muted p-4">Nenhuma aluna encontrada.</p>
-            )}
-            {filtered.map(a => (
-              <button
-                key={a.id}
-                onClick={() => toggle(a.id)}
-                className={`w-full flex items-center justify-between p-3 rounded-md text-sm transition-colors text-left ${selected.has(a.id) ? 'bg-ok/10 border border-ok/30' : 'hover:bg-surface border border-transparent'}`}
-              >
-                <div className="flex items-center gap-3 truncate">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${selected.has(a.id) ? 'bg-ok text-white' : 'bg-line text-muted'}`}>
-                    {a.name.charAt(0)}
-                  </div>
-                  <div className="truncate">
-                    <p className={`font-medium truncate ${selected.has(a.id) ? 'text-ok' : 'text-white'}`}>{a.name}</p>
-                    <p className="text-xs text-muted truncate">{a.phone || 'Sem número'}</p>
-                  </div>
-                </div>
-                {selected.has(a.id) && <CheckSquare size={16} className="text-ok shrink-0" />}
-              </button>
-            ))}
-          </div>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              onClose();
+              navigate('/admin/whatsapp');
+            }}
+          >
+            <Settings size={14} className="inline mr-1" />
+            Abrir Central WhatsApp
+          </Button>
         </div>
 
-        {/* Direita: Editor de Mensagem */}
-        <div className="flex flex-col h-[500px]">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted flex items-center gap-2 mb-4">
-            <Send size={16} /> Compor Mensagem
-          </h3>
-          
-          <div className="bg-ok/10 border border-ok/20 rounded-lg p-4 mb-4">
-            <p className="text-xs text-ok/90 font-medium">Dica de Personalização:</p>
-            <p className="text-xs text-white/70 mt-1">
-              Use a variável <strong className="text-ok">{"{nome}"}</strong> para substituir automaticamente pelo primeiro nome de cada aluna na hora do envio.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Esquerda: Lista de Alunas */}
+          <div className="flex flex-col h-[420px]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted flex items-center justify-between mb-3">
+              <span className="flex items-center gap-2">
+                <Users size={15} /> Destinatárias (Máx. 15 por lote)
+              </span>
+              <span>{selected.size} selecionada(s)</span>
+            </h3>
 
-          <div className="flex-1 flex flex-col gap-4">
-            <Field label="Mensagem" className="flex-1 flex flex-col h-full">
-              <Textarea 
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                placeholder="Ex: Olá {nome}, não esqueça do seu treino amanhã!" 
-                className="flex-1 resize-none bg-surface/50 border-line text-sm min-h-[160px]" 
+            <div className="relative mb-3">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+              <input
+                type="text"
+                placeholder="Buscar aluna..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:border-ok outline-none"
               />
-            </Field>
+            </div>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase text-muted">Mídia (Opcional)</span>
-                <input 
-                  type="file" 
-                  id="wa-attachment" 
-                  className="hidden" 
-                  accept="image/*,video/*,audio/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setAttachment(e.target.files[0]);
-                    }
-                    e.target.value = '';
-                  }}
-                />
-                <label 
-                  htmlFor="wa-attachment" 
-                  className="cursor-pointer text-xs text-ok hover:text-ok/80 flex items-center gap-1 transition-colors"
+            <div className="flex-1 overflow-y-auto border border-line rounded-lg bg-surface/30 p-2 space-y-1">
+              {filtered.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => toggle(a.id)}
+                  className={`w-full flex items-center justify-between p-2.5 rounded-md text-sm transition-colors text-left ${
+                    selected.has(a.id)
+                      ? 'bg-ok/10 border border-ok/30'
+                      : 'hover:bg-surface border border-transparent'
+                  }`}
                 >
-                  <Paperclip size={14} /> Anexar Arquivo
-                </label>
-              </div>
-              
-              {attachment && (
-                <div className="flex items-center justify-between bg-surface/50 border border-line rounded-lg p-3">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="w-8 h-8 rounded bg-ok/10 flex items-center justify-center text-ok shrink-0">
-                      {attachment.type.startsWith('image/') ? <ImageIcon size={16} /> : 
-                       attachment.type.startsWith('video/') ? <FileVideo size={16} /> : 
-                       attachment.type.startsWith('audio/') ? <Music size={16} /> : 
-                       <Paperclip size={16} />}
-                    </div>
-                    <div className="truncate">
-                      <p className="text-sm font-medium text-white truncate">{attachment.name}</p>
-                      <p className="text-xs text-muted">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
+                  <div className="truncate">
+                    <p className={`font-medium truncate ${selected.has(a.id) ? 'text-ok' : 'text-white'}`}>{a.name}</p>
+                    <p className="text-xs text-muted truncate">{a.phone || 'Sem telefone'}</p>
                   </div>
-                  <button 
-                    onClick={() => setAttachment(null)}
-                    className="text-muted hover:text-accent p-1 transition-colors"
-                    title="Remover anexo"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
+                  {selected.has(a.id) ? (
+                    <CheckSquare size={16} className="text-ok shrink-0" />
+                  ) : (
+                    <Square size={16} className="text-muted shrink-0" />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="pt-4 border-t border-line mt-auto">
-            <Button 
-              onClick={handleSend} 
-              disabled={sending || selected.size === 0 || (!message.trim() && !attachment)}
-              className="w-full bg-ok hover:bg-ok/80 text-white shadow-lg shadow-ok/20 flex items-center justify-center gap-2 py-3"
+          {/* Direita: Template e Mensagem */}
+          <div className="flex flex-col h-[420px] justify-between">
+            <div className="space-y-4">
+              <Field label="Modelo Aprovado (Meta Template)">
+                <Select value={templateName} onChange={(e) => setTemplateName(e.target.value)}>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.name}>
+                      {t.displayName} [{t.status}]
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+
+              <Field label="Conteúdo da Variável / Comunicado">
+                <Textarea
+                  rows={5}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Ex: Informamos que neste sábado teremos aulão especial às 09h!"
+                />
+              </Field>
+
+              <div className="bg-surface p-3 rounded-lg border border-line text-xs text-muted">
+                As mensagens iniciadas pela academia utilizam a API Oficial da Meta e respeitam automaticamente o consentimento LGPD de cada aluna.
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSend}
+              disabled={sending || selected.size === 0 || !message.trim()}
+              className="w-full py-3"
             >
-              {sending ? 'Enviando Mensagens...' : (
-                <>
-                  <Send size={18} />
-                  Disparar para {selected.size} Aluna(s)
-                </>
-              )}
+              <Send size={15} className="inline mr-2" />
+              {sending ? 'Processando...' : `Enviar para ${selected.size} Aluna(s)`}
             </Button>
           </div>
         </div>
-
       </div>
     </Modal>
   );

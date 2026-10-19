@@ -149,8 +149,16 @@ router.post('/', requireRole('admin', 'personal', 'assessor'), async (req, res) 
     timeSlot: timeSlot || null,
     paymentDueDate,
     planDuration,
+    whatsappConsent: req.body.whatsappConsent !== undefined ? Boolean(req.body.whatsappConsent) : true,
+    whatsappMarketingConsent: req.body.whatsappMarketingConsent !== undefined ? Boolean(req.body.whatsappMarketingConsent) : false,
     ...anamnesis,
   });
+
+  if (newRole === 'aluno') {
+    const whatsappService = require('../services/whatsapp');
+    whatsappService.triggerWelcomeStudent(user).catch(() => {});
+  }
+
   res.status(201).json(user.toJSON());
 });
 
@@ -163,7 +171,7 @@ router.put('/:id', requireRole('admin', 'personal', 'assessor'), async (req, res
   if (req.user.role === 'assessor' && user.role !== 'aluno') {
     return res.status(403).json({ error: 'Assessores só podem editar alunas' });
   }
-  const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot, paymentDueDate, planDuration } = req.body;
+  const { name, email, phone, personalId, planId, active, password, birthDate, timeSlot, paymentDueDate, planDuration, whatsappConsent, whatsappMarketingConsent } = req.body;
   
   if (timeSlot !== undefined && timeSlot !== user.timeSlot && user.role === 'aluno') {
     if (timeSlot) {
@@ -180,6 +188,13 @@ router.put('/:id', requireRole('admin', 'personal', 'assessor'), async (req, res
   ANAMNESIS_FIELDS.forEach((f) => { if (req.body[f] !== undefined) user[f] = req.body[f]; });
   if (paymentDueDate !== undefined) user.paymentDueDate = paymentDueDate;
   if (planDuration !== undefined) user.planDuration = planDuration;
+  if (whatsappConsent !== undefined) {
+    user.whatsappConsent = Boolean(whatsappConsent);
+    user.whatsappOptOutAt = user.whatsappConsent ? null : new Date();
+  }
+  if (whatsappMarketingConsent !== undefined) {
+    user.whatsappMarketingConsent = Boolean(whatsappMarketingConsent);
+  }
   if (req.user.role === 'admin' || req.user.role === 'assessor') {
     if (personalId !== undefined) user.personalId = personalId || null;
     if (planId !== undefined) user.planId = planId || null;

@@ -109,6 +109,8 @@ router.post('/webhook', async (req, res) => {
           localPayment.paidAt = new Date().toISOString().slice(0, 10);
           localPayment.method = mpPayment.payment_type_id === 'account_money' || mpPayment.payment_type_id === 'bank_transfer' ? 'pix' : 'cartao';
           await localPayment.save();
+          const whatsappService = require('../services/whatsapp');
+          whatsappService.triggerPaymentConfirmed(localPayment).catch(() => {});
           console.log(`Pagamento ${localPayment._id} confirmado via Mercado Pago Webhook!`);
         }
       }

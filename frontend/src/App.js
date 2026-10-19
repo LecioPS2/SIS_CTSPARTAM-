@@ -28,7 +28,8 @@ import Dieta from './pages/student/Dieta';
 import CheckinAdmin from './pages/admin/CheckinAdmin';
 import Configuracoes from './pages/admin/Configuracoes';
 import Automacoes from './pages/admin/Automacoes';
-import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings, Megaphone, Utensils, Bot } from 'lucide-react';
+import CentralWhatsApp from './pages/admin/CentralWhatsApp';
+import { LayoutDashboard, Users, UserCog, CreditCard, Wallet, Dumbbell, ClipboardList, CalendarDays, QrCode, Settings, Megaphone, Utensils, Bot, MessageCircle } from 'lucide-react';
 
 const adminNav = [
   { to: '/admin', label: 'Visão Geral', icon: LayoutDashboard, end: true, testId: 'admin-dashboard' },
@@ -39,7 +40,8 @@ const adminNav = [
   { to: '/admin/exercicios', label: 'Exercícios', icon: Dumbbell, testId: 'admin-exercicios' },
   { to: '/admin/dieta', label: 'Plano Alimentar', icon: Utensils, testId: 'admin-dieta' },
   { to: '/admin/checkin', label: 'Check-in', icon: QrCode, testId: 'admin-checkin' },
-  { to: '/admin/avisos', label: 'Avisos', icon: Megaphone, testId: 'admin-avisos' },
+  { to: '/admin/whatsapp', label: 'Central WhatsApp', section: 'Comunicação', icon: MessageCircle, testId: 'admin-whatsapp' },
+  { to: '/admin/avisos', label: 'Avisos no App', icon: Megaphone, testId: 'admin-avisos' },
   { to: '/admin/automacoes', label: 'Automações', icon: Bot, testId: 'admin-automacoes' },
   { to: '/admin/configuracoes', label: 'Configurações', icon: Settings, testId: 'admin-configuracoes' },
 ];
@@ -111,6 +113,7 @@ export default function App() {
           <Route path="/admin/dieta" element={<Protected role="admin"><DashboardLayout nav={adminNav}><PlanosAlimentares /></DashboardLayout></Protected>} />
           <Route path="/admin/montar-treino" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Treinos /></DashboardLayout></Protected>} />
           <Route path="/admin/checkin" element={<Protected roles={['admin', 'assessor']}><DashboardLayout nav={adminNav}><CheckinAdmin /></DashboardLayout></Protected>} />
+          <Route path="/admin/whatsapp" element={<Protected role="admin"><DashboardLayout nav={adminNav}><CentralWhatsApp /></DashboardLayout></Protected>} />
           <Route path="/admin/avisos" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Avisos /></DashboardLayout></Protected>} />
           <Route path="/admin/automacoes" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Automacoes /></DashboardLayout></Protected>} />
           <Route path="/admin/configuracoes" element={<Protected role="admin"><DashboardLayout nav={adminNav}><Configuracoes /></DashboardLayout></Protected>} />

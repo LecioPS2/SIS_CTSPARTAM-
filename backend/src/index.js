@@ -26,7 +26,13 @@ const noticeRoutes = require('./routes/notices');
 const mercadopagoRoutes = require('./routes/mercadopago');
 
 const app = express();
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(cookieParser());
 const corsOrigins = (process.env.CORS_ORIGINS || '*').split(',').map((o) => o.trim());
 app.use(cors({ origin: corsOrigins.includes('*') ? true : corsOrigins, credentials: !corsOrigins.includes('*') }));
@@ -108,8 +114,10 @@ app.use('/api/checkin', checkinRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/mercadopago', mercadopagoRoutes);
 
+const whatsappRoutes = require('./routes/whatsapp');
 app.use('/api/automations', require('./routes/automations'));
-app.use('/api/whatsapp', require('./routes/whatsapp'));
+app.use('/api/integrations/whatsapp', whatsappRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // Iniciar tarefas agendadas (Cron Jobs)
 require('./cron');

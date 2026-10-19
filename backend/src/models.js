@@ -24,6 +24,10 @@ const userSchema = new Schema({
   timeSlot: String, //
   paymentDueDate: String,
   planDuration: String,
+  whatsappConsent: { type: Boolean, default: true },
+  whatsappMarketingConsent: { type: Boolean, default: true },
+  whatsappOptOutAt: { type: Date, default: null },
+  whatsappLastInboundAt: { type: Date, default: null },
 }, opts);
 
 const planSchema = new Schema({
@@ -142,13 +146,89 @@ const dietPlanSchema = new Schema({
     }]
   }]
 }, opts);
+
 const automationSchema = new Schema({
-  type: { type: String, required: true, unique: true }, // e.g. 'birthday', 'payment_due'
+  type: { type: String, required: true, unique: true }, // 'payment_due_soon', 'payment_overdue', 'payment_confirmed', 'welcome_student', 'birthday', 'direct_message'
+  name: { type: String, default: '' },
+  description: { type: String, default: '' },
   active: { type: Boolean, default: false },
   sendApp: { type: Boolean, default: true },
   sendWhatsapp: { type: Boolean, default: false },
   appMessage: { type: String, default: '' },
   whatsappMessage: { type: String, default: '' },
+  templateName: { type: String, default: '' },
+  templateLanguage: { type: String, default: 'pt_BR' },
+  daysOffset: { type: Number, default: 3 },
+  sendHour: { type: String, default: '09:00' },
+}, opts);
+
+const whatsAppConfigSchema = new Schema({
+  singletonKey: { type: String, default: 'default', unique: true },
+  enabled: { type: Boolean, default: false },
+  status: { type: String, enum: ['pending_config', 'configured', 'error'], default: 'pending_config' },
+  connectedPhoneNumber: { type: String, default: '' },
+  verifiedName: { type: String, default: '' },
+  qualityRating: { type: String, default: '' },
+  apiVersion: { type: String, default: 'v21.0' },
+  lastValidatedAt: { type: Date, default: null },
+  lastWebhookAt: { type: Date, default: null },
+  lastError: { type: String, default: '' },
+  dailyLimit: { type: Number, default: 250 },
+  lastDailyRunDate: { type: String, default: '' },
+}, opts);
+
+const whatsAppTemplateSchema = new Schema({
+  name: { type: String, required: true, unique: true },
+  displayName: { type: String, required: true },
+  category: { type: String, enum: ['UTILITY', 'MARKETING', 'AUTHENTICATION'], default: 'UTILITY' },
+  language: { type: String, default: 'pt_BR' },
+  status: { type: String, enum: ['APPROVED', 'PENDING', 'REJECTED', 'DRAFT'], default: 'DRAFT' },
+  metaTemplateId: { type: String, default: '' },
+  bodyText: { type: String, required: true },
+  variables: [{
+    index: Number,
+    key: String,
+    label: String,
+    example: String,
+  }],
+  automationType: { type: String, default: '' },
+}, opts);
+
+const whatsAppMessageLogSchema = new Schema({
+  studentId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  studentName: { type: String, default: '' },
+  phone: { type: String, required: true },
+  maskedPhone: { type: String, default: '' },
+  direction: { type: String, enum: ['outbound', 'inbound'], default: 'outbound' },
+  automationType: { type: String, default: 'manual' },
+  messageType: { type: String, enum: ['template', 'text'], default: 'template' },
+  templateName: { type: String, default: '' },
+  templateCategory: { type: String, default: 'UTILITY' },
+  contentPreview: { type: String, default: '' },
+  parameters: [{ type: String }],
+  paymentId: { type: Schema.Types.ObjectId, ref: 'Payment', default: null },
+  idempotencyKey: { type: String, index: true, default: null },
+  wamid: { type: String, index: true, default: '' },
+  status: { type: String, enum: ['queued', 'sent', 'delivered', 'read', 'failed', 'cancelled'], default: 'queued' },
+  errorCode: { type: String, default: '' },
+  errorMessage: { type: String, default: '' },
+  attempts: { type: Number, default: 0 },
+  scheduledFor: { type: Date, default: Date.now },
+  sentAt: { type: Date, default: null },
+  deliveredAt: { type: Date, default: null },
+  readAt: { type: Date, default: null },
+  failedAt: { type: Date, default: null },
+  estimatedCostBrl: { type: Number, default: 0 },
+}, opts);
+
+const whatsAppWebhookEventSchema = new Schema({
+  eventKey: { type: String, required: true, unique: true },
+  eventType: { type: String, required: true },
+  wamid: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  status: { type: String, default: '' },
+  summary: { type: String, default: '' },
+  processedAt: { type: Date, default: Date.now },
 }, opts);
 
 module.exports = {
@@ -164,6 +244,10 @@ module.exports = {
   Notice: mongoose.model('Notice', noticeSchema),
   DietPlan: mongoose.model('DietPlan', dietPlanSchema),
   Automation: mongoose.model('Automation', automationSchema),
+  WhatsAppConfig: mongoose.model('WhatsAppConfig', whatsAppConfigSchema),
+  WhatsAppTemplate: mongoose.model('WhatsAppTemplate', whatsAppTemplateSchema),
+  WhatsAppMessageLog: mongoose.model('WhatsAppMessageLog', whatsAppMessageLogSchema),
+  WhatsAppWebhookEvent: mongoose.model('WhatsAppWebhookEvent', whatsAppWebhookEventSchema),
 };
 
 

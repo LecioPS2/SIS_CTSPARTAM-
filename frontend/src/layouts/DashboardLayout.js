@@ -93,23 +93,29 @@ export default function DashboardLayout({ nav, children }) {
         </div>
         <nav className="flex-1 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
           {filteredNav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={() => setMobileMenuOpen(false)}
-              data-testid={`nav-${item.testId}`}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-5 py-2.5 text-sm transition-colors duration-200 border-l-2 ${
-                  isActive
-                    ? 'border-accent text-white bg-surface'
-                    : 'border-transparent text-muted hover:text-white hover:bg-surface'
-                }`
-              }
-            >
-              <item.icon size={16} aria-hidden="true" />
-              {item.label}
-            </NavLink>
+            <React.Fragment key={item.to}>
+              {item.section && (
+                <div className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted/70">
+                  {item.section}
+                </div>
+              )}
+              <NavLink
+                to={item.to}
+                end={item.end}
+                onClick={() => setMobileMenuOpen(false)}
+                data-testid={`nav-${item.testId}`}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-5 py-2.5 text-sm transition-colors duration-200 border-l-2 ${
+                    isActive
+                      ? 'border-accent text-white bg-surface'
+                      : 'border-transparent text-muted hover:text-white hover:bg-surface'
+                  }`
+                }
+              >
+                <item.icon size={16} aria-hidden="true" />
+                {item.label}
+              </NavLink>
+            </React.Fragment>
           ))}
         </nav>
         <div className="border-t border-line p-4">
