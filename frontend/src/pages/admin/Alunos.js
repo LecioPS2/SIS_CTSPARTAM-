@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api, { fmtDate } from '../../lib/api';
 import { toast } from 'sonner';
 import { Button, Input, Select, Textarea, Field, Card, Modal, Th, Td, PageHeader, Badge, Empty } from '../../components/ui';
-import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck } from 'lucide-react';
+import { Plus, Pencil, Trash2, FileText, Printer, ClipboardCheck, RotateCcw } from 'lucide-react';
 import EvolutionCompare from '../../components/EvolutionCompare';
 import { useSearch } from '../../context/SearchContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -11,6 +11,9 @@ const emptyMeasure = { weight: '', height: '', chest: '', waist: '', hip: '', ar
 
 export default function Alunos() {
   const [alunas, setAlunas] = useState([]);
+  const [deletedAlunas, setDeletedAlunas] = useState([]);
+  const [trashModal, setTrashModal] = useState(false);
+  const [restoringId, setRestoringId] = useState(null);
   const [personais, setPersonais] = useState([]);
   const [plans, setPlans] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -33,6 +36,7 @@ export default function Alunos() {
     api.get('/users?role=personal').then((r) => setPersonais(r.data));
     api.get('/plans').then((r) => setPlans(r.data));
     api.get('/users/classes').then((r) => setClasses(r.data)).catch(() => {});
+    api.get('/users/deleted').then((r) => setDeletedAlunas(r.data || [])).catch(() => {});
   };
   useEffect(() => { load(); }, []);
 
@@ -122,10 +126,34 @@ export default function Alunos() {
   };
 
   const remove = async (id) => {
-    if (!window.confirm('Excluir esta aluna?')) return;
+    if (!window.confirm('Mover esta aluna para a lixeira? Você poderá restaurar todos os dados dela depois em "Lixeira / Recuperar".')) return;
     await api.delete(`/users/${id}`);
-    toast.success('Aluna excluída');
+    toast.success('Aluna movida para a lixeira (você pode restaurá-la quando quiser)');
     load();
+  };
+
+  const restoreStudent = async (deletedId) => {
+    try {
+      setRestoringId(deletedId);
+      await api.post(`/users/deleted/${deletedId}/restore`);
+      toast.success('Aluna e todos os seus dados foram restaurados com sucesso!');
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erro ao restaurar aluna');
+    } finally {
+      setRestoringId(null);
+    }
+  };
+
+  const permanentDeleteStudent = async (deletedId) => {
+    if (!window.confirm('Atenção: Esta ação apagará os dados da lixeira definitivamente e não poderá ser desfeita. Confirmar?')) return;
+    try {
+      await api.delete(`/users/deleted/${deletedId}`);
+      toast.success('Registro removido definitivamente da lixeira');
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Erro ao remover da lixeira');
+    }
   };
 
   const openEval = async (a) => {
@@ -167,7 +195,24 @@ export default function Alunos() {
       <PageHeader
         title="Alunas"
         subtitle="Gerencie o cadastro e planos das alunas"
-        action={<Button onClick={() => open()} data-testid="new-aluno-button"><Plus size={16} className="inline mr-2" /> Nova Aluna</Button>}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                api.get('/users/deleted').then((r) => setDeletedAlunas(r.data || [])).catch(() => {});
+                setTrashModal(true);
+              }}
+              data-testid="trash-alunos-button"
+            >
+              <RotateCcw size={15} className="inline mr-2" />
+              Lixeira / Recuperar {deletedAlunas.length > 0 ? `(${deletedAlunas.length})` : ''}
+            </Button>
+            <Button onClick={() => open()} data-testid="new-aluno-button">
+              <Plus size={16} className="inline mr-2" /> Nova Aluna
+            </Button>
+          </div>
+        }
       />
 
       <div className="mb-6 flex flex-wrap gap-2">
@@ -549,6 +594,77 @@ export default function Alunos() {
                     {m.hip != null && <div><span className="text-muted text-xs block">Quadril</span>{m.hip}cm</div>}
                     {m.arm != null && <div><span className="text-muted text-xs block">Braço</span>{m.arm}cm</div>}
                     {m.thigh != null && <div><span className="text-muted text-xs block">Coxa</span>{m.thigh}cm</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      <Modal
+        open={trashModal}
+        onClose={() => setTrashModal(false)}
+        title="Lixeira — Recuperar Alunas Excluídas"
+        wide
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-muted">
+            Quando uma aluna é excluída, o sistema guarda automaticamente uma cópia completa de segurança com o cadastro, cobranças do financeiro, treinos, avaliações físicas, check-ins e dieta para que você possa restaurar com 1 clique caso tenha excluído sem querer.
+          </p>
+
+          {deletedAlunas.length === 0 ? (
+            <Empty
+              title="Nenhuma aluna na lixeira"
+              subtitle="As alunas excluídas a partir de agora aparecerão aqui para restauração imediata."
+            />
+          ) : (
+            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+              {deletedAlunas.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-surface border border-line rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-white text-sm">{item.name}</p>
+                      {item.timeSlot && <Badge>{item.timeSlot}</Badge>}
+                      {item.planName && <Badge color="accent">{item.planName}</Badge>}
+                    </div>
+                    <p className="text-xs text-muted">
+                      {item.email} {item.phone ? `• Tel: ${item.phone}` : ''}
+                    </p>
+                    <p className="text-[11px] text-muted">
+                      Excluída em:{' '}
+                      <strong className="text-white/80">
+                        {item.deletedAt ? new Date(item.deletedAt).toLocaleString('pt-BR') : '—'}
+                      </strong>
+                    </p>
+                    <div className="flex flex-wrap gap-2 pt-1 text-[11px] text-ok">
+                      <span>• {item.counts?.payments || 0} cobrança(s)</span>
+                      <span>• {item.counts?.workouts || 0} treino(s)</span>
+                      <span>• {item.counts?.measurements || 0} avaliação(ões)</span>
+                      <span>• {item.counts?.checkins || 0} check-in(s)</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      onClick={() => restoreStudent(item.id)}
+                      disabled={restoringId === item.id}
+                      className="bg-ok hover:bg-ok/80 text-white"
+                    >
+                      <RotateCcw size={14} className="inline mr-1.5" />
+                      {restoringId === item.id ? 'Restaurando...' : 'Restaurar Aluna'}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => permanentDeleteStudent(item.id)}
+                      className="p-2 text-muted hover:text-danger transition-colors"
+                      title="Excluir definitivamente da lixeira"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
               ))}

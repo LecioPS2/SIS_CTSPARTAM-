@@ -94,6 +94,87 @@ router.get('/classes', requireRole('admin', 'personal', 'assessor'), async (req,
   res.json(result);
 });
 
+// GET /api/users/deleted — lista alunas na lixeira para recuperação
+router.get('/deleted', requireRole('admin', 'assessor'), async (req, res) => {
+  const { DeletedStudent } = require('../models');
+  const list = await DeletedStudent.find({}).sort({ deletedAt: -1 }).limit(100);
+  res.json(
+    list.map((d) => ({
+      id: d._id.toString(),
+      originalUserId: d.originalUserId ? d.originalUserId.toString() : null,
+      name: d.name,
+      email: d.email,
+      phone: d.phone || '',
+      timeSlot: d.timeSlot || '',
+      planName: d.planName || '',
+      deletedAt: d.deletedAt || d.createdAt,
+      counts: {
+        payments: Array.isArray(d.payments) ? d.payments.length : 0,
+        workouts: Array.isArray(d.workouts) ? d.workouts.length : 0,
+        measurements: Array.isArray(d.measurements) ? d.measurements.length : 0,
+        checkins: Array.isArray(d.checkins) ? d.checkins.length : 0,
+        diets: Array.isArray(d.diets) ? d.diets.length : 0,
+      },
+    }))
+  );
+});
+
+// POST /api/users/deleted/:id/restore — restaura aluna e todos os seus dados (financeiro, treinos, evolução, etc.)
+router.post('/deleted/:id/restore', requireRole('admin', 'assessor'), async (req, res) => {
+  const mongoose = require('mongoose');
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: 'ID inválido' });
+  const { DeletedStudent, Payment, Workout, Session, WorkoutLog, Measurement, CheckIn, DietPlan } = require('../models');
+
+  const snapshot = await DeletedStudent.findById(req.params.id);
+  if (!snapshot) return res.status(404).json({ error: 'Registro não encontrado na lixeira' });
+
+  const rawUser = { ...(snapshot.userData || {}) };
+  const targetEmail = (rawUser.email || snapshot.email || '').toLowerCase().trim();
+
+  const existingByEmail = await User.findOne({ email: targetEmail });
+  if (existingByEmail && String(existingByEmail._id) !== String(rawUser._id)) {
+    return res.status(400).json({
+      error: `Já existe outro cadastro ativo usando o e-mail ${targetEmail}.`,
+    });
+  }
+
+  let restoredUser = existingByEmail;
+  if (!restoredUser) {
+    restoredUser = await User.create(rawUser);
+  }
+
+  const restoreCollection = async (Model, items) => {
+    if (!Array.isArray(items) || items.length === 0) return;
+    for (const item of items) {
+      try {
+        await Model.create(item);
+      } catch (e) {
+        // Ignora caso algum sub-registro já exista com o mesmo _id
+      }
+    }
+  };
+
+  await Promise.all([
+    restoreCollection(Payment, snapshot.payments),
+    restoreCollection(Workout, snapshot.workouts),
+    restoreCollection(WorkoutLog, snapshot.workoutLogs),
+    restoreCollection(Measurement, snapshot.measurements),
+    restoreCollection(Session, snapshot.sessions),
+    restoreCollection(CheckIn, snapshot.checkins),
+    restoreCollection(DietPlan, snapshot.diets),
+  ]);
+
+  await DeletedStudent.findByIdAndDelete(snapshot._id);
+  res.json({ ok: true, user: restoredUser.toJSON() });
+});
+
+// DELETE /api/users/deleted/:id — exclui definitivamente da lixeira
+router.delete('/deleted/:id', requireRole('admin'), async (req, res) => {
+  const { DeletedStudent } = require('../models');
+  await DeletedStudent.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
+
 // GET /api/users/:id/overview — visão completa da aluna (perfil, treinos, evolução, financeiro, check-ins)
 router.get('/:id/overview', requireRole('admin', 'personal', 'assessor'), async (req, res) => {
   const mongoose = require('mongoose');
@@ -206,17 +287,54 @@ router.put('/:id', requireRole('admin', 'personal', 'assessor'), async (req, res
 });
 
 router.delete('/:id', requireRole('admin'), async (req, res) => {
-  const user = await User.findByIdAndDelete(req.params.id);
+  const { Payment, Workout, Session, WorkoutLog, Measurement, CheckIn, DietPlan, Plan, DeletedStudent } = require('../models');
+  const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-  const { Payment, Workout, Session, WorkoutLog, Measurement } = require('../models');
+
+  // Antes de excluir, salva backup completo na Lixeira (DeletedStudent) para permitir restauração com 1 clique
+  if (user.role === 'aluno') {
+    const [payments, workouts, sessions, workoutLogs, measurements, checkins, diets, planDoc] = await Promise.all([
+      Payment.find({ studentId: user._id }).lean(),
+      Workout.find({ studentId: user._id }).lean(),
+      Session.find({ studentId: user._id }).lean(),
+      WorkoutLog.find({ studentId: user._id }).lean(),
+      Measurement.find({ studentId: user._id }).lean(),
+      CheckIn.find({ studentId: user._id }).lean(),
+      DietPlan.find({ studentId: user._id }).lean(),
+      user.planId ? Plan.findById(user.planId).lean() : Promise.resolve(null),
+    ]);
+
+    await DeletedStudent.create({
+      originalUserId: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
+      timeSlot: user.timeSlot || '',
+      planName: planDoc?.name || '',
+      userData: user.toObject(),
+      payments,
+      workouts,
+      sessions,
+      workoutLogs,
+      measurements,
+      checkins,
+      diets,
+      deletedBy: req.user?._id || null,
+      deletedAt: new Date(),
+    });
+  }
+
+  await User.findByIdAndDelete(user._id);
   await Promise.all([
     Payment.deleteMany({ studentId: user._id }),
     Workout.deleteMany({ $or: [{ studentId: user._id }, { personalId: user._id }] }),
     Session.deleteMany({ $or: [{ studentId: user._id }, { personalId: user._id }] }),
     WorkoutLog.deleteMany({ studentId: user._id }),
     Measurement.deleteMany({ studentId: user._id }),
+    CheckIn.deleteMany({ studentId: user._id }),
+    DietPlan.deleteMany({ studentId: user._id }),
   ]);
-  res.json({ ok: true });
+  res.json({ ok: true, movedToTrash: user.role === 'aluno' });
 });
 
 module.exports = router;

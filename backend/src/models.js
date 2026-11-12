@@ -231,6 +231,25 @@ const whatsAppWebhookEventSchema = new Schema({
   processedAt: { type: Date, default: Date.now },
 }, opts);
 
+const deletedStudentSchema = new Schema({
+  originalUserId: { type: Schema.Types.ObjectId, index: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, default: '' },
+  timeSlot: { type: String, default: '' },
+  planName: { type: String, default: '' },
+  userData: { type: Schema.Types.Mixed, required: true },
+  payments: [{ type: Schema.Types.Mixed }],
+  workouts: [{ type: Schema.Types.Mixed }],
+  workoutLogs: [{ type: Schema.Types.Mixed }],
+  measurements: [{ type: Schema.Types.Mixed }],
+  sessions: [{ type: Schema.Types.Mixed }],
+  checkins: [{ type: Schema.Types.Mixed }],
+  diets: [{ type: Schema.Types.Mixed }],
+  deletedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+  deletedAt: { type: Date, default: Date.now },
+}, opts);
+
 module.exports = {
   User: mongoose.model('User', userSchema),
   Plan: mongoose.model('Plan', planSchema),
@@ -248,6 +267,7 @@ module.exports = {
   WhatsAppTemplate: mongoose.model('WhatsAppTemplate', whatsAppTemplateSchema),
   WhatsAppMessageLog: mongoose.model('WhatsAppMessageLog', whatsAppMessageLogSchema),
   WhatsAppWebhookEvent: mongoose.model('WhatsAppWebhookEvent', whatsAppWebhookEventSchema),
+  DeletedStudent: mongoose.model('DeletedStudent', deletedStudentSchema),
 };
 
 
